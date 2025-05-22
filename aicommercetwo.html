@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI | AI-Powered Commerce</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10a37f;
+            --primary-light: rgba(16, 163, 127, 0.1);
+            --primary-dark: #0d8a6a;
+            --secondary: #202123;
+            --light: #f7f7f8;
+            --dark: #343541;
+            --gradient: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: white;
+            color: var(--secondary);
+            overflow-x: hidden;
+        }
+        
+        .gradient-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .gradient-bg {
+            background: var(--gradient);
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(16, 163, 127, 0.3);
+        }
+        
+        .hover-glow:hover {
+            box-shadow: 0 0 30px rgba(16, 163, 127, 0.4);
+        }
+        
+        .ai-pattern {
+            background-image: radial-gradient(circle, var(--primary-light) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .transition-slow {
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Floating Particles Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-primary opacity-10 floating" style="animation-delay: 0s;"></div>
+        <div class="absolute top-1/3 right-1/5 w-12 h-12 rounded-full bg-primary opacity-10 floating" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-1/4 left-2/5 w-6 h-6 rounded-full bg-primary opacity-10 floating" style="animation-delay: 2s;"></div>
+        <div class="absolute top-2/5 right-1/3 w-10 h-10 rounded-full bg-primary opacity-10 floating" style="animation-delay: 3s;"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="relative z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-10">
+                    <a href="#" class="text-2xl font-bold gradient-text">Nexus<span class="text-primary">AI</span></a>
+                    <div class="hidden md:flex space-x-8">
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary font-medium">Products</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary font-medium">Solutions</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary font-medium">Developers</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary font-medium">Resources</a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-gray-700 hover:text-primary transition-slow">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <a href="#" class="text-gray-700 hover:text-primary transition-slow relative">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </a>
+                    <a href="#" class="px-5 py-2 rounded-full border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-slow">
+                        Sign In
+                    </a>
+                    <a href="#" class="px-5 py-2 rounded-full gradient-bg text-white font-medium hover-glow transition-slow">
+                        Get Started
+                    </a>
+                </div>
+                <button class="md:hidden text-gray-700">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="relative z-10">
+                <div class="text-center mb-16">
+                    <span class="inline-block px-4 py-2 rounded-full bg-primary bg-opacity-10 text-primary font-medium mb-6">
+                        Introducing NexusAI Pro
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-bold text-gray-900 leading-tight mb-6 max-w-4xl mx-auto">
+                        The Future of <span class="gradient-text">AI-Powered</span> Commerce
+                    </h1>
+                    <p class="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
+                        Transform your business with our cutting-edge AI solutions designed to optimize, personalize, and revolutionize your e-commerce experience.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="#" class="px-8 py-4 rounded-full gradient-bg text-white font-medium text-lg hover-glow transition-slow flex items-center justify-center">
+                            Explore Products <i class="fas fa-arrow-right ml-3"></i>
+                        </a>
+                        <a href="#" class="px-8 py-4 rounded-full border border-gray-300 text-gray-700 font-medium text-lg hover:bg-gray-50 transition-slow flex items-center justify-center">
+                            <i class="fas fa-play-circle mr-3 text-primary"></i> Watch Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating AI Visualization -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl opacity-20 md:opacity-30">
+            <div class="relative w-full h-96">
+                <div class="absolute top-0 left-0 w-full h-full ai-pattern rounded-3xl"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full gradient-bg opacity-30 blur-3xl"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full gradient-bg opacity-40 blur-xl"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="relative py-20 bg-gradient-to-b from-white to-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Our <span class="gradient-text">AI Solutions</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Harness the power of artificial intelligence to elevate your business
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Product 1 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden transition-slow hover:shadow-2xl hover:-translate-y-2">
+                    <div class="h-48 gradient-bg flex items-center justify-center">
+                        <div class="relative w-32 h-32">
+                            <div class="absolute inset-0 bg-white bg-opacity-30 rounded-full blur-md"></div>
+                            <div class="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-robot text-4xl gradient-text"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-900">AI Recommender</h3>
+                            <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">BESTSELLER</span>
+                        </div>
+                        <p class="text-gray-600 mb-6">
+                            Intelligent product recommendations that boost conversions by up to 40% with our advanced machine learning algorithms.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-gray-900">$99<span class="text-base font-normal text-gray-500">/mo</span></span>
+                            <a href="#" class="text-primary font-medium flex items-center">
+                                Details <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden transition-slow hover:shadow-2xl hover:-translate-y-2">
+                    <div class="h-48 bg-gray-900 flex items-center justify-center">
+                        <div class="relative w-32 h-32">
+                            <div class="absolute inset-0 bg-primary bg-opacity-30 rounded-full blur-md"></div>
+                            <div class="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-comments text-4xl text-gray-900"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-center mb-4">
+                            <h3 class="text-xl font-bold text-gray-900">Commerce Chat</h3>
+                            <span class="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">NEW</span>
+                        </div>
+                        <p class="text-gray-600 mb-6">
+                            24/7 AI-powered customer support that resolves 80% of inquiries instantly, reducing support costs by 60%.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-gray-900">$149<span class="text-base font-normal text-gray-500">/mo</span></span>
+                            <a href="#" class="text-primary font-medium flex items-center">
+                                Details <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden transition-slow hover:shadow-2xl hover:-translate-y-2">
+                    <div class="h-48 bg-gray-800 flex items-center justify-center">
+                        <div class="relative w-32 h-32">
+                            <div class="absolute inset-0 bg-primary bg-opacity-30 rounded-full blur-md"></div>
+                            <div class="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-chart-network text-4xl text-gray-900"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Predictive Analytics</h3>
+                        <p class="text-gray-600 mb-6">
+                            Forecast demand, optimize pricing, and identify trends with our state-of-the-art predictive models.
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-gray-900">$199<span class="text-base font-normal text-gray-500">/mo</span></span>
+                            <a href="#" class="text-primary font-medium flex items-center">
+                                Details <i class="fas fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                <a href="#" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-full text-gray-700 font-medium hover:bg-gray-50 transition-slow">
+                    View all products <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Capabilities -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="relative">
+                        <div class="absolute -left-8 -top-8 w-32 h-32 rounded-full gradient-bg opacity-20 blur-xl"></div>
+                        <div class="relative bg-gray-50 rounded-2xl p-8 shadow-lg">
+                            <div class="mb-6">
+                                <span class="inline-block px-4 py-2 rounded-full bg-primary bg-opacity-10 text-primary font-medium">
+                                    AI Technology
+                                </span>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                                Advanced <span class="gradient-text">Machine Learning</span> at Scale
+                            </h2>
+                            <p class="text-lg text-gray-600 mb-8">
+                                Our proprietary neural networks process billions of data points to deliver insights and automation that transform your e-commerce operations.
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-6 shadow-sm">
+                                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center text-white mb-4">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Real-time Processing</h3>
+                                    <p class="text-gray-600">
+                                        Analyze customer behavior and market trends in milliseconds.
+                                    </p>
+                                </div>
+                                <div class="bg-white rounded-xl p-6 shadow-sm">
+                                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center text-white mb-4">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Enterprise Security</h3>
+                                    <p class="text-gray-600">
+                                        Military-grade encryption for all your data and transactions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:w-1/2 mt-12 lg:mt-0">
+                    <div class="relative">
+                        <div class="absolute -right-8 -bottom-8 w-64 h-64 rounded-full gradient-bg opacity-10 blur-3xl"></div>
+                        <div class="relative bg-gray-900 rounded-2xl overflow-hidden">
+                            <div class="aspect-w-16 aspect-h-9">
+                                <div class="w-full h-full flex items-center justify-center p-12">
+                                    <div class="relative w-full h-full">
+                                        <!-- AI Visualization -->
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-32 h-32 rounded-full gradient-bg opacity-30 blur-xl"></div>
+                                        </div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-24 h-24 rounded-full gradient-bg opacity-40 blur-lg"></div>
+                                        </div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-16 h-16 rounded-full gradient-bg opacity-60 blur"></div>
+                                        </div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-8 h-8 rounded-full gradient-bg"></div>
+                                        </div>
+                                        <div class="absolute top-1/4 left-1/4 w-6 h-6 rounded-full bg-white opacity-20"></div>
+                                        <div class="absolute top-1/3 right-1/4 w-4 h-4 rounded-full bg-white opacity-20"></div>
+                                        <div class="absolute bottom-1/4 left-2/5 w-5 h-5 rounded-full bg-white opacity-20"></div>
+                                        <div class="absolute top-2/5 right-1/3 w-3 h-3 rounded-full bg-white opacity-20"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-8 bg-gray-900">
+                                <h3 class="text-xl font-bold text-white mb-2">NexusAI Neural Network</h3>
+                                <p class="text-gray-400">
+                                    Our proprietary architecture delivers unparalleled performance and accuracy.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Trusted by <span class="gradient-text">Industry Leaders</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Join thousands of businesses transforming their operations with AI
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full gradient-bg flex items-center justify-center text-white font-bold mr-4">S</div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Sarah Johnson</h4>
+                            <p class="text-gray-500">CTO, TechNova</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        "Implementing NexusAI's recommendation engine increased our average order value by 28% in just three months. The results have been transformative."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-white font-bold mr-4">M</div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Michael Chen</h4>
+                            <p class="text-gray-500">CEO, OmniRetail</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        "The predictive analytics saved us over $200k in inventory costs last quarter. The AI's accuracy in forecasting demand is uncanny."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold mr-4">A</div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Aisha Williams</h4>
+                            <p class="text-gray-500">Director of E-commerce, LuxeBrands</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        "Our customer satisfaction scores jumped 35% after deploying NexusAI's chat solution. It handles 80% of inquiries without human intervention."
+                    </p>
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                <a href="#" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-full text-gray-700 font-medium hover:bg-gray-50 transition-slow">
+                    Read more case studies <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-bg">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Transform Your Business with AI?
+            </h2>
+            <p class="text-xl text-white text-opacity-90 mb-10">
+                Join the AI commerce revolution and start seeing results in as little as 24 hours.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#" class="px-8 py-4 rounded-full bg-white text-primary font-medium text-lg hover-glow transition-slow">
+                    Get Started for Free
+                </a>
+                <a href="#" class="px-8 py-4 rounded-full border border-white border-opacity-30 text-white font-medium text-lg hover:bg-white hover:bg-opacity-10 transition-slow">
+                    Schedule a Demo
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-20 pb-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <a href="#" class="text-2xl font-bold gradient-text mb-4 inline-block">NexusAI</a>
+                    <p class="text-gray-400 mb-6">
+                        The future of AI-powered commerce. Transform your business with our cutting-edge solutions.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-slow">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-slow">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-slow">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-slow">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Products</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">AI Recommender</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Commerce Chat</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Predictive Analytics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Smart Ads</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Dynamic Pricing</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Resources</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Case Studies</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Webinars</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Press</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-slow">Legal</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">
+                    © 2023 NexusAI Technologies. All rights reserved.
+                </p>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-slow">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-slow">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-slow">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation for demo purposes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements when they come into view
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.transition-slow');
+                
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (elementPosition < windowHeight - 100) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            };
+            
+            // Set initial state
+            document.querySelectorAll('.transition-slow').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+            
+            // Trigger on load
+            animateOnScroll();
+            
+            // Trigger on scroll
+            window.addEventListener('scroll', animateOnScroll);
+        });
+    </script>
+</body>
+</html>
