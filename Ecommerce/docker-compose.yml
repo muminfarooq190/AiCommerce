@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+    Ecommerce:
+        build:
+            context: .
+            dockerfile: Ecommerce/Dockerfile
+        container_name: Ecommerce_container
+        ports:
+            - "60:8080"
+            - "61:8081"
+        depends_on:
+            - sqlserver
+        networks:
+            - sql_shared_network
+
+    sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        container_name: sqlserver
+        environment:
+          - ACCEPT_EULA=Y
+          - SA_PASSWORD=YourStrong!Passw0rd
+        ports:
+          - "1433:1433"
+        networks:
+          - sql_shared_network
+        volumes:
+          - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
+
+networks:
+  sql_shared_network:
