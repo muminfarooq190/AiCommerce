@@ -123,3 +123,4 @@ Thumbs.db
 
 # dotnet watch
 **/node_modules/
+/.vs/slnx.sqlite
