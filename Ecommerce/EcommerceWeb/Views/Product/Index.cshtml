@@ -1,0 +1,517 @@
+﻿@{
+    ViewData["Title"] = "Product Page";
+}
+<div>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(16, 163, 127, 0.3);
+        }
+
+        .category-chip:hover {
+            background-color: #10a37f;
+            color: white;
+        }
+
+        .search-bar:focus {
+            outline: 2px solid #10a37f;
+        }
+
+        .animated-text {
+            background: linear-gradient(90deg, #10a37f, #1a73e8, #10a37f);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+        @@keyframes shine {
+            to
+
+        {
+            background-position: 200% center;
+        }
+
+        }
+
+        .chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+
+        .image-gallery-thumbnail.active {
+            border: 2px solid #10a37f;
+        }
+
+        .quantity-selector button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .cart-item:hover {
+            background-color: #f0fdf4;
+        }
+    </style>
+
+    <!-- Breadcrumbs -->
+    <div class="bg-white py-3 px-4 shadow-sm">
+        <div class="container mx-auto">
+            <nav class="flex space-x-2 text-sm text-gray-600">
+                <a href="#" class="hover:text-ai-blue">Home</a>
+                <span>/</span>
+                <a href="#" class="hover:text-ai-blue">Electronics</a>
+                <span>/</span>
+                <a href="#" class="hover:text-ai-blue">AI Devices</a>
+                <span>/</span>
+                <span class="text-ai-blue">Neural AI Processor Chip</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Product Detail Section -->
+    <section class="py-8 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Product Images -->
+                <div>
+                    <div class="relative overflow-hidden rounded-xl mb-4 h-96 bg-gray-100 flex items-center justify-center">
+                        <img src="https://via.placeholder.com/800x600?text=AI+Processor+Main" alt="AI Processor" class="w-full h-full object-contain">
+                        <div class="absolute top-4 left-4 bg-ai-blue text-white text-xs font-bold px-2 py-1 rounded">NEW</div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="h-24 bg-gray-100 rounded-lg cursor-pointer border-2 border-ai-blue overflow-hidden">
+                            <img src="https://via.placeholder.com/200x200?text=Image+1" alt="Thumbnail 1" class="w-full h-full object-cover">
+                        </div>
+                        <div class="h-24 bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                            <img src="https://via.placeholder.com/200x200?text=Image+2" alt="Thumbnail 2" class="w-full h-full object-cover">
+                        </div>
+                        <div class="h-24 bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                            <img src="https://via.placeholder.com/200x200?text=Image+3" alt="Thumbnail 3" class="w-full h-full object-cover">
+                        </div>
+                        <div class="h-24 bg-gray-100 rounded-lg cursor-pointer overflow-hidden">
+                            <img src="https://via.placeholder.com/200x200?text=Image+4" alt="Thumbnail 4" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div>
+                    <h1 class="text-3xl font-bold mb-2 text-ai-dark">Neural AI Processor Chip - X9000</h1>
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400 mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="text-gray-600 text-sm">(128 reviews)</span>
+                        <span class="mx-2 text-gray-300">|</span>
+                        <span class="text-green-600 text-sm font-medium"><i class="fas fa-check-circle mr-1"></i> In Stock</span>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <span class="text-3xl font-bold text-ai-blue">$249.99</span>
+                            <span class="text-xl text-gray-500 line-through">$299.99</span>
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">16% OFF</span>
+                        </div>
+                        <p class="text-gray-600">Price per unit | MOQ: 10 units</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-2">Key Features:</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li>High-performance AI accelerator for edge computing</li>
+                            <li>8-core neural processing unit 2.5GHz</li>
+                            <li>Supports all major AI frameworks</li>
+                            <li>Low power consumption (15W TDP)</li>
+                            <li>PCIe 4.0 interface</li>
+                            <li>256MB on-chip memory</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-bold mb-2">Quantity:</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                <button class="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50" disabled>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" value="10" min="10" step="10" class="w-16 text-center border-0 focus:ring-0">
+                                <button class="px-3 py-2 bg-gray-100 hover:bg-gray-200">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <span class="text-sm text-gray-600">Minimum Order: 10 units</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <button class="flex-1 bg-ai-blue text-white py-3 px-6 rounded-lg hover:bg-opacity-90 font-bold">
+                            <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+                        </button>
+                        <button class="flex-1 bg-white border border-ai-blue text-ai-blue py-3 px-6 rounded-lg hover:bg-ai-blue hover:text-white font-bold">
+                            <i class="fas fa-bolt mr-2"></i> Buy Now
+                        </button>
+                        <button class="w-12 h-12 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100">
+                            <i class="far fa-heart text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <span><i class="fas fa-truck mr-1"></i> Free shipping on orders over $500</span>
+                            <span><i class="fas fa-shield-alt mr-1"></i> Trade Assurance protection</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Tabs -->
+    <section class="py-8 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-8">
+                    <button class="py-3 px-1 border-b-2 border-ai-blue font-medium text-ai-blue">Description</button>
+                    <button class="py-3 px-1 text-gray-500 hover:text-ai-blue">Specifications</button>
+                    <button class="py-3 px-1 text-gray-500 hover:text-ai-blue">Reviews (128)</button>
+                    <button class="py-3 px-1 text-gray-500 hover:text-ai-blue">Shipping & Payment</button>
+                    <button class="py-3 px-1 text-gray-500 hover:text-ai-blue">Supplier Info</button>
+                </nav>
+            </div>
+
+            <div class="py-6">
+                <h3 class="text-xl font-bold mb-4">Product Description</h3>
+                <div class="prose max-w-none">
+                    <p>The Neural AI Processor Chip X9000 is a breakthrough in edge AI computing, designed to bring powerful machine learning capabilities to embedded systems and IoT devices. With its 8-core neural processing architecture, it delivers unprecedented performance for real-time AI applications while maintaining exceptional power efficiency.</p>
+                    
+                    <h4 class="text-lg font-bold mt-6 mb-2">Key Advantages:</h4>
+                    <ul>
+                        <li><strong>Unmatched Performance:</strong> 32 TOPS (Tera Operations Per Second) for intensive AI workloads</li>
+                        <li><strong>Versatile Compatibility:</strong> Supports TensorFlow, PyTorch, ONNX, and other popular frameworks</li>
+                        <li><strong>Edge-Optimized:</strong> Low-latency processing ideal for real-time applications</li>
+                        <li><strong>Energy Efficient:</strong> 15W TDP makes it perfect for power-constrained environments</li>
+                    </ul>
+
+                    <h4 class="text-lg font-bold mt-6 mb-2">Applications:</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                        <div class="bg-ai-light p-4 rounded-lg text-center">
+                            <div class="w-12 h-12 bg-ai-blue bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-robot text-ai-blue"></i>
+                            </div>
+                            <span class="font-medium">Robotics</span>
+                        </div>
+                        <div class="bg-ai-light p-4 rounded-lg text-center">
+                            <div class="w-12 h-12 bg-ai-blue bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-camera text-ai-blue"></i>
+                            </div>
+                            <span class="font-medium">Smart Vision</span>
+                        </div>
+                        <div class="bg-ai-light p-4 rounded-lg text-center">
+                            <div class="w-12 h-12 bg-ai-blue bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-car text-ai-blue"></i>
+                            </div>
+                            <span class="font-medium">Autonomous Vehicles</span>
+                        </div>
+                        <div class="bg-ai-light p-4 rounded-lg text-center">
+                            <div class="w-12 h-12 bg-ai-blue bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-industry text-ai-blue"></i>
+                            </div>
+                            <span class="font-medium">Industrial IoT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Products -->
+    <section class="py-12 bg-ai-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-8 text-ai-dark">You May Also Like</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Product 1 -->
+                <div class="product-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=AI+Drone" alt="AI Drone" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">HOT</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">AI Surveillance Drone</h3>
+                        <p class="text-gray-600 text-sm mb-2">4K camera with object tracking</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span class="text-gray-600 text-xs ml-1">(256)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-ai-blue">$599.00</span>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 2 -->
+                <div class="product-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Smart+Watch" alt="Smart Watch" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">LIMITED</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">Health Smartwatch</h3>
+                        <p class="text-gray-600 text-sm mb-2">AI-powered health insights</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="text-gray-600 text-xs ml-1">(512)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-ai-blue">$179.99</span>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 3 -->
+                <div class="product-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Robot+Vacuum" alt="Robot Vacuum" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded">SALE</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">AI Robot Vacuum</h3>
+                        <p class="text-gray-600 text-sm mb-2">Smart mapping technology</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-600 text-xs ml-1">(384)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-ai-blue">$349.99</span>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product 4 -->
+                <div class="product-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition duration-300 border border-gray-100">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=AI+Speaker" alt="AI Speaker" class="w-full h-48 object-cover">
+                        <div class="absolute top-2 right-2 bg-ai-blue text-white text-xs font-bold px-2 py-1 rounded">NEW</div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">AI Smart Speaker</h3>
+                        <p class="text-gray-600 text-sm mb-2">Voice assistant with NLP</p>
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-600 text-xs ml-1">(217)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-ai-blue">$129.99</span>
+                            <span class="text-green-600 text-sm font-medium">In Stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shopping Cart (Modal) -->
+    <div id="cartModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="border-b border-gray-200 p-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-ai-dark">Your Shopping Cart (3 items)</h3>
+                <button id="closeCartModal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto">
+                <!-- Cart Items -->
+                <div class="divide-y divide-gray-200">
+                    <!-- Item 1 -->
+                    <div class="cart-item p-4 hover:bg-ai-light transition">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                <img src="https://via.placeholder.com/100?text=AI+Chip" alt="AI Chip" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="font-medium">Neural AI Processor Chip</h4>
+                                    <span class="font-bold text-ai-blue">$249.99</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-2">X9000 Model | MOQ: 10 units</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <input type="number" value="10" min="10" step="10" class="w-12 text-center border-0 focus:ring-0 text-sm">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <button class="text-red-500 hover:text-red-700 text-sm">
+                                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="cart-item p-4 hover:bg-ai-light transition">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                <img src="https://via.placeholder.com/100?text=AI+Drone" alt="AI Drone" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="font-medium">AI Surveillance Drone</h4>
+                                    <span class="font-bold text-ai-blue">$599.00</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-2">4K camera with tracking</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <input type="number" value="1" min="1" class="w-12 text-center border-0 focus:ring-0 text-sm">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <button class="text-red-500 hover:text-red-700 text-sm">
+                                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3 -->
+                    <div class="cart-item p-4 hover:bg-ai-light transition">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-20 h-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                <img src="https://via.placeholder.com/100?text=Smart+Watch" alt="Smart Watch" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between">
+                                    <h4 class="font-medium">Health Smartwatch</h4>
+                                    <span class="font-bold text-ai-blue">$179.99</span>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-2">AI health insights</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <input type="number" value="2" min="1" class="w-12 text-center border-0 focus:ring-0 text-sm">
+                                        <button class="px-2 py-1 bg-gray-100 hover:bg-gray-200">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                    </div>
+                                    <button class="text-red-500 hover:text-red-700 text-sm">
+                                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coupon Code -->
+                <div class="p-4 border-t border-gray-200">
+                    <h4 class="font-bold mb-2">Apply Coupon Code</h4>
+                    <div class="flex">
+                        <input type="text" placeholder="Enter coupon code" class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 focus:outline-none">
+                        <button class="bg-ai-blue text-white px-4 rounded-r-lg hover:bg-opacity-90">Apply</button>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="p-4 bg-gray-50">
+                    <h4 class="font-bold mb-4">Order Summary</h4>
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal (3 items)</span>
+                            <span class="font-medium">$1,298.97</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-medium text-green-600">Free</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tax</span>
+                            <span class="font-medium">$129.90</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Trade Assurance</span>
+                            <span class="font-medium text-green-600">Included</span>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 pt-3 mb-4">
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total</span>
+                            <span class="text-ai-blue">$1,428.87</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="flex-1 bg-ai-blue text-white py-3 px-6 rounded-lg hover:bg-opacity-90 font-bold">
+                            Proceed to Checkout
+                        </button>
+                        <button class="flex-1 bg-white border border-ai-blue text-ai-blue py-3 px-6 rounded-lg hover:bg-ai-blue hover:text-white font-bold">
+                            Continue Shopping
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

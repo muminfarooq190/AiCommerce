@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EcommerceWeb</title>
+    <script type="importmap"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EcommerceWeb.styles.css" asp-append-version="true" />
+</head>
+<body class="bg-ai-light min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">OT</div>
+                <h1 class="text-2xl font-bold text-ai-dark">Open<span class="text-ai-blue">Trade</span></h1>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex items-center space-x-6">
+                <a href="#" class="hidden md:block hover:text-ai-blue"><i class="fas fa-globe mr-1"></i> Global</a>
+                <a href="#" class="hidden md:block hover:text-ai-blue"><i class="fas fa-question-circle mr-1"></i> Help</a>
+            </nav>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <!-- Footer -->
+    <footer class="bg-white py-6 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-600 text-sm mb-4 md:mb-0">
+                    © 2023 OpenTrade. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-ai-blue"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-ai-blue"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-ai-blue"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-ai-blue"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

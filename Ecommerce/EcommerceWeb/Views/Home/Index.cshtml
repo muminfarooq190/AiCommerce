@@ -1,0 +1,462 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#10a37f',
+                    'ai-dark': '#202123',
+                    'ai-light': '#f7f7f8',
+                    'ai-gray': '#343541',
+                },
+                animation: {
+                    'float': 'float 6s ease-in-out infinite',
+                    'float-reverse': 'float-reverse 7s ease-in-out infinite',
+                    'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                },
+                keyframes: {
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-20px)' },
+                    },
+                    'float-reverse': {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(20px)' },
+                    }
+                }
+            }
+        }
+    }
+</script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card:hover .category-icon {
+            transform: scale(1.1);
+        }
+
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(16, 163, 127, 0.5);
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+    </style>
+    <!-- Header -->
+        
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden gradient-bg text-white">
+        <div class="container mx-auto px-4 py-20 md:py-32 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0 relative z-10">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                    The Future of <span class="gradient-text">AI Commerce</span> is Here
+                </h1>
+                <p class="text-lg md:text-xl mb-8 opacity-90">
+                    Discover cutting-edge AI products and components from global suppliers with our intelligent marketplace platform.
+                </p>
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                    <button class="bg-white text-ai-blue px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex items-center justify-center">
+                        <i class="fas fa-rocket mr-2"></i> Explore Products
+                    </button>
+                    <button class="bg-transparent border-2 border-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-ai-blue transition flex items-center justify-center">
+                        <i class="fas fa-play-circle mr-2"></i> Watch Demo
+                    </button>
+                </div>
+            </div>
+            <div class="md:w-1/2 relative">
+                <div class="relative max-w-lg mx-auto">
+                    <img src="https://via.placeholder.com/600x500?text=AI+Products" alt="AI Products" class="w-full h-auto rounded-xl shadow-2xl relative z-10">
+                    <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-400 rounded-xl opacity-20 animate-float"></div>
+                    <div class="absolute -top-6 -right-6 w-32 h-32 bg-green-400 rounded-xl opacity-20 animate-float-reverse"></div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-ai-light to-transparent"></div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-ai-dark mb-3">Shop by Category</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Browse our extensive range of AI-powered products and components</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                <!-- Category 1 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-microchip text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">AI Chips</h3>
+                    <p class="text-sm text-gray-500">128 products</p>
+                </a>
+
+                <!-- Category 2 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-robot text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">Robotics</h3>
+                    <p class="text-sm text-gray-500">76 products</p>
+                </a>
+
+                <!-- Category 3 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-eye text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">Vision Systems</h3>
+                    <p class="text-sm text-gray-500">92 products</p>
+                </a>
+
+                <!-- Category 4 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-brain text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">Neural Networks</h3>
+                    <p class="text-sm text-gray-500">54 products</p>
+                </a>
+
+                <!-- Category 5 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-server text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">AI Servers</h3>
+                    <p class="text-sm text-gray-500">68 products</p>
+                </a>
+
+                <!-- Category 6 -->
+                <a href="#" class="category-card bg-ai-light rounded-xl p-6 text-center transition hover:shadow-md">
+                    <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-language text-white text-2xl category-icon transition"></i>
+                    </div>
+                    <h3 class="font-semibold text-ai-dark mb-1">NLP Tools</h3>
+                    <p class="text-sm text-gray-500">43 products</p>
+                </a>
+            </div>
+
+            <div class="text-center mt-10">
+                <button class="border-2 border-ai-blue text-ai-blue px-6 py-2 rounded-lg font-medium hover:bg-ai-blue hover:text-white transition">
+                    View All Categories <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="py-16 bg-ai-light">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+                <div>
+                    <h2 class="text-3xl font-bold text-ai-dark mb-2">Featured Products</h2>
+                    <p class="text-gray-600">Handpicked selection of premium AI solutions</p>
+                </div>
+                <div class="flex space-x-3 mt-4 md:mt-0">
+                    <button class="featured-prev w-10 h-10 rounded-full bg-white border border-gray-300 text-ai-blue hover:bg-gray-50 transition">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="featured-next w-10 h-10 rounded-full bg-white border border-gray-300 text-ai-blue hover:bg-gray-50 transition">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Product 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition duration-300">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300?text=AI+Processor" alt="AI Processor" class="w-full h-48 object-cover">
+                        <div class="absolute top-3 right-3 bg-ai-blue text-white text-xs font-bold px-2 py-1 rounded-full">
+                            -15%
+                        </div>
+                        <button class="absolute top-3 left-3 bg-white text-ai-blue w-8 h-8 rounded-full flex items-center justify-center hover:text-red-500 transition">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center mb-1">
+                            <div class="flex text-yellow-400 text-sm">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-500 text-xs ml-2">(48)</span>
+                        </div>
+                        <h3 class="font-semibold text-ai-dark mb-1">Neural AI Processor Chip</h3>
+                        <p class="text-gray-500 text-sm mb-3">Next-gen AI acceleration for edge computing</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-ai-blue font-bold">$249.99</span>
+                                <span class="text-gray-400 text-sm line-through ml-2">$299.99</span>
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center hover:bg-opacity-90 transition">
+                                <i class="fas fa-shopping-cart text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition duration-300">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300?text=Smart+Drone" alt="Smart Drone" class="w-full h-48 object-cover">
+                        <button class="absolute top-3 left-3 bg-white text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:text-red-500 transition">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center mb-1">
+                            <div class="flex text-yellow-400 text-sm">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span class="text-gray-500 text-xs ml-2">(32)</span>
+                        </div>
+                        <h3 class="font-semibold text-ai-dark mb-1">AI-Powered Surveillance Drone</h3>
+                        <p class="text-gray-500 text-sm mb-3">Autonomous flight with object recognition</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-ai-blue font-bold">$599.00</span>
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center hover:bg-opacity-90 transition">
+                                <i class="fas fa-shopping-cart text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition duration-300">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300?text=Smart+Watch" alt="Smart Watch" class="w-full h-48 object-cover">
+                        <div class="absolute top-3 right-3 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            NEW
+                        </div>
+                        <button class="absolute top-3 left-3 bg-white text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:text-red-500 transition">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center mb-1">
+                            <div class="flex text-yellow-400 text-sm">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="text-gray-500 text-xs ml-2">(87)</span>
+                        </div>
+                        <h3 class="font-semibold text-ai-dark mb-1">Health Monitoring Smartwatch</h3>
+                        <p class="text-gray-500 text-sm mb-3">AI-powered health insights and tracking</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-ai-blue font-bold">$179.99</span>
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center hover:bg-opacity-90 transition">
+                                <i class="fas fa-shopping-cart text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition duration-300">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/400x300?text=AI+Speaker" alt="AI Speaker" class="w-full h-48 object-cover">
+                        <button class="absolute top-3 left-3 bg-white text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:text-red-500 transition">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center mb-1">
+                            <div class="flex text-yellow-400 text-sm">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-500 text-xs ml-2">(63)</span>
+                        </div>
+                        <h3 class="font-semibold text-ai-dark mb-1">Smart Voice Assistant Speaker</h3>
+                        <p class="text-gray-500 text-sm mb-3">Natural language processing with premium audio</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-ai-blue font-bold">$129.99</span>
+                                <span class="text-gray-400 text-sm line-through ml-2">$159.99</span>
+                            </div>
+                            <button class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center hover:bg-opacity-90 transition">
+                                <i class="fas fa-shopping-cart text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <button class="bg-ai-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+                    View All Products <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Features Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-ai-dark mb-3">Why Choose OpenTrade?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Our AI-powered platform revolutionizes how you discover and purchase technology products</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-ai-light rounded-xl p-8 text-center hover:shadow-md transition">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-bolt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-ai-dark mb-3">Smart Matching</h3>
+                    <p class="text-gray-600">Our AI matches you with the perfect products based on your needs and preferences.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-ai-light rounded-xl p-8 text-center hover:shadow-md transition">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-shield-alt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-ai-dark mb-3">Verified Suppliers</h3>
+                    <p class="text-gray-600">All suppliers undergo rigorous verification to ensure quality and reliability.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-ai-light rounded-xl p-8 text-center hover:shadow-md transition">
+                    <div class="w-20 h-20 gradient-bg rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-globe text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-ai-dark mb-3">Global Logistics</h3>
+                    <p class="text-gray-600">Seamless worldwide shipping with real-time tracking and customs clearance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 bg-ai-light parallax" style="background-image: url('https://via.placeholder.com/1920x600?text=Background+Pattern');">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-ai-dark mb-3">What Our Customers Say</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Trusted by thousands of businesses and individuals worldwide</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                            <img src="https://via.placeholder.com/100x100?text=User" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Sarah Johnson</h4>
+                            <p class="text-gray-500 text-sm">CTO, TechSolutions Inc.</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600">"OpenTrade's AI matching system helped us find the perfect neural processors for our edge computing devices. The quality exceeded our expectations."</p>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                            <img src="https://via.placeholder.com/100x100?text=User" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">Michael Chen</h4>
+                            <p class="text-gray-500 text-sm">Founder, Robotics Lab</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="text-gray-600">"The global logistics network saved us weeks of shipping time. We received our order from Germany to Singapore in just 3 days!"</p>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full overflow-hidden mr-4">
+                            <img src="https://via.placeholder.com/100x100?text=User" alt="User" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">David Rodriguez</h4>
+                            <p class="text-gray-500 text-sm">AI Researcher</p>
+                        </div>
+                    </div>
+                    <div class="flex text-yellow-400 mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600">"As an individual researcher, I appreciate how OpenTrade makes cutting-edge components accessible at competitive prices."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Experience the Future of Commerce?</h2>
+            <p class="text-xl opacity-90 max-w-2xl mx-auto mb-8">Join thousands of satisfied customers who trust OpenTrade for their AI technology needs.</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <button class="bg-white text-ai-blue px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+                    Get Started Now
+                </button>
+                <button class="bg-transparent border-2 border-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-ai-blue transition">
+                    Contact Sales
+                </button>
+            </div>
+        </div>
+    </section>

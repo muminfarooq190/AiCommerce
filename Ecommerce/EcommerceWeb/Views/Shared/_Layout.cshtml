@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EcommerceWeb</title>
+    <script type="importmap"></script>    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/EcommerceWeb.styles.css" asp-append-version="true" />
+</head>
+<body class="bg-ai-light text-gray-800 font-sans">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">OT</div>
+                <h1 class="text-2xl font-bold text-ai-dark">Open<span class="text-ai-blue">Trade</span></h1>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:flex flex-1 mx-8">
+                <div class="relative w-full max-w-xl">
+                    <input type="text" placeholder="Search for AI products, components, and more..."
+                           class="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="absolute right-0 top-0 h-full bg-ai-blue text-white px-4 rounded-r-full hover:bg-opacity-90 transition">
+                        Search
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex items-center space-x-6">
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-globe mr-1"></i> Global</a>
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-heart mr-1"></i> Favorites</a>
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-user mr-1"></i> Account</a>
+                <button class="relative hover:text-ai-blue transition">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-ai-blue text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                </button>
+                <button class="md:hidden text-ai-dark">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <!-- Footer -->
+    <footer class="bg-ai-dark text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-sm mr-2">OT</div>
+                        OpenTrade
+                    </h3>
+                    <p class="text-gray-400">The AI-powered global marketplace connecting businesses with intelligent sourcing solutions.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Buy</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Product Categories</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Suppliers by Region</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Request for Quotation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Buyer Central</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Sell</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Supplier Membership</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Learn to Sell</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Seller Central</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Shows</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Assurance</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Logistics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Inspection Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">AI Solutions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sustainability</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                    © 2023 OpenTrade. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chat Assistant -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="chatButton" class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center text-white shadow-lg hover:shadow-xl transition animate-pulse-slow">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
+        <div id="chatWindow" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-t-lg rounded-bl-lg shadow-xl overflow-hidden">
+            <div class="bg-ai-blue text-white p-3 flex justify-between items-center">
+                <h3 class="font-bold">AI Trade Assistant</h3>
+                <button id="closeChat" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="h-64 p-4 overflow-y-auto bg-ai-light" id="chatMessages">
+                <div class="mb-4">
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>Hello! I'm your AI Trade Assistant. How can I help you find the perfect AI products today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex">
+                    <input type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 focus:outline-none">
+                    <button class="bg-ai-blue text-white px-4 rounded-r-lg hover:bg-opacity-90">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle chat window
+        const chatButton = document.getElementById('chatButton');
+        const chatWindow = document.getElementById('chatWindow');
+        const closeChat = document.getElementById('closeChat');
+
+        chatButton.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+
+        // Featured products carousel navigation
+        // This would be connected to a real carousel in production
+        document.querySelector('.featured-prev').addEventListener('click', () => {
+            alert('Previous products would be shown here');
+        });
+
+        document.querySelector('.featured-next').addEventListener('click', () => {
+            alert('Next products would be shown here');
+        });
+
+        // Simulate typing indicator
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'mb-4 flex justify-start';
+            typingDiv.innerHTML = `
+                <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return typingDiv;
+        }
+
+        // Simulate AI response
+        function sendAIResponse(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = showTypingIndicator();
+
+            setTimeout(() => {
+                typingDiv.remove();
+
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'mb-4';
+                responseDiv.innerHTML = `
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${message}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(responseDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1500);
+        }
+
+        // Handle chat input
+        document.querySelector('#chatWindow input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                const userMessage = e.target.value;
+                const messagesDiv = document.getElementById('chatMessages');
+
+                // Add user message
+                const userDiv = document.createElement('div');
+                userDiv.className = 'mb-4 flex justify-end';
+                userDiv.innerHTML = `
+                    <div class="bg-ai-blue text-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${userMessage}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(userDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Clear input
+                e.target.value = '';
+
+                // Generate AI response
+                const responses = [
+                    "I can recommend several AI processors that would work well for your project. Would you like budget or high-performance options?",
+                    "Our smart drones are currently on special offer. Would you like me to show you the best models for surveillance applications?",
+                    "For natural language processing, I suggest looking at our NLP toolkit section. Would you like me to direct you there?",
+                    "Based on your previous purchases, I think you might be interested in our new neural network accelerators."
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                sendAIResponse(randomResponse);
+            }
+        });
+
+        // Add hover effect to category cards
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('glow-hover');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('glow-hover');
+            });
+        });
+    </script>
+    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

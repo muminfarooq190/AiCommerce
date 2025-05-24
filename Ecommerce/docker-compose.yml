@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-    Ecommerce:
+    EcommerceWeb:
         build:
             context: .
-            dockerfile: Ecommerce/Dockerfile
-        container_name: Ecommerce_container
+            dockerfile: EcommerceWeb/Dockerfile
+        container_name: EcommerceWeb_container
         ports:
             - "60:8080"
             - "61:8081"
@@ -13,6 +13,25 @@ services:
             - sqlserver
         networks:
             - sql_shared_network
+        environment:
+            - ConnectionStrings__DatabaseConnection=Server=Server=sqlserver,1433;Database=EcommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+    
+
+    EcommerceApi:
+        build:
+            context: .
+            dockerfile: EcommerceApi/Dockerfile
+        container_name: EcommerceApi_container
+        ports:
+            - "62:8080"
+            - "63:8081"
+        depends_on:
+            - sqlserver
+        networks:
+            - sql_shared_network
+        environment:
+            - ConnectionStrings__DatabaseConnection=Server=Server=sqlserver,1433;Database=EcommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+    
 
     sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest

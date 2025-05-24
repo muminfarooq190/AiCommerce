@@ -1,0 +1,340 @@
+﻿@{
+    ViewData["Title"] = "Authentication Page";
+    Layout = "_AuthLayout";
+}
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#10a37f',
+                    'ai-dark': '#202123',
+                    'ai-light': '#f7f7f8',
+                    'ai-gray': '#343541',
+                }
+            }
+        }
+    }
+</script>
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+    }
+
+    .animated-text {
+        background: linear-gradient(90deg, #10a37f, #1a73e8, #10a37f);
+        background-size: 200% auto;
+        color: transparent;
+        -webkit-background-clip: text;
+        background-clip: text;
+        animation: shine 3s linear infinite;
+    }
+    @@keyframes shine {
+        to
+
+    {
+        background-position: 200% center;
+    }
+
+    }
+
+    .auth-container {
+        box-shadow: 0 25px 50px -12px rgba(16, 163, 127, 0.25);
+    }
+
+    .input-field:focus {
+        border-color: #10a37f;
+        box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.2);
+    }
+
+    .toggle-btn.active {
+        background-color: #10a37f;
+        color: white;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .floating-label {
+        top: 50%;
+        transform: translateY(-50%);
+        transition: all 0.2s ease;
+        pointer-events: none;
+    }
+
+        .floating-label.focused, .floating-label.has-value {
+            top: 0;
+            transform: translateY(-50%) scale(0.85);
+            background-color: white;
+            padding: 0 0.25rem;
+            left: 0.75rem;
+            color: #10a37f;
+        }
+</style>
+<!-- Main Content -->
+<main class="flex-grow flex items-center justify-center py-12 px-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row rounded-xl overflow-hidden bg-white auth-container">
+            <!-- Left Side - Branding -->
+            <div class="w-full md:w-1/2 gradient-bg text-white p-8 md:p-12 flex flex-col justify-center">
+                <div class="mb-8">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Welcome to OpenTrade</h2>
+                    <p class="text-lg opacity-90">Join the AI-powered global marketplace connecting businesses with intelligent sourcing solutions.</p>
+                </div>
+
+                <div class="space-y-4 mt-8">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">AI-Powered Sourcing</h4>
+                            <p class="text-sm opacity-80">Find the best suppliers with our intelligent assistant</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-globe-americas text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Global Network</h4>
+                            <p class="text-sm opacity-80">Connect with verified suppliers worldwide</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-shield-alt text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Secure Transactions</h4>
+                            <p class="text-sm opacity-80">Trade with confidence using our protection</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Auth Forms -->
+            <div class="w-full md:w-1/2 p-8 md:p-12">
+                <!-- Toggle between Login and Register -->
+                <div class="flex mb-8 rounded-full bg-gray-100 p-1">
+                    <button id="loginToggle" class="flex-1 py-2 px-4 rounded-full font-medium toggle-btn active">Sign In</button>
+                    <button id="registerToggle" class="flex-1 py-2 px-4 rounded-full font-medium toggle-btn">Register</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="space-y-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-ai-dark mb-2">Welcome Back</h3>
+                        <p class="text-gray-600">Sign in to access your OpenTrade account</p>
+                    </div>
+
+                    <div class="relative">
+                        <input type="email" id="loginEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <label for="loginEmail" class="floating-label left-4 text-gray-500">Email Address</label>
+                    </div>
+
+                    <div class="relative">
+                        <input type="password" id="loginPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <label for="loginPassword" class="floating-label left-4 text-gray-500">Password</label>
+                        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            <i class="far fa-eye-slash"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="rememberMe" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded">
+                            <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                        </div>
+                        <a href="#" class="text-sm text-ai-blue hover:underline">Forgot password?</a>
+                    </div>
+
+                    <button class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
+                        Sign In
+                    </button>
+
+                    <div class="relative flex items-center py-4">
+                        <div class="flex-grow border-t border-gray-300"></div>
+                        <span class="flex-shrink mx-4 text-gray-500 text-sm">OR CONTINUE WITH</span>
+                        <div class="flex-grow border-t border-gray-300"></div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-google text-red-500 mr-2"></i>
+                        </button>
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-linkedin-in text-blue-600 mr-2"></i>
+                        </button>
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-apple text-gray-800 mr-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Register Form (Hidden by default) -->
+                <div id="registerForm" class="space-y-6 hidden">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-ai-dark mb-2">Create Account</h3>
+                        <p class="text-gray-600">Join OpenTrade to access AI-powered sourcing</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="relative">
+                            <input type="text" id="firstName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                            <label for="firstName" class="floating-label left-4 text-gray-500">First Name</label>
+                        </div>
+                        <div class="relative">
+                            <input type="text" id="lastName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                            <label for="lastName" class="floating-label left-4 text-gray-500">Last Name</label>
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <input type="email" id="registerEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <label for="registerEmail" class="floating-label left-4 text-gray-500">Email Address</label>
+                    </div>
+
+                    <div class="relative">
+                        <input type="password" id="registerPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <label for="registerPassword" class="floating-label left-4 text-gray-500">Password</label>
+                        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            <i class="far fa-eye-slash"></i>
+                        </button>
+                    </div>
+
+                    <div class="relative">
+                        <input type="password" id="confirmPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <label for="confirmPassword" class="floating-label left-4 text-gray-500">Confirm Password</label>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="terms" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded" required>
+                        <label for="terms" class="ml-2 block text-sm text-gray-700">
+                            I agree to the <a href="#" class="text-ai-blue hover:underline">Terms of Service</a> and <a href="#" class="text-ai-blue hover:underline">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
+                        Create Account
+                    </button>
+
+                    <div class="relative flex items-center py-4">
+                        <div class="flex-grow border-t border-gray-300"></div>
+                        <span class="flex-shrink mx-4 text-gray-500 text-sm">OR SIGN UP WITH</span>
+                        <div class="flex-grow border-t border-gray-300"></div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-google text-red-500 mr-2"></i>
+                        </button>
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-linkedin-in text-blue-600 mr-2"></i>
+                        </button>
+                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-apple text-gray-800 mr-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-6 text-gray-600">
+            <p id="toggleText">Don't have an account? <a href="#" id="toggleLink" class="text-ai-blue font-medium hover:underline">Register now</a></p>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Toggle between login and register forms
+    const loginToggle = document.getElementById('loginToggle');
+    const registerToggle = document.getElementById('registerToggle');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toggleText = document.getElementById('toggleText');
+    const toggleLink = document.getElementById('toggleLink');
+
+    function showLoginForm() {
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        loginToggle.classList.add('active');
+        registerToggle.classList.remove('active');
+        toggleText.textContent = "Don't have an account? ";
+        toggleLink.textContent = "Register now";
+        toggleLink.href = "#register";
+    }
+
+    function showRegisterForm() {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        loginToggle.classList.remove('active');
+        registerToggle.classList.add('active');
+        toggleText.textContent = "Already have an account? ";
+        toggleLink.textContent = "Sign in";
+        toggleLink.href = "#login";
+    }
+
+    loginToggle.addEventListener('click', showLoginForm);
+    registerToggle.addEventListener('click', showRegisterForm);
+    toggleLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (loginForm.classList.contains('hidden')) {
+            showLoginForm();
+        } else {
+            showRegisterForm();
+        }
+    });
+
+    // Floating label functionality
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        const label = document.querySelector(`label[for="${input.id}"]`);
+
+        input.addEventListener('focus', () => {
+            label.classList.add('focused');
+        });
+
+        input.addEventListener('blur', () => {
+            if (!input.value) {
+                label.classList.remove('focused');
+            }
+        });
+
+        // Check if input has value on page load
+        if (input.value) {
+            label.classList.add('focused', 'has-value');
+        }
+
+        input.addEventListener('input', () => {
+            if (input.value) {
+                label.classList.add('has-value');
+            } else {
+                label.classList.remove('has-value');
+            }
+        });
+    });
+
+    // Toggle password visibility
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(input => {
+        const toggleBtn = input.nextElementSibling;
+        if (toggleBtn && toggleBtn.tagName === 'BUTTON') {
+            toggleBtn.addEventListener('click', () => {
+                const icon = toggleBtn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        }
+    });
+</script>
