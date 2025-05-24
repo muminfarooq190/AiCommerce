@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTrade - Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .table-row:hover {
+            background-color: #f0fdf4;
+        }
+        .image-preview {
+            max-height: 120px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-ai-dark text-white flex-shrink-0">
+            <div class="p-4 flex items-center space-x-2 border-b border-gray-700">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">A</div>
+                <h1 class="text-xl font-bold">Admin Portal</h1>
+            </div>
+            
+            <nav class="p-4">
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Main</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 active">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Management</h3>
+                    <ul>
+                        <li>
+                            <a href="#categories" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-tags mr-3"></i>
+                                Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#products" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-box-open mr-3"></i>
+                                Products
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-users mr-3"></i>
+                                Users
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-store mr-3"></i>
+                                Suppliers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Settings</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-cog mr-3"></i>
+                                System Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="text-gray-500 mr-4">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800">Dashboard</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-envelope"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-medium">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Dashboard Overview -->
+                <div id="dashboard" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Total Products</p>
+                                    <h3 class="text-2xl font-bold">1,248</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <i class="fas fa-box-open text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Total Categories</p>
+                                    <h3 class="text-2xl font-bold">28</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                    <i class="fas fa-tags text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">Active Users</p>
+                                    <h3 class="text-2xl font-bold">3,456</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-users text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500">New Orders</p>
+                                    <h3 class="text-2xl font-bold">42</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                    <i class="fas fa-shopping-cart text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Recent Products</h3>
+                                <a href="#products" class="text-sm text-ai-blue hover:underline">View All</a>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr class="table-row">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://via.placeholder.com/40?text=P1" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">AI Processor Chip</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">AI Tools</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$249.99</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://via.placeholder.com/40?text=P2" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Smart Watch</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Electronics</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$179.99</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="flex-shrink-0 h-10 w-10">
+                                                        <img class="h-10 w-10 rounded-full" src="https://via.placeholder.com/40?text=P3" alt="">
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900">Robot Vacuum</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Home Goods</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$349.99</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">Recent Categories</h3>
+                                <a href="#categories" class="text-sm text-ai-blue hover:underline">View All</a>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">AI Tools</h4>
+                                            <p class="text-sm text-gray-500">12 products</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                                            <i class="fas fa-laptop"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Electronics</h4>
+                                            <p class="text-sm text-gray-500">86 products</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-3">
+                                            <i class="fas fa-tshirt"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium">Apparel</h4>
+                                            <p class="text-sm text-gray-500">156 products</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categories Management -->
+                <div id="categories" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-semibold">Categories Management</h2>
+                        <button id="addCategoryBtn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                            <i class="fas fa-plus mr-2"></i> Add Category
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Icon</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="categoriesTableBody">
+                                    <!-- Categories will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Add/Edit Category Modal -->
+                    <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                            <div class="flex items-center justify-between p-4 border-b">
+                                <h3 class="text-lg font-semibold" id="categoryModalTitle">Add New Category</h3>
+                                <button id="closeCategoryModal" class="text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <form id="categoryForm">
+                                    <input type="hidden" id="categoryId">
+                                    <div class="mb-4">
+                                        <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+                                        <input type="text" id="categoryName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="categoryIcon" class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
+                                        <select id="categoryIcon" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="fa-robot">AI Tools</option>
+                                            <option value="fa-laptop">Electronics</option>
+                                            <option value="fa-tshirt">Apparel</option>
+                                            <option value="fa-home">Home Goods</option>
+                                            <option value="fa-car">Automotive</option>
+                                            <option value="fa-heartbeat">Health</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                        <select id="categoryStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex justify-end space-x-3">
+                                        <button type="button" id="cancelCategoryBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                                        <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Products Management -->
+                <div id="products" class="hidden space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-2xl font-semibold">Products Management</h2>
+                        <button id="addProductBtn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                            <i class="fas fa-plus mr-2"></i> Add Product
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="productsTableBody">
+                                    <!-- Products will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Add/Edit Product Modal -->
+                    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                            <div class="flex items-center justify-between p-4 border-b">
+                                <h3 class="text-lg font-semibold" id="productModalTitle">Add New Product</h3>
+                                <button id="closeProductModal" class="text-gray-500 hover:text-gray-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <form id="productForm">
+                                    <input type="hidden" id="productId">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <div class="mb-4">
+                                                <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                                                <input type="text" id="productName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="productCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                                <select id="productCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                                    <option value="">Select Category</option>
+                                                    <option value="1">AI Tools</option>
+                                                    <option value="2">Electronics</option>
+                                                    <option value="3">Apparel</option>
+                                                    <option value="4">Home Goods</option>
+                                                    <option value="5">Automotive</option>
+                                                    <option value="6">Health</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                                                <input type="number" step="0.01" id="productPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="productStock" class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+                                                <input type="number" id="productStock" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="mb-4">
+                                                <label for="productStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                                <select id="productStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                                    <option value="active">Active</option>
+                                                    <option value="inactive">Inactive</option>
+                                                    <option value="draft">Draft</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                                <textarea id="productDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                            </div>
+                                            <div class="mb-4">
+                                                <label for="productImage" class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                                                <input type="file" id="productImage" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" accept="image/*">
+                                                <div class="mt-2">
+                                                    <img id="productImagePreview" src="" alt="Preview" class="image-preview hidden">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end space-x-3 mt-4">
+                                        <button type="button" id="cancelProductBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                                        <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">Save</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for categories and products
+        const categories = [
+            { id: 1, name: "AI Tools", icon: "fa-robot", products: 12, status: "active" },
+            { id: 2, name: "Electronics", icon: "fa-laptop", products: 86, status: "active" },
+            { id: 3, name: "Apparel", icon: "fa-tshirt", products: 156, status: "active" },
+            { id: 4, name: "Home Goods", icon: "fa-home", products: 72, status: "active" },
+            { id: 5, name: "Automotive", icon: "fa-car", products: 34, status: "inactive" },
+            { id: 6, name: "Health", icon: "fa-heartbeat", products: 58, status: "active" }
+        ];
+
+        const products = [
+            { id: 1, name: "AI Processor Chip", category: "AI Tools", price: 249.99, stock: 42, status: "active", image: "https://via.placeholder.com/150?text=AI+Chip" },
+            { id: 2, name: "Smart Watch", category: "Electronics", price: 179.99, stock: 128, status: "active", image: "https://via.placeholder.com/150?text=Smart+Watch" },
+            { id: 3, name: "Robot Vacuum", category: "Home Goods", price: 349.99, stock: 25, status: "active", image: "https://via.placeholder.com/150?text=Robot+Vacuum" },
+            { id: 4, name: "Surveillance Drone", category: "Electronics", price: 599.00, stock: 18, status: "active", image: "https://via.placeholder.com/150?text=Drone" },
+            { id: 5, name: "Fitness Tracker", category: "Health", price: 89.99, stock: 0, status: "inactive", image: "https://via.placeholder.com/150?text=Fitness+Tracker" }
+        ];
+
+        // DOM Elements
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const dashboardSection = document.getElementById('dashboard');
+        const categoriesSection = document.getElementById('categories');
+        const productsSection = document.getElementById('products');
+        const categoriesTableBody = document.getElementById('categoriesTableBody');
+        const productsTableBody = document.getElementById('productsTableBody');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const categoryModal = document.getElementById('categoryModal');
+        const productModal = document.getElementById('productModal');
+        const closeCategoryModal = document.getElementById('closeCategoryModal');
+        const closeProductModal = document.getElementById('closeProductModal');
+        const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+        const cancelProductBtn = document.getElementById('cancelProductBtn');
+        const categoryForm = document.getElementById('categoryForm');
+        const productForm = document.getElementById('productForm');
+        const productImage = document.getElementById('productImage');
+        const productImagePreview = document.getElementById('productImagePreview');
+
+        // Sidebar toggle for mobile
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Navigation between sections
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Update active state in sidebar
+                document.querySelectorAll('.sidebar-link').forEach(item => {
+                    item.classList.remove('active');
+                });
+                link.classList.add('active');
+                
+                // Show the corresponding section
+                const target = link.getAttribute('href').substring(1);
+                dashboardSection.classList.add('hidden');
+                categoriesSection.classList.add('hidden');
+                productsSection.classList.add('hidden');
+                
+                if (target === 'dashboard') {
+                    dashboardSection.classList.remove('hidden');
+                } else if (target === 'categories') {
+                    categoriesSection.classList.remove('hidden');
+                    renderCategoriesTable();
+                } else if (target === 'products') {
+                    productsSection.classList.remove('hidden');
+                    renderProductsTable();
+                }
+            });
+        });
+
+        // Render categories table
+        function renderCategoriesTable() {
+            categoriesTableBody.innerHTML = '';
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas ${category.icon}"></i>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${category.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${category.products}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${category.status.charAt(0).toUpperCase() + category.status.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3 edit-category" data-id="${category.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-category" data-id="${category.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                categoriesTableBody.appendChild(row);
+            });
+
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-category').forEach(button => {
+                button.addEventListener('click', () => {
+                    const categoryId = parseInt(button.getAttribute('data-id'));
+                    editCategory(categoryId);
+                });
+            });
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-category').forEach(button => {
+                button.addEventListener('click', () => {
+                    const categoryId = parseInt(button.getAttribute('data-id'));
+                    if (confirm('Are you sure you want to delete this category?')) {
+                        deleteCategory(categoryId);
+                    }
+                });
+            });
+        }
+
+        // Render products table
+        function renderProductsTable() {
+            productsTableBody.innerHTML = '';
+            products.forEach(product => {
+                const category = categories.find(c => c.name === product.category);
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="w-10 h-10 rounded overflow-hidden">
+                            <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover">
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-2">
+                                <i class="fas ${category ? category.icon : 'fa-question'} text-xs"></i>
+                            </div>
+                            ${product.category}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$${product.price.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.stock}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.status === 'active' ? 'bg-green-100 text-green-800' : product.status === 'inactive' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-blue-600 hover:text-blue-900 mr-3 edit-product" data-id="${product.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-900 delete-product" data-id="${product.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                productsTableBody.appendChild(row);
+            });
+
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-product').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.getAttribute('data-id'));
+                    editProduct(productId);
+                });
+            });
+
+            // Add event listeners to delete buttons
+            document.querySelectorAll('.delete-product').forEach(button => {
+                button.addEventListener('click', () => {
+                    const productId = parseInt(button.getAttribute('data-id'));
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        deleteProduct(productId);
+                    }
+                });
+            });
+        }
+
+        // Category CRUD operations
+        function openCategoryModal() {
+            document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryIcon').value = 'fa-robot';
+            document.getElementById('categoryStatus').value = 'active';
+            categoryModal.classList.remove('hidden');
+        }
+
+        function editCategory(id) {
+            const category = categories.find(c => c.id === id);
+            if (category) {
+                document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryIcon').value = category.icon;
+                document.getElementById('categoryStatus').value = category.status;
+                categoryModal.classList.remove('hidden');
+            }
+        }
+
+        function deleteCategory(id) {
+            const index = categories.findIndex(c => c.id === id);
+            if (index !== -1) {
+                categories.splice(index, 1);
+                renderCategoriesTable();
+            }
+        }
+
+        // Product CRUD operations
+        function openProductModal() {
+            document.getElementById('productModalTitle').textContent = 'Add New Product';
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productCategory').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productStock').value = '';
+            document.getElementById('productStatus').value = 'active';
+            document.getElementById('productDescription').value = '';
+            productImagePreview.src = '';
+            productImagePreview.classList.add('hidden');
+            productModal.classList.remove('hidden');
+        }
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                document.getElementById('productModalTitle').textContent = 'Edit Product';
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productStatus').value = product.status;
+                document.getElementById('productDescription').value = product.description || '';
+                if (product.image) {
+                    productImagePreview.src = product.image;
+                    productImagePreview.classList.remove('hidden');
+                } else {
+                    productImagePreview.classList.add('hidden');
+                }
+                productModal.classList.remove('hidden');
+            }
+        }
+
+        function deleteProduct(id) {
+            const index = products.findIndex(p => p.id === id);
+            if (index !== -1) {
+                products.splice(index, 1);
+                renderProductsTable();
+            }
+        }
+
+        // Event listeners for modals
+        addCategoryBtn.addEventListener('click', openCategoryModal);
+        addProductBtn.addEventListener('click', openProductModal);
+
+        closeCategoryModal.addEventListener('click', () => {
+            categoryModal.classList.add('hidden');
+        });
+
+        closeProductModal.addEventListener('click', () => {
+            productModal.classList.add('hidden');
+        });
+
+        cancelCategoryBtn.addEventListener('click', () => {
+            categoryModal.classList.add('hidden');
+        });
+
+        cancelProductBtn.addEventListener('click', () => {
+            productModal.classList.add('hidden');
+        });
+
+        // Handle category form submission
+        categoryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const icon = document.getElementById('categoryIcon').value;
+            const status = document.getElementById('categoryStatus').value;
+            
+            if (id) {
+                // Update existing category
+                const index = categories.findIndex(c => c.id === parseInt(id));
+                if (index !== -1) {
+                    categories[index] = { ...categories[index], name, icon, status };
+                }
+            } else {
+                // Add new category
+                const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+                categories.push({
+                    id: newId,
+                    name,
+                    icon,
+                    products: 0,
+                    status
+                });
+            }
+            
+            renderCategoriesTable();
+            categoryModal.classList.add('hidden');
+        });
+
+        // Handle product form submission
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const stock = parseInt(document.getElementById('productStock').value);
+            const status = document.getElementById('productStatus').value;
+            const description = document.getElementById('productDescription').value;
+            const image = productImagePreview.src || 'https://via.placeholder.com/150?text=Product';
+            
+            const categoryName = document.getElementById('productCategory').options[document.getElementById('productCategory').selectedIndex].text;
+            
+            if (id) {
+                // Update existing product
+                const index = products.findIndex(p => p.id === parseInt(id));
+                if (index !== -1) {
+                    products[index] = { ...products[index], name, category: categoryName, price, stock, status, description, image };
+                }
+            } else {
+                // Add new product
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({
+                    id: newId,
+                    name,
+                    category: categoryName,
+                    price,
+                    stock,
+                    status,
+                    description,
+                    image
+                });
+            }
+            
+            renderProductsTable();
+            productModal.classList.add('hidden');
+        });
+
+        // Handle product image upload preview
+        productImage.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    productImagePreview.src = event.target.result;
+                    productImagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Initialize the dashboard
+        renderCategoriesTable();
+        renderProductsTable();
+    </script>
+</body>
+</html>

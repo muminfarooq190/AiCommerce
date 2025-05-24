@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Marketplace | OpenTrade - Intelligent Categories</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                        'ai-purple': '#6e3aff',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-reverse': 'float-reverse 7s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'wave': 'wave 8s linear infinite',
+                        'ripple': 'ripple 3s linear infinite',
+                        'orbit': 'orbit 12s linear infinite',
+                        'orbit-reverse': 'orbit-reverse 15s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        'float-reverse': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(20px)' },
+                        },
+                        wave: {
+                            '0%': { transform: 'translateX(0) translateZ(0) scaleY(1)' },
+                            '50%': { transform: 'translateX(-25%) translateZ(0) scaleY(0.5)' },
+                            '100%': { transform: 'translateX(-50%) translateZ(0) scaleY(1)' },
+                        },
+                        ripple: {
+                            '0%': { transform: 'scale(0.8)', opacity: '1' },
+                            '100%': { transform: 'scale(2.4)', opacity: '0' },
+                        },
+                        orbit: {
+                            '0%': { transform: 'rotate(0deg) translateX(100px) rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg) translateX(100px) rotate(-360deg)' },
+                        },
+                        'orbit-reverse': {
+                            '0%': { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
+                            '100%': { transform: 'rotate(-360deg) translateX(120px) rotate(360deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Fixed overflow issues by adding overflow-hidden where needed */
+        html {
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .category-card:hover .category-icon {
+            transform: scale(1.1);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(16, 163, 127, 0.5);
+        }
+        .tech-pattern {
+            background-image: radial-gradient(circle, rgba(16, 163, 127, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .wave-bg {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08L1200,0v120H0Z' fill='%23f7f7f8'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: bottom;
+        }
+        .circuit-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-6 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm29 22c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM32 63c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-13c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2310a37f' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .chip-icon {
+            filter: drop-shadow(0 0 8px rgba(16, 163, 127, 0.3));
+        }
+        .tech-badge {
+            clip-path: polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%);
+        }
+        .ai-wave {
+            animation: wave 8s linear infinite;
+        }
+        .ripple-circle {
+            animation: ripple 3s linear infinite;
+        }
+        .ripple-circle:nth-child(2) {
+            animation-delay: 1s;
+        }
+        .ripple-circle:nth-child(3) {
+            animation-delay: 2s;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+        .hexagon-bg {
+            background: conic-gradient(from 180deg at 50% 50%, #10a37f 0deg, #1a73e8 180deg, #10a37f 360deg);
+        }
+        .category-tag {
+            position: absolute;
+            bottom: -10px;
+            right: 20px;
+            transform: rotate(15deg);
+        }
+        .orbit-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+        .orbit-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Fixed mobile responsiveness issues */
+        @media (max-width: 768px) {
+            .orbit-container {
+                width: 250px;
+                height: 250px;
+                margin: 0 auto;
+            }
+            
+            .featured-categories .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-hero .flex {
+                flex-direction: column;
+            }
+            
+            .category-hero .md\:w-1\/2 {
+                width: 100%;
+            }
+            
+            .wave-bg {
+                height: 20px;
+            }
+            
+            #chatWindow {
+                width: 90vw;
+                right: 5vw;
+            }
+        }
+        
+        /* Fixed z-index issues */
+        .header-z {
+            z-index: 1000;
+        }
+        
+        .chat-z {
+            z-index: 1050;
+        }
+        
+        /* Fixed absolute positioning issues */
+        .relative-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Fixed animation performance */
+        .will-change-transform {
+            will-change: transform;
+        }
+    </style>
+</head>
+<body class="bg-ai-light text-gray-800 font-sans overflow-x-hidden">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 header-z">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">OT</div>
+                <h1 class="text-2xl font-bold text-ai-dark">Open<span class="text-ai-blue">Trade</span></h1>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="hidden md:flex flex-1 mx-8">
+                <div class="relative w-full max-w-xl">
+                    <input type="text" placeholder="Search for AI products, components, and more..." 
+                           class="w-full border border-gray-300 rounded-full py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="absolute right-0 top-0 h-full bg-ai-blue text-white px-4 rounded-r-full hover:bg-opacity-90 transition">
+                        Search
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex items-center space-x-6">
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-globe mr-1"></i> Global</a>
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-heart mr-1"></i> Favorites</a>
+                <a href="#" class="hidden lg:block hover:text-ai-blue transition"><i class="fas fa-user mr-1"></i> Account</a>
+                <button class="relative hover:text-ai-blue transition">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-ai-blue text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                </button>
+                <button class="md:hidden text-ai-dark">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Category Hero -->
+    <section class="relative overflow-hidden gradient-bg text-white relative-container">
+        <div class="absolute inset-0 opacity-20 tech-pattern"></div>
+        <div class="absolute bottom-0 left-0 right-0 h-32 wave-bg"></div>
+        <div class="container mx-auto px-4 py-16 md:py-24 relative z-10">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mr-4">
+                            <i class="fas fa-boxes text-xl"></i>
+                        </div>
+                        <span class="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">24 Categories</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                        Explore AI <span class="gradient-text">Categories</span>
+                    </h1>
+                    <p class="text-lg md:text-xl mb-8 opacity-90 max-w-2xl">
+                        Discover the complete ecosystem of artificial intelligence products and solutions. From processors to robotics, find everything you need for your AI projects.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <button class="bg-white text-ai-blue px-6 py-2 rounded-lg font-bold hover:bg-opacity-90 transition flex items-center justify-center">
+                            <i class="fas fa-rocket mr-2"></i> Trending Categories
+                        </button>
+                        <button class="bg-transparent border-2 border-white px-6 py-2 rounded-lg font-bold hover:bg-white hover:text-ai-blue transition flex items-center justify-center">
+                            <i class="fas fa-compass mr-2"></i> Explore All
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/2 relative">
+                    <div class="orbit-container">
+                        <div class="orbit-item animate-orbit will-change-transform">
+                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-microchip text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="orbit-item animate-orbit-reverse will-change-transform" style="animation-delay: -3s">
+                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-robot text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="orbit-item animate-orbit will-change-transform" style="animation-delay: -6s">
+                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-brain text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="orbit-item animate-orbit-reverse will-change-transform" style="animation-delay: -9s">
+                            <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-server text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full border-4 border-white/20 flex items-center justify-center">
+                            <div class="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center">
+                                <i class="fas fa-atom text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Categories -->
+    <section class="py-16 bg-white featured-categories">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-ai-dark mb-3">Featured AI Categories</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Handpicked collections of the most innovative AI products in the market</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- AI Processors -->
+                <div class="bg-gradient-to-br from-ai-blue/5 to-ai-purple/5 rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-300 card-hover relative overflow-hidden">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-microchip text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-medium bg-ai-blue/10 text-ai-blue px-3 py-1 rounded-full">Trending</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-ai-dark mb-3">AI Processor Chips</h3>
+                    <p class="text-gray-600 mb-6">Specialized hardware for accelerating machine learning workloads with high efficiency.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">128 products</span>
+                        <a href="#" class="text-ai-blue font-medium flex items-center">
+                            Explore <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-ai-blue/5"></div>
+                </div>
+                
+                <!-- Robotics -->
+                <div class="bg-gradient-to-br from-ai-blue/5 to-ai-purple/5 rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-300 card-hover relative overflow-hidden">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-robot text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-medium bg-ai-blue/10 text-ai-blue px-3 py-1 rounded-full">New</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-ai-dark mb-3">AI Robotics</h3>
+                    <p class="text-gray-600 mb-6">Intelligent robotic systems powered by advanced machine learning algorithms.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">76 products</span>
+                        <a href="#" class="text-ai-blue font-medium flex items-center">
+                            Explore <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-ai-blue/5"></div>
+                </div>
+                
+                <!-- NLP -->
+                <div class="bg-gradient-to-br from-ai-blue/5 to-ai-purple/5 rounded-2xl p-6 shadow-sm hover:shadow-md transition duration-300 card-hover relative overflow-hidden">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="w-16 h-16 rounded-xl gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-language text-2xl"></i>
+                        </div>
+                        <span class="text-xs font-medium bg-ai-blue/10 text-ai-blue px-3 py-1 rounded-full">Popular</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-ai-dark mb-3">Natural Language Processing</h3>
+                    <p class="text-gray-600 mb-6">Tools and models for understanding, interpreting, and generating human language.</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">92 products</span>
+                        <a href="#" class="text-ai-blue font-medium flex items-center">
+                            Explore <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                        </a>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 rounded-full bg-ai-blue/5"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Categories -->
+    <section class="py-16 bg-ai-light">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-ai-dark mb-4 sm:mb-0">All AI Categories</h2>
+                <div class="relative">
+                    <select class="appearance-none bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                        <option>Sort by: Popularity</option>
+                        <option>Sort by: Newest</option>
+                        <option>Sort by: Product Count</option>
+                    </select>
+                    <div class="absolute right-3 top-2.5 text-gray-500 pointer-events-none">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="category-grid">
+                <!-- AI Chips -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-microchip text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Processor Chips</h3>
+                        <p class="text-gray-500 text-sm mb-4">Specialized hardware for machine learning acceleration</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">128 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                    <div class="category-tag">
+                        <span class="bg-ai-blue text-white text-xs font-bold px-2 py-1 rounded-full">HOT</span>
+                    </div>
+                </div>
+                
+                <!-- Robotics -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-robot text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Robotics</h3>
+                        <p class="text-gray-500 text-sm mb-4">Intelligent autonomous systems and components</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">76 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                    <div class="category-tag">
+                        <span class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">NEW</span>
+                    </div>
+                </div>
+                
+                <!-- NLP -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-language text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">Natural Language</h3>
+                        <p class="text-gray-500 text-sm mb-4">Speech recognition and text processing solutions</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">92 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Computer Vision -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-eye text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">Computer Vision</h3>
+                        <p class="text-gray-500 text-sm mb-4">Image recognition and video analysis systems</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">68 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Edge AI -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-network-wired text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">Edge AI</h3>
+                        <p class="text-gray-500 text-sm mb-4">On-device AI processing solutions</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">54 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                    <div class="category-tag">
+                        <span class="bg-ai-blue text-white text-xs font-bold px-2 py-1 rounded-full">TRENDING</span>
+                    </div>
+                </div>
+                
+                <!-- AI Accelerators -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-bolt text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Accelerators</h3>
+                        <p class="text-gray-500 text-sm mb-4">High-performance computing for AI workloads</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">87 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Development Kits -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-laptop-code text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">Development Kits</h3>
+                        <p class="text-gray-500 text-sm mb-4">Tools for building and testing AI applications</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">63 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AIaaS -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-cloud text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI as a Service</h3>
+                        <p class="text-gray-500 text-sm mb-4">Cloud-based AI solutions and APIs</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">45 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Sensors -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-sensor text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Sensors</h3>
+                        <p class="text-gray-500 text-sm mb-4">Smart sensors with embedded intelligence</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">58 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Frameworks -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-code-branch text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Frameworks</h3>
+                        <p class="text-gray-500 text-sm mb-4">Software libraries for machine learning</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">37 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Datasets -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-database text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Datasets</h3>
+                        <p class="text-gray-500 text-sm mb-4">Curated data for training AI models</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">29 products</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Consulting -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 card-hover relative">
+                    <div class="h-40 bg-gradient-to-r from-ai-blue/10 to-ai-purple/10 flex items-center justify-center">
+                        <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-white">
+                            <i class="fas fa-headset text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-ai-dark mb-2">AI Consulting</h3>
+                        <p class="text-gray-500 text-sm mb-4">Expert services for AI implementation</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">41 services</span>
+                            <a href="#" class="text-ai-blue text-sm font-medium">View All</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="flex justify-center mt-12">
+                <nav class="flex items-center space-x-2">
+                    <button class="w-10 h-10 rounded-full bg-ai-light text-ai-dark flex items-center justify-center hover:bg-gray-100 transition">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-ai-blue text-white flex items-center justify-center hover:bg-opacity-90 transition">1</button>
+                    <button class="w-10 h-10 rounded-full bg-ai-light text-ai-dark flex items-center justify-center hover:bg-gray-100 transition">2</button>
+                    <button class="w-10 h-10 rounded-full bg-ai-light text-ai-dark flex items-center justify-center hover:bg-gray-100 transition">3</button>
+                    <span class="px-2">...</span>
+                    <button class="w-10 h-10 rounded-full bg-ai-light text-ai-dark flex items-center justify-center hover:bg-gray-100 transition">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Ecosystem Visualization -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-ai-dark mb-3">The AI Ecosystem</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore how different AI categories interconnect to create complete solutions</p>
+            </div>
+            
+            <div class="relative max-w-4xl mx-auto">
+                <div class="hexagon-bg w-64 h-64 mx-auto hexagon flex items-center justify-center text-white text-2xl font-bold">
+                    AI CORE
+                </div>
+                
+                <!-- Connecting lines -->
+                <div class="absolute top-1/2 left-1/2 w-full h-full pointer-events-none">
+                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-32 bg-gradient-to-b from-ai-blue/30 to-transparent"></div>
+                    <div class="absolute top-1/4 right-0 transform translate-x-1/2 -translate-y-1/2 w-32 h-1 bg-gradient-to-l from-ai-blue/30 to-transparent"></div>
+                    <div class="absolute bottom-1/4 right-0 transform translate-x-1/2 translate-y-1/2 w-32 h-1 bg-gradient-to-l from-ai-blue/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-1 h-32 bg-gradient-to-t from-ai-blue/30 to-transparent"></div>
+                    <div class="absolute bottom-1/4 left-0 transform -translate-x-1/2 translate-y-1/2 w-32 h-1 bg-gradient-to-r from-ai-blue/30 to-transparent"></div>
+                    <div class="absolute top-1/4 left-0 transform -translate-x-1/2 -translate-y-1/2 w-32 h-1 bg-gradient-to-r from-ai-blue/30 to-transparent"></div>
+                </div>
+                
+                <!-- Satellite categories -->
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-microchip text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">Processors</span>
+                    </div>
+                </div>
+                
+                <div class="absolute top-1/4 right-0 transform translate-x-1/2 -translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-robot text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">Robotics</span>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-1/4 right-0 transform translate-x-1/2 translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-cloud text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">AI Cloud</span>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-database text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">Datasets</span>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-1/4 left-0 transform -translate-x-1/2 translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-code text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">Frameworks</span>
+                    </div>
+                </div>
+                
+                <div class="absolute top-1/4 left-0 transform -translate-x-1/2 -translate-y-1/2">
+                    <div class="w-40 h-12 bg-white rounded-lg shadow-md flex items-center justify-center px-3">
+                        <div class="w-8 h-8 rounded-full bg-ai-blue text-white flex items-center justify-center mr-2">
+                            <i class="fas fa-eye text-sm"></i>
+                        </div>
+                        <span class="text-sm font-medium">Vision</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Solutions Guide -->
+    <section class="py-16 bg-ai-light">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <h2 class="text-3xl font-bold text-ai-dark mb-6">Not Sure Where to Start?</h2>
+                    <p class="text-gray-600 mb-8">
+                        Our AI-powered solution finder can help you navigate the complex world of artificial intelligence products. 
+                        Answer a few questions about your project needs and we'll recommend the perfect categories to explore.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-question"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-ai-dark mb-1">Project Assessment</h4>
+                                <p class="text-gray-600 text-sm">We'll analyze your technical requirements and budget constraints.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-ai-dark mb-1">Tailored Recommendations</h4>
+                                <p class="text-gray-600 text-sm">Get personalized category suggestions based on your specific needs.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white flex-shrink-0">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-ai-dark mb-1">Vendor Matching</h4>
+                                <p class="text-gray-600 text-sm">We'll connect you with trusted suppliers in your recommended categories.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="mt-8 bg-ai-blue text-white px-8 py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex items-center mx-auto lg:mx-0">
+                        <i class="fas fa-magic mr-2"></i> Start Solution Finder
+                    </button>
+                </div>
+                <div class="lg:w-1/2 lg:pl-12 relative">
+                    <div class="relative max-w-md mx-auto">
+                        <div class="w-full h-80 bg-white rounded-xl shadow-lg p-6 relative z-10">
+                            <div class="flex items-center mb-4">
+                                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white mr-3">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <h3 class="font-bold">AI Solution Finder</h3>
+                            </div>
+                            <div class="bg-ai-light rounded-lg p-4 mb-4">
+                                <p class="text-sm">What type of AI application are you building?</p>
+                            </div>
+                            <div class="space-y-2">
+                                <button class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition">Computer Vision System</button>
+                                <button class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition">Natural Language Processing</button>
+                                <button class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition">Predictive Analytics</button>
+                                <button class="w-full text-left bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm hover:bg-gray-50 transition">Autonomous Robotics</button>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-400 rounded-xl opacity-20 animate-float"></div>
+                        <div class="absolute -top-6 -right-6 w-32 h-32 bg-purple-400 rounded-xl opacity-20 animate-float-reverse"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-16 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Stay Ahead in AI Technology</h2>
+                <p class="text-xl opacity-90 mb-8">
+                    Subscribe to our newsletter for the latest category updates, product launches, and industry insights.
+                </p>
+                <div class="flex flex-col sm:flex-row max-w-lg mx-auto">
+                    <input type="email" placeholder="Your email address" 
+                           class="flex-1 border border-white/30 bg-white/10 rounded-l-lg sm:rounded-r-none rounded-r-lg sm:rounded-r-lg mb-2 sm:mb-0 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent placeholder-white/70">
+                    <button class="bg-white text-ai-blue px-6 py-3 rounded-r-lg sm:rounded-l-none rounded-l-lg sm:rounded-l-lg font-bold hover:bg-opacity-90 transition sm:w-auto w-full">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-ai-dark text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-sm mr-2">OT</div>
+                        OpenTrade
+                    </h3>
+                    <p class="text-gray-400">The AI-powered global marketplace connecting businesses with intelligent sourcing solutions.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Buy</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Product Categories</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Suppliers by Region</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Request for Quotation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Buyer Central</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Sell</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Supplier Membership</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Learn to Sell</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Seller Central</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Shows</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Assurance</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Logistics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Inspection Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">AI Solutions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sustainability</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                    © 2023 OpenTrade. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chat Assistant -->
+    <div class="fixed bottom-4 right-4 chat-z">
+        <button id="chatButton" class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center text-white shadow-lg hover:shadow-xl transition animate-pulse-slow">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
+        <div id="chatWindow" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-t-lg rounded-bl-lg shadow-xl overflow-hidden">
+            <div class="bg-ai-blue text-white p-3 flex justify-between items-center">
+                <h3 class="font-bold">AI Category Guide</h3>
+                <button id="closeChat" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="h-64 p-4 overflow-y-auto bg-ai-light" id="chatMessages">
+                <div class="mb-4">
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>Hello! I can help you navigate our AI product categories. What type of project are you working on?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex">
+                    <input type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 focus:outline-none">
+                    <button class="bg-ai-blue text-white px-4 rounded-r-lg hover:bg-opacity-90">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle chat window
+        const chatButton = document.getElementById('chatButton');
+        const chatWindow = document.getElementById('chatWindow');
+        const closeChat = document.getElementById('closeChat');
+        
+        chatButton.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+        
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+        
+        // Simulate typing indicator
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'mb-4 flex justify-start';
+            typingDiv.innerHTML = `
+                <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return typingDiv;
+        }
+        
+        // Simulate AI response
+        function sendAIResponse(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = showTypingIndicator();
+            
+            setTimeout(() => {
+                typingDiv.remove();
+                
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'mb-4';
+                responseDiv.innerHTML = `
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${message}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(responseDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1500);
+        }
+        
+        // Handle chat input
+        document.querySelector('#chatWindow input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                const userMessage = e.target.value;
+                const messagesDiv = document.getElementById('chatMessages');
+                
+                // Add user message
+                const userDiv = document.createElement('div');
+                userDiv.className = 'mb-4 flex justify-end';
+                userDiv.innerHTML = `
+                    <div class="bg-ai-blue text-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${userMessage}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(userDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Clear input
+                e.target.value = '';
+                
+                // Generate AI response
+                const responses = [
+                    `For ${userMessage.toLowerCase()}, I recommend exploring our Robotics and Computer Vision categories. Would you like me to show you some products?`,
+                    `Based on your interest in ${userMessage.toLowerCase()}, you might find our AI Processor Chips and Development Kits useful. Should I filter the categories for you?`,
+                    `For ${userMessage.toLowerCase()} projects, many customers start with our Edge AI solutions. Would you like to learn more about this category?`,
+                    `I've analyzed similar projects and found that customers working on ${userMessage.toLowerCase()} often use products from our AI Accelerators category. Would that work for you?`
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                sendAIResponse(randomResponse);
+            }
+        });
+    </script>
+</body>
+</html>

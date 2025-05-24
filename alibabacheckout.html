@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTrade - Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        .checkout-step.active {
+            border-color: #10a37f;
+            background-color: rgba(16, 163, 127, 0.05);
+        }
+        .checkout-step.completed .step-number {
+            background-color: #10a37f;
+            color: white;
+        }
+        .payment-method:hover {
+            border-color: #10a37f;
+        }
+        .payment-method.selected {
+            border-color: #10a37f;
+            background-color: rgba(16, 163, 127, 0.05);
+        }
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 163, 127, 0.3);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 163, 127, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 163, 127, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 163, 127, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-ai-light text-gray-800 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">OT</div>
+                <h1 class="text-2xl font-bold text-ai-dark">Open<span class="text-ai-blue">Trade</span></h1>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex items-center space-x-6">
+                <a href="#" class="hidden md:block hover:text-ai-blue"><i class="fas fa-globe mr-1"></i> Global</a>
+                <a href="#" class="hidden md:block hover:text-ai-blue"><i class="fas fa-user mr-1"></i> Account</a>
+                <button class="relative hover:text-ai-blue">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span class="absolute -top-2 -right-2 bg-ai-blue text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                </button>
+                <button class="md:hidden text-ai-dark">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Checkout Progress -->
+        <div class="flex justify-center mb-8">
+            <div class="w-full max-w-3xl">
+                <div class="flex justify-between relative">
+                    <!-- Progress line -->
+                    <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
+                    <div class="absolute top-4 left-0 h-1 bg-ai-blue z-10" style="width: 66%;"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="checkout-step completed relative z-20 flex flex-col items-center">
+                        <div class="step-number w-8 h-8 rounded-full border-2 border-ai-blue bg-ai-blue text-white flex items-center justify-center mb-2">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <span class="text-sm font-medium text-ai-blue">Shipping</span>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="checkout-step active relative z-20 flex flex-col items-center">
+                        <div class="step-number w-8 h-8 rounded-full border-2 border-ai-blue bg-white text-ai-blue flex items-center justify-center mb-2">
+                            2
+                        </div>
+                        <span class="text-sm font-medium text-ai-blue">Payment</span>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="checkout-step relative z-20 flex flex-col items-center">
+                        <div class="step-number w-8 h-8 rounded-full border-2 border-gray-300 bg-white text-gray-400 flex items-center justify-center mb-2">
+                            3
+                        </div>
+                        <span class="text-sm font-medium text-gray-500">Review</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Payment Section -->
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-bold text-ai-dark mb-6">Payment Method</h2>
+                    
+                    <!-- Payment Methods -->
+                    <div class="space-y-4 mb-8">
+                        <div class="payment-method selected flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer">
+                            <div class="w-6 h-6 rounded-full border-2 border-ai-blue flex items-center justify-center mr-4">
+                                <div class="w-3 h-3 rounded-full bg-ai-blue"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-medium">Credit/Debit Card</h3>
+                                    <div class="flex space-x-2">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa" class="h-6">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="Mastercard" class="h-6">
+                                        <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Amex" class="h-6">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4">
+                                <div class="w-3 h-3 rounded-full bg-ai-blue hidden"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-medium">PayPal</h3>
+                                    <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="PayPal" class="h-6">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-method flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4">
+                                <div class="w-3 h-3 rounded-full bg-ai-blue hidden"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-medium">Bank Transfer</h3>
+                                    <i class="fas fa-university text-gray-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Details -->
+                    <div>
+                        <h3 class="font-medium text-ai-dark mb-4">Card Details</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="1234 5678 9012 3456" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                    <div class="absolute right-3 top-2.5 text-gray-400">
+                                        <i class="far fa-credit-card"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Name on Card</label>
+                                <input type="text" placeholder="John Smith" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                                <input type="text" placeholder="MM/YY" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                <div class="relative">
+                                    <input type="text" placeholder="123" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                    <div class="absolute right-3 top-2.5 text-gray-400">
+                                        <i class="fas fa-question-circle" title="3-digit code on back of card"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-end">
+                                <button class="w-full bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition flex items-center justify-center">
+                                    <i class="fas fa-lock mr-2"></i>
+                                    <span>Save Card</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <h3 class="font-medium text-ai-dark mb-4">Billing Address</h3>
+                        
+                        <div class="flex items-center mb-4">
+                            <input type="checkbox" id="sameAsShipping" class="rounded text-ai-blue focus:ring-ai-blue" checked>
+                            <label for="sameAsShipping" class="ml-2 text-gray-700">Same as shipping address</label>
+                        </div>
+                        
+                        <div id="billingAddressForm" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent mb-2">
+                                <input type="text" placeholder="Apartment, suite, etc. (optional)" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ZIP/Postal Code</label>
+                                    <input type="text" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                    <option>United States</option>
+                                    <option>Canada</option>
+                                    <option>United Kingdom</option>
+                                    <option>Australia</option>
+                                    <option>Germany</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between">
+                        <button class="text-ai-blue font-medium hover:text-ai-dark transition flex items-center">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Shipping
+                        </button>
+                        <button class="checkout-btn gradient-bg text-white px-6 py-2 rounded-lg font-bold hover:shadow-lg transition duration-300">
+                            Continue to Review
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Security Info -->
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-lock text-ai-blue"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-ai-dark">Secure Checkout</h3>
+                            <p class="text-gray-600 text-sm">Your payment information is encrypted and secure.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6">
+                    <h3 class="text-lg font-semibold text-ai-dark mb-6">Order Summary</h3>
+                    
+                    <!-- Shipping Info -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-medium text-ai-dark">Shipping to:</h4>
+                            <button class="text-ai-blue text-sm font-medium">Change</button>
+                        </div>
+                        <p class="text-gray-600 text-sm">John Smith<br>
+                        123 Main Street<br>
+                        Apt 4B<br>
+                        New York, NY 10001<br>
+                        United States</p>
+                    </div>
+                    
+                    <!-- Items -->
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                                    <img src="https://via.placeholder.com/80x80?text=AI+Processor" alt="AI Processor" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium">Neural AI Processor Chip</h4>
+                                    <p class="text-gray-500 text-xs">Qty: 1</p>
+                                </div>
+                            </div>
+                            <span class="text-ai-blue font-semibold">$249.99</span>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                                    <img src="https://via.placeholder.com/80x80?text=Smart+Drone" alt="Smart Drone" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium">AI-Powered Surveillance Drone</h4>
+                                    <p class="text-gray-500 text-xs">Qty: 1</p>
+                                </div>
+                            </div>
+                            <span class="text-ai-blue font-semibold">$599.00</span>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
+                                    <img src="https://via.placeholder.com/80x80?text=Smart+Watch" alt="Smart Watch" class="w-full h-full object-cover">
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium">Health Monitoring Smartwatch</h4>
+                                    <p class="text-gray-500 text-xs">Qty: 1</p>
+                                </div>
+                            </div>
+                            <span class="text-ai-blue font-semibold">$179.99</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Summary -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal (3 items)</span>
+                            <span class="font-medium">$1,028.98</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-medium">$12.99</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tax</span>
+                            <span class="font-medium">$82.32</span>
+                        </div>
+                    </div>
+                    
+                    <div class="py-4 border-t border-b border-gray-100 flex justify-between">
+                        <span class="font-semibold">Total</span>
+                        <span class="text-xl font-bold text-ai-blue">$1,124.29</span>
+                    </div>
+                    
+                    <!-- Promo Code -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Promo Code</label>
+                        <div class="flex">
+                            <input type="text" placeholder="Enter code" class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-r-lg hover:bg-gray-300 transition">
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Icons -->
+                    <div class="mt-6 flex items-center justify-center space-x-2">
+                        <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Visa" class="h-8">
+                        <img src="https://cdn-icons-png.flaticon.com/512/196/196566.png" alt="Mastercard" class="h-8">
+                        <img src="https://cdn-icons-png.flaticon.com/512/196/196561.png" alt="Amex" class="h-8">
+                        <img src="https://cdn-icons-png.flaticon.com/512/196/196553.png" alt="Discover" class="h-8">
+                    </div>
+                </div>
+                
+                <!-- AI Assistant -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mt-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-robot text-ai-blue"></i>
+                        </div>
+                        <h3 class="font-semibold text-ai-dark">AI Shopping Assistant</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Need help with your payment? Our AI assistant can answer your questions in real-time.</p>
+                    <button class="w-full border border-ai-blue text-ai-blue py-2 rounded-lg hover:bg-blue-50 transition flex items-center justify-center space-x-2">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>Chat with Assistant</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-ai-dark text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-sm mr-2">OT</div>
+                        OpenTrade
+                    </h3>
+                    <p class="text-gray-400">The AI-powered global marketplace connecting businesses with intelligent sourcing solutions.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Buy</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Product Categories</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Suppliers by Region</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Request for Quotation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Buyer Central</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Sell</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Supplier Membership</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Learn to Sell</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Seller Central</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Shows</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Trade Assurance</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Logistics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Inspection Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">AI Solutions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Sustainability</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm mb-4 md:mb-0">
+                    © 2023 OpenTrade. All rights reserved.
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Chat Assistant -->
+    <div class="fixed bottom-4 right-4 z-50">
+        <button id="chatButton" class="w-16 h-16 rounded-full gradient-bg flex items-center justify-center text-white shadow-lg hover:shadow-xl transition">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
+        <div id="chatWindow" class="hidden absolute bottom-20 right-0 w-80 bg-white rounded-t-lg rounded-bl-lg shadow-xl overflow-hidden">
+            <div class="bg-ai-blue text-white p-3 flex justify-between items-center">
+                <h3 class="font-bold">AI Trade Assistant</h3>
+                <button id="closeChat" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="h-64 p-4 overflow-y-auto bg-ai-light" id="chatMessages">
+                <div class="mb-4">
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>Hello! I'm your AI Trade Assistant. How can I help you with your payment today?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-200">
+                <div class="flex">
+                    <input type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 focus:outline-none">
+                    <button class="bg-ai-blue text-white px-4 rounded-r-lg hover:bg-opacity-90">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle chat window
+        const chatButton = document.getElementById('chatButton');
+        const chatWindow = document.getElementById('chatWindow');
+        const closeChat = document.getElementById('closeChat');
+        
+        chatButton.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+        
+        closeChat.addEventListener('click', () => {
+            chatWindow.classList.add('hidden');
+        });
+        
+        // Payment method selection
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                // Remove all selected states
+                paymentMethods.forEach(m => {
+                    m.classList.remove('selected');
+                    m.querySelector('.w-3.h-3').classList.add('hidden');
+                });
+                
+                // Add selected state to clicked method
+                this.classList.add('selected');
+                this.querySelector('.w-3.h-3').classList.remove('hidden');
+            });
+        });
+        
+        // Toggle billing address form
+        const sameAsShippingCheckbox = document.getElementById('sameAsShipping');
+        const billingAddressForm = document.getElementById('billingAddressForm');
+        
+        sameAsShippingCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                billingAddressForm.classList.add('hidden');
+            } else {
+                billingAddressForm.classList.remove('hidden');
+            }
+        });
+        
+        // Simulate typing indicator
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'mb-4 flex justify-start';
+            typingDiv.innerHTML = `
+                <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.2s"></div>
+                        <div class="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0.4s"></div>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return typingDiv;
+        }
+        
+        // Simulate AI response
+        function sendAIResponse(message) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = showTypingIndicator();
+            
+            setTimeout(() => {
+                typingDiv.remove();
+                
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'mb-4';
+                responseDiv.innerHTML = `
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${message}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(responseDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1500);
+        }
+        
+        // Handle chat input
+        document.querySelector('#chatWindow input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim() !== '') {
+                const userMessage = e.target.value;
+                const messagesDiv = document.getElementById('chatMessages');
+                
+                // Add user message
+                const userDiv = document.createElement('div');
+                userDiv.className = 'mb-4 flex justify-end';
+                userDiv.innerHTML = `
+                    <div class="bg-ai-blue text-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p>${userMessage}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(userDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                // Clear input
+                e.target.value = '';
+                
+                // Generate AI response
+                const responses = [
+                    "I can help you with payment options. Would you like information about our secure payment methods?",
+                    "For your security, we don't store credit card details. All transactions are encrypted.",
+                    "You can save your payment method for faster checkout next time. Would you like me to show you how?",
+                    "We accept Visa, Mastercard, American Express, and PayPal for your convenience."
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                sendAIResponse(randomResponse);
+            }
+        });
+    </script>
+</body>
+</html>

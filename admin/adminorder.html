@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTrade - Order Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .order-detail-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 0;
+        }
+        .order-detail-item:last-child {
+            border-bottom: none;
+        }
+        .animate-pulse {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-ai-dark text-white flex-shrink-0">
+            <div class="p-4 flex items-center space-x-2 border-b border-gray-700">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">A</div>
+                <h1 class="text-xl font-bold">Admin Portal</h1>
+            </div>
+            
+            <nav class="p-4">
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Main</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Management</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-tags mr-3"></i>
+                                Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-box-open mr-3"></i>
+                                Products
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 active">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                Orders
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-users mr-3"></i>
+                                Customers
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Settings</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-cog mr-3"></i>
+                                System Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="text-gray-500 mr-4">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800">Order Management</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-medium">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Order Management -->
+                <div class="space-y-6">
+                    <!-- Order Actions -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-semibold">Recent Orders</h2>
+                            <p class="text-gray-600">Manage and process customer orders</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                                <i class="fas fa-filter mr-2 text-gray-600"></i>
+                                Filters
+                            </button>
+                            <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                                <i class="fas fa-download mr-2 text-gray-600"></i>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Orders</p>
+                                    <h3 class="text-xl font-bold">1,248</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Pending Orders</p>
+                                    <h3 class="text-xl font-bold">24</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Processing Orders</p>
+                                    <h3 class="text-xl font-bold">18</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-truck-loading"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Today's Revenue</p>
+                                    <h3 class="text-xl font-bold">$8,724</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order View Options -->
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <button class="px-3 py-1 bg-ai-blue text-white rounded-lg">All</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Pending</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Processing</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Shipped</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Delivered</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancelled</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Refunded</button>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative w-full md:w-64">
+                                    <input type="text" placeholder="Search orders..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                                <button class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order List View -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Order ID
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Customer
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Date
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Amount
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="ordersTableBody">
+                                    <!-- Orders will be dynamically inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-8 flex justify-center">
+                        <nav class="inline-flex rounded-md shadow-sm">
+                            <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-ai-blue font-medium">1</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">4</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
+                            <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">12</a>
+                            <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Order Detail Modal -->
+                <div id="orderDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <h3 class="text-lg font-semibold">Order Details - <span id="orderDetailId"></span></h3>
+                            <button id="closeOrderDetailModal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Order Summary -->
+                                <div class="lg:col-span-2">
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Order Items</h4>
+                                        <div class="space-y-4" id="orderItemsList">
+                                            <!-- Order items will be inserted here -->
+                                        </div>
+                                        <div class="mt-6 pt-4 border-t border-gray-200">
+                                            <div class="flex justify-between mb-2">
+                                                <span class="text-gray-600">Subtotal:</span>
+                                                <span class="font-medium" id="orderSubtotal">$0.00</span>
+                                            </div>
+                                            <div class="flex justify-between mb-2">
+                                                <span class="text-gray-600">Shipping:</span>
+                                                <span class="font-medium" id="orderShipping">$0.00</span>
+                                            </div>
+                                            <div class="flex justify-between mb-2">
+                                                <span class="text-gray-600">Tax:</span>
+                                                <span class="font-medium" id="orderTax">$0.00</span>
+                                            </div>
+                                            <div class="flex justify-between text-lg font-semibold mt-4 pt-2 border-t border-gray-200">
+                                                <span>Total:</span>
+                                                <span id="orderTotal">$0.00</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Order Notes -->
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h4 class="font-medium text-lg mb-4">Order Notes</h4>
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Customer Note</label>
+                                                <div class="bg-white p-3 rounded border border-gray-300 text-sm" id="customerNote">
+                                                    Please deliver before 5pm if possible.
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Private Notes</label>
+                                                <textarea class="w-full border border-gray-300 rounded p-3 text-sm focus:ring-ai-blue focus:border-ai-blue" rows="3" placeholder="Add internal notes about this order..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Order Meta -->
+                                <div>
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Order Status</h4>
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
+                                                <div class="flex items-center">
+                                                    <span id="currentStatusBadge" class="status-badge bg-yellow-100 text-yellow-800">Pending</span>
+                                                    <button id="editStatusBtn" class="ml-2 text-gray-500 hover:text-ai-blue">
+                                                        <i class="fas fa-pencil-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="statusEditSection" class="hidden">
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Update Status</label>
+                                                <div class="flex space-x-2">
+                                                    <select id="orderStatusSelect" class="flex-1 border border-gray-300 rounded p-2 text-sm focus:ring-ai-blue focus:border-ai-blue">
+                                                        <option value="pending">Pending</option>
+                                                        <option value="processing">Processing</option>
+                                                        <option value="shipped">Shipped</option>
+                                                        <option value="delivered">Delivered</option>
+                                                        <option value="cancelled">Cancelled</option>
+                                                        <option value="refunded">Refunded</option>
+                                                    </select>
+                                                    <button id="saveStatusBtn" class="bg-ai-blue text-white px-3 py-1 rounded text-sm hover:bg-opacity-90">
+                                                        Save
+                                                    </button>
+                                                    <button id="cancelStatusEditBtn" class="bg-white border border-gray-300 px-3 py-1 rounded text-sm hover:bg-gray-50">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                                                <span id="paymentStatusBadge" class="status-badge bg-green-100 text-green-800">Paid</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                                                <span id="paymentMethod" class="text-sm">Credit Card (Visa •••• 4242)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Customer Info -->
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Customer Information</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                                <span id="customerName" class="text-sm">John Doe</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                <span id="customerEmail" class="text-sm">john.doe@example.com</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                                <span id="customerPhone" class="text-sm">+1 (555) 123-4567</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Shipping Info -->
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h4 class="font-medium text-lg mb-4">Shipping Information</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                                <span id="shippingAddress" class="text-sm">123 Main St, Apt 4B, New York, NY 10001, United States</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Method</label>
+                                                <span id="shippingMethod" class="text-sm">Standard Shipping (3-5 business days)</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Number</label>
+                                                <div class="flex items-center space-x-2">
+                                                    <span id="trackingNumber" class="text-sm">USPS 9205590164917312751089</span>
+                                                    <button class="text-gray-500 hover:text-ai-blue">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Actions -->
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Print Invoice
+                                </button>
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Email Customer
+                                </button>
+                                <button class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Sample order data
+        const orders = [
+            {
+                id: "ORD-2023-001",
+                customer: {
+                    name: "John Doe",
+                    email: "john.doe@example.com",
+                    phone: "+1 (555) 123-4567",
+                    avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+                },
+                date: "2023-06-15",
+                amount: 149.99,
+                status: "pending",
+                paymentStatus: "paid",
+                paymentMethod: "Credit Card (Visa •••• 4242)",
+                shippingMethod: "Standard Shipping",
+                trackingNumber: "USPS 9205590164917312751089",
+                shippingAddress: "123 Main St, Apt 4B, New York, NY 10001, United States",
+                customerNote: "Please deliver before 5pm if possible.",
+                items: [
+                    {
+                        id: "PROD-001",
+                        name: "Wireless Bluetooth Headphones",
+                        price: 89.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: "Color: Black"
+                    },
+                    {
+                        id: "PROD-002",
+                        name: "USB-C Charging Cable",
+                        price: 19.99,
+                        quantity: 3,
+                        image: "https://via.placeholder.com/80",
+                        options: "Length: 6ft"
+                    }
+                ],
+                subtotal: 149.96,
+                shipping: 5.99,
+                tax: 12.45,
+                total: 168.40
+            },
+            {
+                id: "ORD-2023-002",
+                customer: {
+                    name: "Jane Smith",
+                    email: "jane.smith@example.com",
+                    phone: "+1 (555) 987-6543",
+                    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+                },
+                date: "2023-06-14",
+                amount: 299.50,
+                status: "processing",
+                paymentStatus: "paid",
+                paymentMethod: "PayPal",
+                shippingMethod: "Express Shipping",
+                trackingNumber: "UPS 1Z12345E0205271688",
+                shippingAddress: "456 Oak Ave, Suite 200, Los Angeles, CA 90012, United States",
+                customerNote: "Gift wrapping requested.",
+                items: [
+                    {
+                        id: "PROD-003",
+                        name: "Smart Watch Series 5",
+                        price: 249.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: "Size: 42mm"
+                    },
+                    {
+                        id: "PROD-004",
+                        name: "Screen Protector",
+                        price: 9.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: ""
+                    },
+                    {
+                        id: "PROD-005",
+                        name: "Leather Band",
+                        price: 39.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: "Color: Brown"
+                    }
+                ],
+                subtotal: 299.97,
+                shipping: 12.99,
+                tax: 25.45,
+                total: 338.41
+            },
+            {
+                id: "ORD-2023-003",
+                customer: {
+                    name: "Robert Johnson",
+                    email: "robert.j@example.com",
+                    phone: "+1 (555) 456-7890",
+                    avatar: "https://randomuser.me/api/portraits/men/67.jpg"
+                },
+                date: "2023-06-13",
+                amount: 79.98,
+                status: "shipped",
+                paymentStatus: "paid",
+                paymentMethod: "Credit Card (Mastercard •••• 5555)",
+                shippingMethod: "Standard Shipping",
+                trackingNumber: "USPS 9205590164917312751090",
+                shippingAddress: "789 Pine Rd, Boston, MA 02108, United States",
+                customerNote: "",
+                items: [
+                    {
+                        id: "PROD-006",
+                        name: "Wireless Mouse",
+                        price: 29.99,
+                        quantity: 2,
+                        image: "https://via.placeholder.com/80",
+                        options: "Color: Silver"
+                    },
+                    {
+                        id: "PROD-007",
+                        name: "Mouse Pad",
+                        price: 9.99,
+                        quantity: 2,
+                        image: "https://via.placeholder.com/80",
+                        options: "Size: Large"
+                    }
+                ],
+                subtotal: 79.96,
+                shipping: 5.99,
+                tax: 6.70,
+                total: 92.65
+            },
+            {
+                id: "ORD-2023-004",
+                customer: {
+                    name: "Emily Wilson",
+                    email: "emily.w@example.com",
+                    phone: "+1 (555) 789-0123",
+                    avatar: "https://randomuser.me/api/portraits/women/28.jpg"
+                },
+                date: "2023-06-12",
+                amount: 599.99,
+                status: "delivered",
+                paymentStatus: "paid",
+                paymentMethod: "Apple Pay",
+                shippingMethod: "Express Shipping",
+                trackingNumber: "UPS 1Z12345E0205271689",
+                shippingAddress: "321 Elm St, Chicago, IL 60601, United States",
+                customerNote: "Leave package at front door if no answer.",
+                items: [
+                    {
+                        id: "PROD-008",
+                        name: "Latest Smartphone",
+                        price: 599.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: "Storage: 128GB, Color: Midnight"
+                    }
+                ],
+                subtotal: 599.99,
+                shipping: 12.99,
+                tax: 49.95,
+                total: 662.93
+            },
+            {
+                id: "ORD-2023-005",
+                customer: {
+                    name: "Michael Brown",
+                    email: "michael.b@example.com",
+                    phone: "+1 (555) 234-5678",
+                    avatar: "https://randomuser.me/api/portraits/men/75.jpg"
+                },
+                date: "2023-06-11",
+                amount: 129.99,
+                status: "cancelled",
+                paymentStatus: "refunded",
+                paymentMethod: "Credit Card (Amex •••• 1005)",
+                shippingMethod: "Standard Shipping",
+                trackingNumber: "",
+                shippingAddress: "654 Cedar Ln, Austin, TX 78701, United States",
+                customerNote: "Order cancelled per customer request.",
+                items: [
+                    {
+                        id: "PROD-009",
+                        name: "Bluetooth Speaker",
+                        price: 129.99,
+                        quantity: 1,
+                        image: "https://via.placeholder.com/80",
+                        options: "Color: Blue"
+                    }
+                ],
+                subtotal: 129.99,
+                shipping: 5.99,
+                tax: 10.80,
+                total: 146.78
+            }
+        ];
+
+        // DOM Elements
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const orderDetailModal = document.getElementById('orderDetailModal');
+        const closeOrderDetailModal = document.getElementById('closeOrderDetailModal');
+        const orderItemsList = document.getElementById('orderItemsList');
+        const orderSubtotal = document.getElementById('orderSubtotal');
+        const orderShipping = document.getElementById('orderShipping');
+        const orderTax = document.getElementById('orderTax');
+        const orderTotal = document.getElementById('orderTotal');
+        const customerNote = document.getElementById('customerNote');
+        const currentStatusBadge = document.getElementById('currentStatusBadge');
+        const paymentStatusBadge = document.getElementById('paymentStatusBadge');
+        const paymentMethod = document.getElementById('paymentMethod');
+        const customerName = document.getElementById('customerName');
+        const customerEmail = document.getElementById('customerEmail');
+        const customerPhone = document.getElementById('customerPhone');
+        const shippingAddress = document.getElementById('shippingAddress');
+        const shippingMethod = document.getElementById('shippingMethod');
+        const trackingNumber = document.getElementById('trackingNumber');
+        const editStatusBtn = document.getElementById('editStatusBtn');
+        const statusEditSection = document.getElementById('statusEditSection');
+        const orderStatusSelect = document.getElementById('orderStatusSelect');
+        const saveStatusBtn = document.getElementById('saveStatusBtn');
+        const cancelStatusEditBtn = document.getElementById('cancelStatusEditBtn');
+        const orderDetailId = document.getElementById('orderDetailId');
+
+        // Sidebar toggle for mobile
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Render orders table
+        function renderOrdersTable() {
+            ordersTableBody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const statusBadgeClasses = {
+                    pending: 'bg-yellow-100 text-yellow-800',
+                    processing: 'bg-purple-100 text-purple-800',
+                    shipped: 'bg-blue-100 text-blue-800',
+                    delivered: 'bg-green-100 text-green-800',
+                    cancelled: 'bg-red-100 text-red-800',
+                    refunded: 'bg-gray-100 text-gray-800'
+                };
+                
+                const paymentBadgeClasses = {
+                    paid: 'bg-green-100 text-green-800',
+                    unpaid: 'bg-yellow-100 text-yellow-800',
+                    refunded: 'bg-gray-100 text-gray-800',
+                    failed: 'bg-red-100 text-red-800'
+                };
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 cursor-pointer';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-ai-blue">${order.id}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-full" src="${order.customer.avatar}" alt="${order.customer.name}">
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">${order.customer.name}</div>
+                                <div class="text-sm text-gray-500">${order.customer.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${new Date(order.date).toLocaleDateString()}</div>
+                        <div class="text-sm text-gray-500">${new Date(order.date).toLocaleTimeString()}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">$${order.amount.toFixed(2)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${statusBadgeClasses[order.status]}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-ai-blue hover:text-ai-dark mr-3 view-order-btn" data-order-id="${order.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </td>
+                `;
+                
+                ordersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const orderId = btn.getAttribute('data-order-id');
+                    showOrderDetails(orderId);
+                });
+            });
+            
+            // Add event listeners to table rows
+            document.querySelectorAll('#ordersTableBody tr').forEach(row => {
+                row.addEventListener('click', () => {
+                    const orderId = row.querySelector('.view-order-btn').getAttribute('data-order-id');
+                    showOrderDetails(orderId);
+                });
+            });
+        }
+
+        // Show order details modal
+        function showOrderDetails(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            
+            // Set order ID
+            orderDetailId.textContent = order.id;
+            
+            // Render order items
+            orderItemsList.innerHTML = '';
+            order.items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'flex items-start pb-4 border-b border-gray-200 last:border-b-0 last:pb-0';
+                itemElement.innerHTML = `
+                    <div class="flex-shrink-0 h-16 w-16 rounded-md overflow-hidden bg-gray-100">
+                        <img src="${item.image}" alt="${item.name}" class="h-full w-full object-cover">
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-medium text-gray-900">${item.name}</h4>
+                            <p class="text-sm font-medium text-gray-900">$${item.price.toFixed(2)}</p>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">Qty: ${item.quantity}</p>
+                        ${item.options ? `<p class="text-xs text-gray-500 mt-1">${item.options}</p>` : ''}
+                    </div>
+                `;
+                orderItemsList.appendChild(itemElement);
+            });
+            
+            // Set order totals
+            orderSubtotal.textContent = `$${order.subtotal.toFixed(2)}`;
+            orderShipping.textContent = `$${order.shipping.toFixed(2)}`;
+            orderTax.textContent = `$${order.tax.toFixed(2)}`;
+            orderTotal.textContent = `$${order.total.toFixed(2)}`;
+            
+            // Set customer note
+            customerNote.textContent = order.customerNote || 'No customer note';
+            
+            // Set status and payment info
+            const statusBadgeClasses = {
+                pending: 'bg-yellow-100 text-yellow-800',
+                processing: 'bg-purple-100 text-purple-800',
+                shipped: 'bg-blue-100 text-blue-800',
+                delivered: 'bg-green-100 text-green-800',
+                cancelled: 'bg-red-100 text-red-800',
+                refunded: 'bg-gray-100 text-gray-800'
+            };
+            
+            const paymentBadgeClasses = {
+                paid: 'bg-green-100 text-green-800',
+                unpaid: 'bg-yellow-100 text-yellow-800',
+                refunded: 'bg-gray-100 text-gray-800',
+                failed: 'bg-red-100 text-red-800'
+            };
+            
+            currentStatusBadge.className = `status-badge ${statusBadgeClasses[order.status]}`;
+            currentStatusBadge.textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+            
+            paymentStatusBadge.className = `status-badge ${paymentBadgeClasses[order.paymentStatus]}`;
+            paymentStatusBadge.textContent = order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1);
+            
+            // Set customer and shipping info
+            paymentMethod.textContent = order.paymentMethod;
+            customerName.textContent = order.customer.name;
+            customerEmail.textContent = order.customer.email;
+            customerPhone.textContent = order.customer.phone;
+            shippingAddress.textContent = order.shippingAddress;
+            shippingMethod.textContent = order.shippingMethod;
+            trackingNumber.textContent = order.trackingNumber || 'Not shipped yet';
+            
+            // Set current status in select
+            orderStatusSelect.value = order.status;
+            
+            // Show modal
+            orderDetailModal.classList.remove('hidden');
+        }
+
+        // Close order detail modal
+        closeOrderDetailModal.addEventListener('click', () => {
+            orderDetailModal.classList.add('hidden');
+        });
+
+        // Edit status button
+        editStatusBtn.addEventListener('click', () => {
+            statusEditSection.classList.remove('hidden');
+        });
+
+        // Cancel status edit
+        cancelStatusEditBtn.addEventListener('click', () => {
+            statusEditSection.classList.add('hidden');
+        });
+
+        // Save status
+        saveStatusBtn.addEventListener('click', () => {
+            const newStatus = orderStatusSelect.value;
+            const statusBadgeClasses = {
+                pending: 'bg-yellow-100 text-yellow-800',
+                processing: 'bg-purple-100 text-purple-800',
+                shipped: 'bg-blue-100 text-blue-800',
+                delivered: 'bg-green-100 text-green-800',
+                cancelled: 'bg-red-100 text-red-800',
+                refunded: 'bg-gray-100 text-gray-800'
+            };
+            
+            currentStatusBadge.className = `status-badge ${statusBadgeClasses[newStatus]}`;
+            currentStatusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+            
+            statusEditSection.classList.add('hidden');
+            
+            // In a real app, you would save the status change to your backend here
+            alert(`Order status updated to ${newStatus}`);
+        });
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOrdersTable();
+        });
+    </script>
+</body>
+</html>

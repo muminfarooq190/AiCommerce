@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - User Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .user-detail-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 0;
+        }
+        .user-detail-item:last-child {
+            border-bottom: none;
+        }
+        .animate-pulse {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .chart-container {
+            height: 300px;
+        }
+        .permission-item {
+            transition: all 0.2s ease;
+        }
+        .permission-item:hover {
+            background-color: #f8fafc;
+        }
+        .role-tag {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-gray-800 text-white flex-shrink-0">
+            <div class="p-4 flex items-center space-x-2 border-b border-gray-700">
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-white font-bold text-xl">A</div>
+                <h1 class="text-xl font-bold">Admin Portal</h1>
+            </div>
+            
+            <nav class="p-4">
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Main</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-tachometer-alt mr-3"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Management</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-tags mr-3"></i>
+                                Categories
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-box-open mr-3"></i>
+                                Products
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-shopping-cart mr-3"></i>
+                                Orders
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-users mr-3"></i>
+                                Customers
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 active">
+                                <i class="fas fa-user-shield mr-3"></i>
+                                User Management
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Settings</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-cog mr-3"></i>
+                                System Settings
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1">
+                                <i class="fas fa-sign-out-alt mr-3"></i>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm">
+                <div class="flex items-center justify-between px-6 py-3">
+                    <div class="flex items-center">
+                        <button id="sidebarToggle" class="text-gray-500 mr-4">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h2 class="text-xl font-semibold text-gray-800">User Management</h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-medium">Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- User Management -->
+                <div class="space-y-6">
+                    <!-- User Actions -->
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-semibold">User Management</h2>
+                            <p class="text-gray-600">Manage system users, roles and permissions</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                                <i class="fas fa-filter mr-2 text-gray-600"></i>
+                                Filters
+                            </button>
+                            <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                                <i class="fas fa-download mr-2 text-gray-600"></i>
+                                Export
+                            </button>
+                            <button id="openAddUserModal" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 flex items-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add User
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- User Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Users</p>
+                                    <h3 class="text-xl font-bold">87</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Active Users</p>
+                                    <h3 class="text-xl font-bold">72</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Admin Users</p>
+                                    <h3 class="text-xl font-bold">5</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Pending Invites</p>
+                                    <h3 class="text-xl font-bold">3</h3>
+                                </div>
+                                <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                    <i class="fas fa-user-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User View Options -->
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                                <button class="px-3 py-1 bg-blue-600 text-white rounded-lg">All</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Admins</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Managers</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Editors</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Viewers</button>
+                                <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Inactive</button>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative w-full md:w-64">
+                                    <input type="text" placeholder="Search users..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    <div class="absolute left-3 top-2.5 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                                <button class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                    <i class="fas fa-sliders-h"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User List View -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            User
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Email
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Role
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Last Active
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                                    <!-- Users will be dynamically inserted here -->
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/12.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Sarah Johnson</div>
+                                                    <div class="text-sm text-gray-500">Administrator</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">sarah.johnson@example.com</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                Super Admin
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">2 hours ago</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-user-btn">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Michael Chen</div>
+                                                    <div class="text-sm text-gray-500">Content Manager</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">michael.chen@example.com</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                Manager
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">Yesterday</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-user-btn">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Emma Wilson</div>
+                                                    <div class="text-sm text-gray-500">Content Editor</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">emma.wilson@example.com</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Editor
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">3 days ago</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-user-btn">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/men/75.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">David Kim</div>
+                                                    <div class="text-sm text-gray-500">Analyst</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">david.kim@example.com</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Viewer
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">1 week ago</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Active
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-user-btn">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full" src="https://randomuser.me/api/portraits/women/68.jpg" alt="">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">Lisa Rodriguez</div>
+                                                    <div class="text-sm text-gray-500">Support</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">lisa.rodriguez@example.com</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Viewer
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">1 month ago</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Inactive
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3 edit-user-btn">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900 delete-user-btn">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="mt-8 flex justify-center">
+                        <nav class="inline-flex rounded-md shadow-sm">
+                            <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-blue-600 font-medium">1</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">4</a>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
+                            <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
+                            <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">12</a>
+                            <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- User Detail Modal -->
+                <div id="userDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <h3 class="text-lg font-semibold">User Details - <span id="userDetailName">Sarah Johnson</span></h3>
+                            <button id="closeUserDetailModal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- User Summary -->
+                                <div class="lg:col-span-2">
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <div class="flex items-center space-x-4 mb-6">
+                                            <div class="flex-shrink-0">
+                                                <img id="userDetailAvatar" class="h-16 w-16 rounded-full" src="https://randomuser.me/api/portraits/women/12.jpg" alt="">
+                                            </div>
+                                            <div>
+                                                <h4 id="userDetailFullName" class="text-xl font-semibold">Sarah Johnson</h4>
+                                                <div class="flex items-center space-x-2 mt-1">
+                                                    <span id="userDetailStatus" class="status-badge bg-green-100 text-green-800">Active</span>
+                                                    <span id="userDetailRole" class="status-badge bg-purple-100 text-purple-800">Super Admin</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
+                                                <span id="userDetailSince" class="text-sm">Jan 12, 2021</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Login</label>
+                                                <span id="userDetailLastLogin" class="text-sm">2 hours ago</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Login Count</label>
+                                                <span id="userDetailLoginCount" class="text-sm">287</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Two-Factor Auth</label>
+                                                <span id="userDetail2FA" class="text-sm">Enabled</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-6">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">User Notes</label>
+                                            <textarea class="w-full border border-gray-300 rounded p-3 text-sm focus:ring-blue-600 focus:border-blue-600" rows="3" placeholder="Add notes about this user...">Sarah is the primary system administrator with full access to all features.</textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Roles and Permissions Section -->
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Roles & Permissions</h4>
+                                        
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Assigned Roles</label>
+                                            <div class="flex flex-wrap gap-2" id="assignedRoles">
+                                                <span class="role-tag bg-purple-100 text-purple-800">Super Admin</span>
+                                                <span class="role-tag bg-blue-100 text-blue-800">Content Approver</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Available Permissions</label>
+                                            <div class="border rounded-lg overflow-hidden">
+                                                <div class="grid grid-cols-1 divide-y divide-gray-200">
+                                                    <!-- Permission Group -->
+                                                    <div class="p-3 bg-gray-100">
+                                                        <div class="flex items-center justify-between">
+                                                            <h5 class="font-medium">System Administration</h5>
+                                                            <button class="text-blue-600 text-sm">Select All</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Permission Items -->
+                                                    <div class="p-3 permission-item">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <span class="font-medium">Manage Users</span>
+                                                                <p class="text-xs text-gray-500">Create, edit and delete system users</p>
+                                                            </div>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" class="sr-only peer" checked>
+                                                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-3 permission-item">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <span class="font-medium">Manage Roles</span>
+                                                                <p class="text-xs text-gray-500">Create and assign roles to users</p>
+                                                            </div>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" class="sr-only peer" checked>
+                                                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Another Permission Group -->
+                                                    <div class="p-3 bg-gray-100">
+                                                        <div class="flex items-center justify-between">
+                                                            <h5 class="font-medium">Content Management</h5>
+                                                            <button class="text-blue-600 text-sm">Select All</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Permission Items -->
+                                                    <div class="p-3 permission-item">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <span class="font-medium">Create Content</span>
+                                                                <p class="text-xs text-gray-500">Add new articles, products, etc.</p>
+                                                            </div>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" class="sr-only peer" checked>
+                                                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-3 permission-item">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <span class="font-medium">Edit Content</span>
+                                                                <p class="text-xs text-gray-500">Modify existing content</p>
+                                                            </div>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" class="sr-only peer" checked>
+                                                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-3 permission-item">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <span class="font-medium">Delete Content</span>
+                                                                <p class="text-xs text-gray-500">Remove content from the system</p>
+                                                            </div>
+                                                            <label class="inline-flex items-center cursor-pointer">
+                                                                <input type="checkbox" class="sr-only peer" checked>
+                                                                <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- User Meta -->
+                                <div>
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Contact Information</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                                <div class="flex items-center">
+                                                    <span id="userDetailEmail" class="text-sm">sarah.johnson@example.com</span>
+                                                    <button class="ml-2 text-gray-500 hover:text-blue-600">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                                <div class="flex items-center">
+                                                    <span id="userDetailPhone" class="text-sm">+1 (555) 123-4567</span>
+                                                    <button class="ml-2 text-gray-500 hover:text-blue-600">
+                                                        <i class="fas fa-phone"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                                <span id="userDetailDepartment" class="text-sm">IT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                        <h4 class="font-medium text-lg mb-4">Security</h4>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Password Last Changed</label>
+                                                <span id="userDetailPasswordChanged" class="text-sm">3 weeks ago</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Failed Login Attempts</label>
+                                                <span id="userDetailFailedLogins" class="text-sm">2</span>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">IP Restrictions</label>
+                                                <span id="userDetailIPRestrictions" class="text-sm">None</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <h4 class="font-medium text-lg mb-4">User Actions</h4>
+                                        <div class="space-y-3">
+                                            <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                                <i class="fas fa-key mr-2"></i>
+                                                Reset Password
+                                            </button>
+                                            <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                                <i class="fas fa-envelope mr-2"></i>
+                                                Send Welcome Email
+                                            </button>
+                                            <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                                <i class="fas fa-user-lock mr-2"></i>
+                                                Enable 2FA
+                                            </button>
+                                            <button class="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 flex items-center justify-center">
+                                                <i class="fas fa-user-slash mr-2"></i>
+                                                Deactivate User
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- User Actions -->
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                    Print Profile
+                                </button>
+                                <button class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add User Modal -->
+                <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <h3 class="text-lg font-semibold">Add New User</h3>
+                            <button id="closeAddUserModal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <form>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                        <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                        <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                        <input type="tel" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Initial Password</label>
+                                        <input type="password" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                        <p class="text-xs text-gray-500 mt-1">Leave blank to generate a random password</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                        <select class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                            <option>Select Department</option>
+                                            <option>IT</option>
+                                            <option>Marketing</option>
+                                            <option>Sales</option>
+                                            <option>Operations</option>
+                                            <option>Customer Support</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Assign Roles</label>
+                                        <div class="border rounded-lg p-3">
+                                            <div class="space-y-2">
+                                                <div class="flex items-center">
+                                                    <input id="role-admin" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                                    <label for="role-admin" class="ml-2 block text-sm text-gray-900">
+                                                        Super Admin
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <input id="role-manager" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                                    <label for="role-manager" class="ml-2 block text-sm text-gray-900">
+                                                        Manager
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <input id="role-editor" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                                    <label for="role-editor" class="ml-2 block text-sm text-gray-900">
+                                                        Editor
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-center">
+                                                    <input id="role-viewer" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                                    <label for="role-viewer" class="ml-2 block text-sm text-gray-900">
+                                                        Viewer
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Send Welcome Email</label>
+                                        <div class="flex items-center">
+                                            <input id="send-welcome-email" type="checkbox" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="send-welcome-email" class="ml-2 block text-sm text-gray-900">
+                                                Send welcome email with login instructions
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">User Notes</label>
+                                        <textarea class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" rows="3" placeholder="Add any notes about this user..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button type="button" id="cancelAddUser" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                        Add User
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Confirmation Modal -->
+                <div id="deleteUserModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                        <div class="p-6">
+                            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                                <i class="fas fa-exclamation text-red-600 text-xl"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-5">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900">Delete User</h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">Are you sure you want to delete this user? This action cannot be undone.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" id="confirmDeleteUser" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                Delete
+                            </button>
+                            <button type="button" id="cancelDeleteUser" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('hidden');
+        });
+
+        // User detail modal functionality
+        const editButtons = document.querySelectorAll('.edit-user-btn');
+        const userDetailModal = document.getElementById('userDetailModal');
+        const closeUserDetailModal = document.getElementById('closeUserDetailModal');
+        
+        editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                userDetailModal.classList.remove('hidden');
+            });
+        });
+        
+        closeUserDetailModal.addEventListener('click', function() {
+            userDetailModal.classList.add('hidden');
+        });
+
+        // Add user modal functionality
+        const addUserModal = document.getElementById('addUserModal');
+        const openAddUserModal = document.getElementById('openAddUserModal');
+        const closeAddUserModal = document.getElementById('closeAddUserModal');
+        const cancelAddUser = document.getElementById('cancelAddUser');
+        
+        openAddUserModal.addEventListener('click', function() {
+            addUserModal.classList.remove('hidden');
+        });
+        
+        closeAddUserModal.addEventListener('click', function() {
+            addUserModal.classList.add('hidden');
+        });
+        
+        cancelAddUser.addEventListener('click', function() {
+            addUserModal.classList.add('hidden');
+        });
+
+        // Delete user modal functionality
+        const deleteButtons = document.querySelectorAll('.delete-user-btn');
+        const deleteUserModal = document.getElementById('deleteUserModal');
+        const confirmDeleteUser = document.getElementById('confirmDeleteUser');
+        const cancelDeleteUser = document.getElementById('cancelDeleteUser');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                deleteUserModal.classList.remove('hidden');
+            });
+        });
+        
+        confirmDeleteUser.addEventListener('click', function() {
+            // Here you would add code to actually delete the user
+            deleteUserModal.classList.add('hidden');
+            // Show a success message
+            alert('User deleted successfully');
+        });
+        
+        cancelDeleteUser.addEventListener('click', function() {
+            deleteUserModal.classList.add('hidden');
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === userDetailModal) {
+                userDetailModal.classList.add('hidden');
+            }
+            if (event.target === addUserModal) {
+                addUserModal.classList.add('hidden');
+            }
+            if (event.target === deleteUserModal) {
+                deleteUserModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
