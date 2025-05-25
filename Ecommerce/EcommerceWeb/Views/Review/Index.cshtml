@@ -1,0 +1,450 @@
+﻿@{
+    ViewData["Title"] = "Review Page";
+}
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#10a37f',
+                    'ai-dark': '#202123',
+                    'ai-light': '#f7f7f8',
+                    'ai-gray': '#343541',
+                }
+            }
+        }
+    }
+</script>
+<style>
+    .rating-star {
+        color: #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .rating-star:hover,
+        .rating-star.active {
+            color: #f59e0b;
+        }
+
+    .order-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    
+    .checkout-step.active {
+        border-color: #10a37f;
+        background-color: rgba(16, 163, 127, 0.05);
+    }
+
+    .checkout-step.completed .step-number {
+        background-color: #10a37f;
+        color: white;
+    }
+</style>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+    <!-- Checkout Progress -->
+    <div class="flex justify-center mb-8">
+        <div class="w-full max-w-3xl">
+            <div class="flex justify-between relative">
+                <!-- Progress line -->
+                <div class="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
+                <div class="absolute top-4 left-0 h-1 bg-ai-blue z-10" style="width: 100%;"></div>
+
+                <!-- Step 1 -->
+                <div class="checkout-step completed relative z-20 flex flex-col items-center">
+                    <div class="step-number w-8 h-8 rounded-full border-2 border-ai-blue bg-ai-blue text-white flex items-center justify-center mb-2">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                    <span class="text-sm font-medium text-ai-blue">Shipping</span>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="checkout-step completed relative z-20 flex flex-col items-center">
+                    <div class="step-number w-8 h-8 rounded-full border-2 border-ai-blue bg-white text-ai-blue flex items-center justify-center mb-2">
+                        <i class="fas fa-check text-xs"></i>
+                    </div>
+                    <span class="text-sm font-medium text-ai-blue">Payment</span>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="checkout-step relative z-20 flex flex-col items-center">
+                    <div class="step-number w-8 h-8 rounded-full border-2 border-gray-300 bg-white text-gray-400 flex items-center justify-center mb-2">
+                        3
+                    </div>
+                    <span class="text-sm font-medium text-gray-500">Review</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Order Summary -->
+        <div class="lg:w-2/3">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Order Summary</h2>
+
+                <!-- Order Items -->
+                <div class="space-y-4 mb-6">
+                    <div class="order-item bg-white border border-gray-200 rounded-lg p-4 transition">
+                        <div class="flex items-start">
+                            <div class="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center mr-4">
+                                <img src="https://picsum.photos/200/200?random=1" alt="AI Processor Chip" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-800">NeuralCore AI Processor</h3>
+                                <p class="text-sm text-gray-500 mb-2">Model: NC-5000X</p>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex mr-2">
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star-half-alt text-yellow-400 text-sm"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500">(42 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-800">$1,299.00</span>
+                                    <span class="text-sm text-gray-500">Qty: 1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-item bg-white border border-gray-200 rounded-lg p-4 transition">
+                        <div class="flex items-start">
+                            <div class="w-20 h-20 bg-gray-100 rounded-md flex items-center justify-center mr-4">
+                                <img src="https://picsum.photos/200/200?random=2" alt="AI Development Kit" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-800">AI Vision Development Kit</h3>
+                                <p class="text-sm text-gray-500 mb-2">Model: VDK-3000</p>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex mr-2">
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                    </div>
+                                    <span class="text-xs text-gray-500">(128 reviews)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-800">$899.00</span>
+                                    <span class="text-sm text-gray-500">Qty: 2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Method -->
+                <div class="border-t border-gray-200 pt-6 mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">Shipping Method</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">Express Shipping</p>
+                                <p class="text-sm text-gray-500">Estimated delivery: 2-3 business days</p>
+                            </div>
+                            <span class="font-medium">$24.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="border-t border-gray-200 pt-6 mb-6">
+                    <h3 class="font-medium text-gray-800 mb-3">Payment Method</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-6 bg-blue-100 rounded flex items-center justify-center mr-3">
+                                <i class="fab fa-cc-visa text-blue-800"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Visa ending in 4242</p>
+                                <p class="text-sm text-gray-500">Expires 05/2025</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Address -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="font-medium text-gray-800 mb-3">Billing Address</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="font-medium">John Smith</p>
+                        <p class="text-gray-600">123 Tech Park Drive</p>
+                        <p class="text-gray-600">San Francisco, CA 94107</p>
+                        <p class="text-gray-600">United States</p>
+                        <p class="text-gray-600">+1 (555) 123-4567</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Products -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Review Your Products</h2>
+                <p class="text-gray-600 mb-6">Help other customers by sharing your experience with these products.</p>
+
+                <div class="space-y-8">
+                    <!-- Review Item 1 -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <div class="flex items-start mb-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center mr-4">
+                                <img src="https://picsum.photos/200/200?random=3" alt="AI Processor Chip" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-800">NeuralCore AI Processor</h3>
+                                <p class="text-sm text-gray-500">Model: NC-5000X</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Overall Rating</h4>
+                            <div class="flex space-x-1" id="rating1">
+                                <i class="fas fa-star rating-star text-2xl" data-rating="1"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="2"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="3"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="4"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="5"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Review Title</h4>
+                            <input type="text" placeholder="Summarize your experience" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Your Review</h4>
+                            <textarea placeholder="What did you like or dislike? What did you use this product for?" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Add Photo (Optional)</h4>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                <i class="fas fa-camera text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-500">Drag and drop images here or click to browse</p>
+                                <input type="file" class="hidden" id="fileInput1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Item 2 -->
+                    <div class="border-b border-gray-200 pb-6">
+                        <div class="flex items-start mb-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center mr-4">
+                                <img src="https://picsum.photos/200/200?random=4" alt="AI Development Kit" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-800">AI Vision Development Kit</h3>
+                                <p class="text-sm text-gray-500">Model: VDK-3000</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Overall Rating</h4>
+                            <div class="flex space-x-1" id="rating2">
+                                <i class="fas fa-star rating-star text-2xl" data-rating="1"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="2"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="3"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="4"></i>
+                                <i class="fas fa-star rating-star text-2xl" data-rating="5"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Review Title</h4>
+                            <input type="text" placeholder="Summarize your experience" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Your Review</h4>
+                            <textarea placeholder="What did you like or dislike? What did you use this product for?" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Add Photo (Optional)</h4>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                <i class="fas fa-camera text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-sm text-gray-500">Drag and drop images here or click to browse</p>
+                                <input type="file" class="hidden" id="fileInput2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Submission -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center">
+                        <div class="flex items-center mb-4 sm:mb-0">
+                            <input type="checkbox" id="anonymousCheck" class="mr-2">
+                            <label for="anonymousCheck" class="text-sm text-gray-600">Post anonymously</label>
+                        </div>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition">
+                            Submit Reviews
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="lg:w-1/3">
+            <div class="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Order Summary</h2>
+
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Subtotal (3 items)</span>
+                        <span class="font-medium">$3,097.00</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Shipping</span>
+                        <span class="font-medium">$24.99</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Tax</span>
+                        <span class="font-medium">$248.56</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mb-6">
+                    <div class="flex justify-between">
+                        <span class="font-bold text-lg">Total</span>
+                        <span class="font-bold text-lg">$3,370.55</span>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border border-green-100 rounded-lg p-4 mb-6">
+                    <div class="flex items-start">
+                        <div class="text-green-500 mr-2 mt-0.5">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-green-700">Your order is protected</p>
+                            <p class="text-sm text-green-600">OpenTrade's Buyer Protection covers your purchase from click to delivery.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition flex items-center justify-center">
+                    <i class="fas fa-lock mr-2"></i> Place Your Order
+                </button>
+
+                <p class="text-xs text-gray-500 mt-3 text-center">
+                    By placing your order, you agree to OpenTrade's <a href="#" class="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // Star rating functionality
+    document.querySelectorAll('[id^="rating"]').forEach(ratingContainer => {
+        const stars = ratingContainer.querySelectorAll('.rating-star');
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const rating = parseInt(star.getAttribute('data-rating'));
+
+                // Reset all stars
+                stars.forEach(s => s.classList.remove('active'));
+
+                // Highlight selected stars
+                for (let i = 0; i < rating; i++) {
+                    stars[i].classList.add('active');
+                }
+            });
+
+            // Hover effect
+            star.addEventListener('mouseover', () => {
+                const hoverRating = parseInt(star.getAttribute('data-rating'));
+
+                stars.forEach(s => {
+                    const sRating = parseInt(s.getAttribute('data-rating'));
+                    if (sRating <= hoverRating) {
+                        s.style.color = '#f59e0b';
+                    }
+                });
+            });
+
+            star.addEventListener('mouseout', () => {
+                stars.forEach(s => {
+                    if (!s.classList.contains('active')) {
+                        s.style.color = '#e2e8f0';
+                    }
+                });
+            });
+        });
+    });
+
+    // File upload interaction
+    document.querySelectorAll('[id^="fileInput"]').forEach((input, index) => {
+        const dropZone = input.previousElementSibling;
+
+        dropZone.addEventListener('click', () => {
+            input.click();
+        });
+
+        input.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                dropZone.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-500 text-xl mr-2"></i>
+                        <span class="text-sm font-medium">${e.target.files[0].name}</span>
+                    </div>
+                `;
+            }
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropZone.classList.add('border-blue-500', 'bg-blue-50');
+        }
+
+        function unhighlight() {
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            input.files = files;
+
+            if (files.length) {
+                dropZone.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-500 text-xl mr-2"></i>
+                        <span class="text-sm font-medium">${files[0].name}</span>
+                    </div>
+                `;
+            }
+        }
+    });
+
+    // Place order button
+    document.querySelector('button.bg-green-600').addEventListener('click', () => {
+        alert('Thank you for your order! Your items will be processed and shipped soon.');
+    });
+</script>   
