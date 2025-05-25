@@ -11,7 +11,7 @@ namespace Ecommerce.Controllers;
 
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender) : ControllerBase
+public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender,IConfiguration configuration) : ControllerBase
 {
     [HttpPost]
     public ActionResult<UserLoginResponseModel> UserLogin(UserLoginRequest userLoginRequest)
@@ -142,7 +142,6 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     [HttpPost]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
     {
-
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email || u.PhoneNumber == userRegisterRequest.PhoneNumber);
 
         if (user != null)
@@ -166,6 +165,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             PhoneNumber = userRegisterRequest.PhoneNumber,
             Address = userRegisterRequest.Address,
             TenantId = newtant.Id,
+            IsTenantPrimary= true,
             Tenant = newtant,
             CreatedAt = DateTime.UtcNow
         };
@@ -185,14 +185,12 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
             subject: "Verify Your Email Address",
-            body: $@"
-                    <p>Dear {newUser.FirstName} {newUser.LastName},</p>
+            body: $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
                     <p>Please click the link below to verify your email address:</p>
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>Your Company Name</p>"
-                    );
+                    <p>Best regards,<br/>Your Company Name</p>");
 
 
         return CreatedAtAction(nameof(UserLogin), new UserRegisterResponseModel
@@ -252,6 +250,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
     }
 
+    [HttpPost]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = GetTenantIdHeader();
@@ -312,7 +311,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         return Ok("Link resent successfully.");
     }
-
+    
+    [HttpGet]
     public async Task<ActionResult> VerifyUser(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);

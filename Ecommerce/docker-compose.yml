@@ -14,7 +14,7 @@ services:
         networks:
             - sql_shared_network
         environment:
-            - ConnectionStrings__DatabaseConnection=Server=Server=sqlserver,1433;Database=EcommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+            - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=EcommerceDb;Persist Security Info=False;User ID=sa;Password=EcommerceDb@DevelopmentAdmin1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;
     
 
     EcommerceApi:
@@ -30,15 +30,15 @@ services:
         networks:
             - sql_shared_network
         environment:
-            - ConnectionStrings__DatabaseConnection=Server=Server=sqlserver,1433;Database=EcommerceDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;
+            - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=EcommerceDb;Persist Security Info=False;User ID=sa;Password=EcommerceDb@DevelopmentAdmin1;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Connection Timeout=30;
     
 
     sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
-        container_name: sqlserver
+        container_name: sql_server_container
         environment:
           - ACCEPT_EULA=Y
-          - SA_PASSWORD=YourStrong!Passw0rd
+          - SA_PASSWORD=EcommerceDb@DevelopmentAdmin1
         ports:
           - "1433:1433"
         networks:

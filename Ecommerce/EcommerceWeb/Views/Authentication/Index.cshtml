@@ -1,4 +1,6 @@
-﻿@{
+﻿@using EcommerceWeb.Models
+@model RegisterViewModel
+@{
     ViewData["Title"] = "Authentication Page";
     Layout = "_AuthLayout";
 }
@@ -176,7 +178,7 @@
                 </div>
 
                 <!-- Register Form (Hidden by default) -->
-                <div id="registerForm" class="space-y-6 hidden">
+                <form asp-controller="Authentication" asp-action="Index" method="post" id="registerForm" class="space-y-6 hidden">
                     <div class="text-center mb-6">
                         <h3 class="text-2xl font-bold text-ai-dark mb-2">Create Account</h3>
                         <p class="text-gray-600">Join OpenTrade to access AI-powered sourcing</p>
@@ -184,41 +186,41 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="relative">
-                            <input type="text" id="firstName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                            <label for="firstName" class="floating-label left-4 text-gray-500">First Name</label>
+                            <input asp-for="FirstName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required />
+                            <label for="FirstName" class="floating-label left-4 text-gray-500">First Name</label>
                         </div>
                         <div class="relative">
-                            <input type="text" id="lastName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                            <label for="lastName" class="floating-label left-4 text-gray-500">Last Name</label>
+                            <input asp-for="LastName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required />
+                            <label for="LastName" class="floating-label left-4 text-gray-500">Last Name</label>
                         </div>
                     </div>
 
                     <div class="relative">
-                        <input type="email" id="registerEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                        <label for="registerEmail" class="floating-label left-4 text-gray-500">Email Address</label>
+                        <input asp-for="Email" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required />
+                        <label for="Email" class="floating-label left-4 text-gray-500">Email Address</label>
                     </div>
 
                     <div class="relative">
-                        <input type="password" id="registerPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                        <label for="registerPassword" class="floating-label left-4 text-gray-500">Password</label>
-                        <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <input asp-for="Password" type="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required />
+                        <label for="Password" class="floating-label left-4 text-gray-500">Password</label>
+                        <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                             <i class="far fa-eye-slash"></i>
                         </button>
                     </div>
 
                     <div class="relative">
-                        <input type="password" id="confirmPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                        <label for="confirmPassword" class="floating-label left-4 text-gray-500">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required />
+                        <label for="ConfirmPassword" class="floating-label left-4 text-gray-500">Confirm Password</label>
                     </div>
 
                     <div class="flex items-center">
-                        <input type="checkbox" id="terms" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded" required>
+                        <input type="checkbox" id="terms" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded" required />
                         <label for="terms" class="ml-2 block text-sm text-gray-700">
                             I agree to the <a href="#" class="text-ai-blue hover:underline">Terms of Service</a> and <a href="#" class="text-ai-blue hover:underline">Privacy Policy</a>
                         </label>
                     </div>
 
-                    <button class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
+                    <button type="submit" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
                         Create Account
                     </button>
 
@@ -229,17 +231,18 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-3">
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-google text-red-500 mr-2"></i>
                         </button>
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-linkedin-in text-blue-600 mr-2"></i>
                         </button>
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-apple text-gray-800 mr-2"></i>
                         </button>
                     </div>
-                </div>
+                </form>
+
             </div>
         </div>
 

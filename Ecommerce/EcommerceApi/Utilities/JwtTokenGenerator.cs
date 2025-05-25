@@ -11,11 +11,11 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options)
 {
     private readonly JwtSettings _jwtSettings = options.Value;
 
-    public string GenerateToken(int userId,string name, string email)
+    public string GenerateToken(Guid userId,string name, string email)
     {
         return GenerateToken(userId, name, email, DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes));
     }
-    public string GenerateToken(int userId, string name, string email, DateTime expiryInMinutes)
+    public string GenerateToken(Guid userId, string name, string email, DateTime expiryInMinutes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

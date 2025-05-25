@@ -1,13 +1,15 @@
 ﻿using Ecommerce.Configurations;
 using Ecommerce.Entities;
 using Ecommerce.Utilities;
+using EcommerceApi;
+using EcommerceApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-
+builder.Services.AddDependencies();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -28,6 +30,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

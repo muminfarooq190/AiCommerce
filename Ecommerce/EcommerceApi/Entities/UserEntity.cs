@@ -5,7 +5,7 @@ namespace Ecommerce.Entities;
 public class UserEntity
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required string Password { get; set; }
     public required string Email { get; set; }
     public required string PhoneNumber { get; set; }
