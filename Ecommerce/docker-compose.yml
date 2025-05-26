@@ -46,6 +46,16 @@ services:
         volumes:
           - sql_data:/var/opt/mssql
 
+    papercut:
+        image: jijiechen/papercut
+        container_name: papercut
+        ports:
+          - "37408:37408"  # Web UI
+          - "2525:25"      # Use 2525 externally -> 25 internally
+        networks:
+          - sql_shared_network
+        restart: unless-stopped
+
 volumes:
   sql_data:
 

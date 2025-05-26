@@ -9,13 +9,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.RequestModels;
 using Models.ResponseModels;
-using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Ecommerce.Controllers;
 
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender,ITenantProvider tenantProvider) : ControllerBase
+public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender, ITenantProvider tenantProvider) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
@@ -24,31 +24,42 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (TenantId == null)
         {
-            return BadRequest("TenantId header is missing or invalid.");
+            return Problem(
+                detail: "TenantId header is missing or invalid.",
+                title: "Login Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path
+            );
+
         }
 
         var user = context.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email && u.TenantId == TenantId);
 
         if (user == null)
         {
-            return Unauthorized("Invalid username or password.");
-        }
-
-        if (user.IsLocked)
-        {
-            return Unauthorized("User account is locked.");
+            return Problem(
+                detail: "Invalid username or password.",
+                title: "Login Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path
+            );
         }
 
         if (!PasswordHasher.Verify(user.Password, userLoginRequest.Password))
         {
             user.IncreaseFailedLogin();
             await context.SaveChangesAsync();
-            return Unauthorized("Invalid username or password.");
+            return Problem(detail: "Invalid username or password.", title: "Login Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
         }
 
         if (!user.IsEmailVerified)
         {
-            return Unauthorized("User email is not verified.");
+            return Problem(detail: "User email is not verified.", title: "Login Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
+        }
+
+        if (user.IsLocked)
+        {
+            return Problem(detail: "User account is locked.", title: "Login Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
 
         user.ResetFailedLogin();
@@ -75,7 +86,13 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         Guid? TenantId = tenantProvider.TenantId;
         if (TenantId == null)
         {
-            return BadRequest("TenantId header is missing or invalid.");
+            return Problem(
+                detail: "TenantId header is missing or invalid.",
+                title: "Registration Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path
+            );
+
         }
 
         Guid tenantIdValue = (Guid)TenantId;
@@ -84,7 +101,12 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (user != null)
         {
-            return BadRequest("User already exists.");
+            return Problem(
+                detail: "User already exists.",
+                title: "Registration Failed",
+                statusCode: StatusCodes.Status401Unauthorized,
+                instance: HttpContext.Request.Path
+            );
         }
 
         var newUser = UserEntity.Create(
@@ -95,7 +117,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             lastName: userRegisterRequest.LastName,
             address: userRegisterRequest.Address,
             tenantId: tenantIdValue
-        );        
+        );
 
         context.Users.Add(newUser);
         context.SaveChanges();
@@ -143,10 +165,15 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (user != null)
         {
-            return BadRequest("Tenant with same email or phone number already exists.");
+            return Problem(
+                detail: "A tenant with the same email or phone number already exists.",
+                title: "Registration Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path
+            );
         }
 
-       TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
+        TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
 
         var newUser = UserEntity.Create(
             password: PasswordHasher.Hash(userRegisterRequest.Password),
@@ -161,33 +188,31 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         var features = FeatureFactory.GetFlattenedPermissionList();
 
-        foreach(var feature in features)
+        foreach (var feature in features)
         {
-            newUser.AddPermission(PermissionsEntity.Create(feature,newUser));
+            newUser.AddPermission(PermissionsEntity.Create(feature, newUser));
         }
 
         context.Users.Add(newUser);
         await context.SaveChangesAsync();
 
-        var link = jwtTokenGenerator.GenerateToken(
+        var token = jwtTokenGenerator.GenerateToken(
              newUser.Id,
              newUser.FirstName + " " + newUser.LastName,
              newUser.Email,
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"https://yourdomain.com/verify?token={link}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
 
-        await emailSender.SendEmailAsync(
-            toEmail: newUser.Email,
-            subject: "Verify Your Email Address",
-            body: $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
+        string body = $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
                     <p>Please click the link below to verify your email address:</p>
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>Your Company Name</p>");
+                    <p>Best regards,<br/>Your Company Name</p>";
 
+        await emailSender.SendEmailAsync(toEmail: newUser.Email, subject: "Verify Your Email Address", body);
 
         return CreatedAtAction(nameof(UserLogin), value: new UserRegisterResponse
         {
@@ -212,29 +237,30 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (user == null)
         {
-            return Unauthorized("Invalid username or password.");
+            return Problem(detail: "Invalid username or password.", title: "Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
         }
 
-        if (user.IsLocked)
-        {
-            return Unauthorized("User account is locked.");
-        }
 
         if (!PasswordHasher.Verify(user.Password, userLoginRequest.Password))
         {
             user.IncreaseFailedLogin();
             await context.SaveChangesAsync();
-            return Unauthorized("Invalid username or password.");
+            return Problem(detail: "Invalid username or password.", title: "Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
+        }
+
+        if (user.IsLocked)
+        {
+            return Problem(detail: "User account is locked.", title: "Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
 
         if (user.IsEmailVerified)
         {
-            return Unauthorized("User email is not verified.");
+            return Problem(detail: "User email is not verified.", title: "Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
 
         if (!user.IsTenantPrimary)
         {
-            return Unauthorized("User is not a tenant primary user. User should be primary tenant account.");
+            return Problem(detail: "User is not a tenant primary user. User should be primary tenant account.", title: "Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
 
         user.ResetFailedLogin();
@@ -253,30 +279,32 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
         if (user == null)
         {
-            return Unauthorized("Invalid username or password.");
-        }
-
-        if (user.IsLocked)
-        {
-            return Unauthorized("User account is locked.");
+            return Problem(detail: "Expirecd or invalid link.", title: "Verify Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
         }
 
         if (!PasswordHasher.Verify(userLoginRequest.Password, user.Password))
         {
             user.IncreaseFailedLogin();
             await context.SaveChangesAsync();
-            return Unauthorized("Invalid username or password.");
+            return Problem(detail: "Invalid username or password", title: "Verify Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
         }
 
         if (TenantId == null)
         {
             if (!user.IsTenantPrimary)
-                return BadRequest("TenantId header is missing");
+                return Problem(detail: "TenantId header is missing", title: "Verify Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
 
         }
         else if (TenantId != user.TenantId)
         {
-            return Unauthorized("Invalid username or password.");
+            return Problem(detail: "Invalid username or password", title: "Verify Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
+
+        }
+
+        if (user.IsLocked)
+        {
+            return Problem(detail: "User account is locked.", title: "Verify Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
+
         }
 
         var link = jwtTokenGenerator.GenerateToken(
@@ -304,28 +332,57 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     }
 
     [HttpGet]
-    public async Task<ActionResult> VerifyUser(string token)
+    public async Task<ActionResult> Verify(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);
 
         if (clams == null)
         {
-            return Unauthorized("Expirecd or invalid link");
+            return Problem(
+               detail: "Expirecd or invalid link.",
+               title: "Verify Failed",
+               statusCode: StatusCodes.Status400BadRequest,
+               instance: HttpContext.Request.Path
+           );
         }
 
-        var email = clams.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)?.Value;
+        var UserId = clams.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-        UserEntity user = await context.Users.FirstAsync(u => u.Email == email);
+        if (string.IsNullOrEmpty(UserId) || !Guid.TryParse(UserId, out Guid userIdValue))
+        {
+            return Problem(
+               detail: "Expirecd or invalid link.",
+               title: "Verify Failed",
+               statusCode: StatusCodes.Status400BadRequest,
+               instance: HttpContext.Request.Path
+           );
+        }
 
+        UserEntity? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userIdValue);
+
+        if (user == null)
+        {
+            return Problem(
+                detail: "Expirecd or invalid link.",
+                title: "Verify Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path
+            );
+        }
 
         if (user.IsEmailVerified)
         {
-            return Unauthorized("emial is already verified");
+            return Problem(
+               detail: "emial is already verified.",
+               title: "Verify Failed",
+               statusCode: StatusCodes.Status401Unauthorized,
+               instance: HttpContext.Request.Path
+           );
         }
 
         user.VerifyEmail();
 
-        var url = $"https://yourdomain.com/login?email={user.Email}";
+        string url = $"{Request.Scheme}://{Request.Host}/api/authentication/userlogin?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,
@@ -341,7 +398,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
      );
 
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
         return Ok("Email verified successfully.");
     }
 }
