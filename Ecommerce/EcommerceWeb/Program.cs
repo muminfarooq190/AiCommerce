@@ -1,10 +1,19 @@
+using EcommerceWeb.Configrations;
+using EcommerceWeb.Entities;
 using EcommerceWeb.Handlers;
 using EcommerceWeb.Services;
 using EcommerceWeb.Services.Contarcts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("Api"));
+
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
@@ -17,13 +26,12 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddTransient<ApiAuthHandler>();
 
-builder.Services.AddHttpClient<IApiClient, ApiClient>(client =>
+builder.Services.AddHttpClient<IApiClient, ApiClient>((serviceProvider, client) =>
 {
-    var api = builder.Configuration.GetSection("Api");
-    var url = api.GetValue<string>("Url") ?? throw new ArgumentNullException("Api url is misssting in configration.");
-    var timeout = api.GetValue<int>("Timeout", 60);
-    client.BaseAddress = new Uri(url);
-    client.Timeout = TimeSpan.FromSeconds(timeout);
+    var apiOptions = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
+    
+    client.BaseAddress = new Uri(apiOptions.Url);
+    client.Timeout = TimeSpan.FromSeconds(apiOptions.Timeout);
 })
 .AddHttpMessageHandler<ApiAuthHandler>();
 

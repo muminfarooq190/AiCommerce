@@ -36,5 +36,5 @@ public class RegisterViewModel
 
     [Required]
     [Display(Name = "Company Name")]
-    public required string Companyname { get; set; }
+    public required string CompanyName { get; set; }
 }

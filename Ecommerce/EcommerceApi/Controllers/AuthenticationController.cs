@@ -165,8 +165,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             tenantId: tenantIdValue
         );
 
-        context.Users.Add(newUser);
-        context.SaveChanges();
+        await context.Users.AddAsync(newUser);
+        await context.SaveChangesAsync();
 
         var token = jwtTokenGenerator.GenerateToken(
             newUser.Id,
@@ -189,6 +189,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                     <p>Best regards,<br/>Your Company Name</p>"
                     );
 
+        TenantEntity tenant = await context.Tenant.FirstAsync(f=> f.Id == tenantIdValue);
+
         return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
         {
             Id = newUser.Id,
@@ -200,7 +202,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = newUser.TenantId
+            TenantId = newUser.TenantId,
+            CompanyName = tenant.CompanyName
         });
     }
 
@@ -284,7 +287,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = newUser.TenantId
+            TenantId = newUser.TenantId,
+            CompanyName = newtant.CompanyName
         });
     }
 

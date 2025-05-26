@@ -12,5 +12,6 @@ public class UserRegisterResponse
     public required string PhoneNumber { get; set; }
     public required string Address { get; set; }
     public required Guid TenantId { get; set; }
+    public required string CompanyName { get; set; }
 
  }
