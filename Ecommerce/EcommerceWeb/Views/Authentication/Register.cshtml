@@ -1,4 +1,6 @@
-﻿@{
+﻿@using EcommerceWeb.Models
+@model RegisterViewModel
+@{
     ViewData["Title"] = "Authentication Page";
     Layout = "_AuthLayout";
 }
@@ -30,13 +32,11 @@
         background-clip: text;
         animation: shine 3s linear infinite;
     }
+
     @@keyframes shine {
-        to
-
-    {
-        background-position: 200% center;
-    }
-
+        to {
+            background-position: 200% center;
+        }
     }
 
     .auth-container {
@@ -73,10 +73,14 @@
             left: 0.75rem;
             color: #10a37f;
         }
+
+    .relative span{
+        display:block;
+    }
 </style>
 <!-- Main Content -->
 <main class="flex-grow flex items-center justify-center py-12 px-4">
-    <div class="w-full max-w-4xl mx-auto">
+    <div class="w-full max-w-6xl mx-auto">
         <div class="flex flex-col md:flex-row rounded-xl overflow-hidden bg-white auth-container">
             <!-- Left Side - Branding -->
             <div class="w-full md:w-1/2 gradient-bg text-white p-8 md:p-12 flex flex-col justify-center">
@@ -118,72 +122,120 @@
 
             <!-- Right Side - Auth Forms -->
             <div class="w-full md:w-1/2 p-8 md:p-12">
-                <!-- Login Form -->
-                <div id="loginForm" class="space-y-6">
+                
+                <!-- Register Form (Hidden by default) -->
+                <form asp-controller="Authentication" asp-action="Register" method="post" id="registerForm" class="space-y-6">
                     <div class="text-center mb-6">
-                        <h3 class="text-2xl font-bold text-ai-dark mb-2">Welcome Back</h3>
-                        <p class="text-gray-600">Sign in to access your OpenTrade account</p>
+                        <h3 class="text-2xl font-bold text-ai-dark mb-2">Create Account</h3>
+                        <p class="text-gray-600">Join OpenTrade to access AI-powered sourcing</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="relative">
+                            <span asp-validation-for="FirstName" class="text-sm text-red-600 mb-1"></span>
+                            <input asp-for="FirstName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                            <label for="FirstName" class="floating-label left-4 text-gray-500">First Name</label>                           
+                        </div>
+                        <div class="relative">
+                            <span asp-validation-for="LastName" class="text-sm text-red-600 mb-1"></span>
+                            <input asp-for="LastName" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                            <label for="LastName" class="floating-label left-4 text-gray-500">Last Name</label>
+                            
+                        </div>
                     </div>
 
                     <div class="relative">
-                        <input type="email" id="loginEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                        <label for="loginEmail" class="floating-label left-4 text-gray-500">Email Address</label>
+                        <span asp-validation-for="Email" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Email" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="Email" class="floating-label left-4 text-gray-500">Email Address</label>
+                                            
                     </div>
 
                     <div class="relative">
-                        <input type="password" id="loginPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
-                        <label for="loginPassword" class="floating-label left-4 text-gray-500">Password</label>
-                        <button style="transform: translate(0,-100%)" class="absolute right-3 top-1/2 text-gray-500">
+                        <span asp-validation-for="Companyname" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Companyname" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="Companyname" class="floating-label left-4 text-gray-500">Company Name</label>
+                    </div>
+
+
+                    <div class="relative">
+                        <span asp-validation-for="PhoneNumber" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="PhoneNumber" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="PhoneNumber" class="floating-label left-4 text-gray-500">PhoneNumber</label>
+                    </div>
+
+                    <div class="relative">
+                        <span asp-validation-for="Address" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Address" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="Address" class="floating-label left-4 text-gray-500">Address</label>
+
+                    </div>
+
+                    <div class="relative">
+                        <span asp-validation-for="Password" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Password" type="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="Password" class="floating-label left-4 text-gray-500">Password</label>
+                        <button type="button" style="transform: translate(0,-100%)" class="absolute right-3 top-1/2 text-gray-500">
                             <i class="far fa-eye-slash"></i>
                         </button>
                     </div>
 
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="rememberMe" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded">
-                            <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
-                        </div>
-                        <a href="#" class="text-sm text-ai-blue hover:underline">Forgot password?</a>
+                    <div class="relative">
+                        <span asp-validation-for="ConfirmPassword" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="ConfirmPassword" type="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" />
+                        <label for="ConfirmPassword" class="floating-label left-4 text-gray-500">Confirm Password</label>                        
                     </div>
 
-                    <button class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
-                        Sign In
+                    <div class="flex items-center">
+                        <input type="checkbox" id="terms" class="h-4 w-4 text-ai-blue focus:ring-ai-blue border-gray-300 rounded" required />
+                        <label for="terms" class="ml-2 block text-sm text-gray-700">
+                            I agree to the <a href="#" class="text-ai-blue hover:underline">Terms of Service</a> and <a href="#" class="text-ai-blue hover:underline">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full gradient-bg text-white py-3 px-4 rounded-lg font-medium hover:opacity-90 transition">
+                        Create Account
                     </button>
 
                     <div class="relative flex items-center py-4">
                         <div class="flex-grow border-t border-gray-300"></div>
-                        <span class="flex-shrink mx-4 text-gray-500 text-sm">OR CONTINUE WITH</span>
+                        <span class="flex-shrink mx-4 text-gray-500 text-sm">OR SIGN UP WITH</span>
                         <div class="flex-grow border-t border-gray-300"></div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-3">
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-google text-red-500 mr-2"></i>
                         </button>
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-linkedin-in text-blue-600 mr-2"></i>
                         </button>
-                        <button class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        <button type="button" class="social-btn flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                             <i class="fab fa-apple text-gray-800 mr-2"></i>
                         </button>
                     </div>
-                </div>
+                </form>
+
             </div>
         </div>
 
         <div class="text-center mt-6 text-gray-600">
-            <p id="toggleText">Don't have an account? <a asp-controller="Authentication" asp-action="Register" class="text-ai-blue font-medium hover:underline">Register now</a></p>
+            <p id="toggleText">Already have an account? <a asp-controller="Authentication" asp-action="Index" class="text-ai-blue font-medium hover:underline">Login</a></p>
         </div>
     </div>
 </main>
 
-<script>   
+<script>
    
+    const registerForm = document.getElementById('registerForm');
+ 
     // Floating label functionality
     const inputs = document.querySelectorAll('input');
     inputs.forEach(input => {
         const label = document.querySelector(`label[for="${input.id}"]`);
-
+        if(label == null){
+            return;
+        }
         input.addEventListener('focus', () => {
             label.classList.add('focused');
         });

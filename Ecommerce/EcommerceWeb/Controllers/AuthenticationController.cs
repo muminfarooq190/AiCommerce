@@ -1,25 +1,37 @@
 ﻿using EcommerceWeb.Models;
+using EcommerceWeb.Services.Contarcts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceWeb.Controllers;
 
-public class AuthenticationController : Controller
+public class AuthenticationController(IApiClient apiClient) : Controller
 {
     public IActionResult Index()
     {
         return View();
     }
+
+    [HttpGet]
+    public IActionResult Register()
+    {        
+        return View();
+    }
+
     [HttpPost]
-    public IActionResult Index(RegisterViewModel model)
+    public async Task<IActionResult> Register(RegisterViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(ModelState);
+            return View(model);
         }
 
-        // TODO: Add your logic to create the user, hash the password, etc.
+        var res = await apiClient.PostAsync<RegisterViewModel, RegisterViewModel>("api/Authentication/RegisterTenant", model);
 
-        // Simulate success for now
+        if(res.IsValid)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
         return View();
     }
 }
