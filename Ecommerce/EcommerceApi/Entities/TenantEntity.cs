@@ -2,7 +2,20 @@
 
 public class TenantEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    private TenantEntity() { }
+    public Guid Id { get; init; }
+    public required string CompanyName { get; init; }
+    public required DateTime CreatedAt { get; init; }
+    public required DateTime UpdatedAt { get; init; }
+
+    public static TenantEntity Create(string companyName)
+    {
+        return new TenantEntity
+        {
+            Id = Guid.NewGuid(),
+            CompanyName = companyName,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+    }
 }

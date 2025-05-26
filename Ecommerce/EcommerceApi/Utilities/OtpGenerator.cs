@@ -13,7 +13,7 @@ public static class OtpGenerator
         if (length <= 0 || length > 10)
             throw new ArgumentOutOfRangeException(nameof(length), "Length must be between 1 and 10.");
 
-        var rng = new RNGCryptoServiceProvider();
+        using var rng = RandomNumberGenerator.Create();
         var otp = new StringBuilder();
 
         while (otp.Length < length)

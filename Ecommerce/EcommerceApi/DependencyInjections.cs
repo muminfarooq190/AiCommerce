@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Services;
 using Ecommerce.Utilities;
+using EcommerceApi.Providers;
 
 namespace EcommerceApi;
 
@@ -9,6 +10,7 @@ public static class DependencyInjections
     {
         service.AddSingleton<JwtTokenGenerator>();
         service.AddSingleton<EmailSender>();
+        service.AddScoped<ITenantProvider, TenantProvider>();
 
         return service;
     }

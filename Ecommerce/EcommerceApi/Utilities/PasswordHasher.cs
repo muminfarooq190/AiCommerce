@@ -12,6 +12,6 @@ public class PasswordHasher
 
     public static bool Verify(string hashedPassword, string providedPassword)
     {
-       return PasswordVerificationResult.Success == _hasher.VerifyHashedPassword(providedPassword, hashedPassword, providedPassword);
+        return PasswordVerificationResult.Success == _hasher.VerifyHashedPassword(providedPassword, hashedPassword, providedPassword);
     }
 }

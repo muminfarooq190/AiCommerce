@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Models.RequestModels;
+﻿namespace Models.RequestModels;
 
 public record UserLoginRequest
 {

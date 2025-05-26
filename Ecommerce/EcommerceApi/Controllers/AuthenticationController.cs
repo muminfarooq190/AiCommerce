@@ -1,29 +1,32 @@
 ﻿using Ecommerce.Entities;
-using Ecommerce.Models.RequestModels;
-using Ecommerce.Models.ResponseModels;
 using Ecommerce.Services;
 using Ecommerce.Utilities;
+using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
+using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Models.RequestModels;
+using Models.ResponseModels;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Ecommerce.Controllers;
 
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender,IConfiguration configuration) : ControllerBase
+public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender,ITenantProvider tenantProvider) : ControllerBase
 {
     [HttpPost]
-    public ActionResult<UserLoginResponseModel> UserLogin(UserLoginRequest userLoginRequest)
+    public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
-        Guid? TenantId = GetTenantIdHeader();
+        Guid? TenantId = tenantProvider.TenantId;
 
         if (TenantId == null)
         {
             return BadRequest("TenantId header is missing or invalid.");
         }
 
-        // Validate the user credentials against the database        
         var user = context.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email && u.TenantId == TenantId);
 
         if (user == null)
@@ -36,28 +39,23 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return Unauthorized("User account is locked.");
         }
 
-        if (!PasswordHasher.Verify(userLoginRequest.Password, user.Password))
+        if (!PasswordHasher.Verify(user.Password, userLoginRequest.Password))
         {
-            if (user.FailedLoginAttempts >= 3)
-            {
-                user.IsLocked = true; // Lock the account after 3 failed attempts
-                context.SaveChanges();
-                return Unauthorized("User account is locked due to too many failed login attempts.");
-            }
+            user.IncreaseFailedLogin();
+            await context.SaveChangesAsync();
             return Unauthorized("Invalid username or password.");
         }
 
-        if (user.IsEmailVerified)
+        if (!user.IsEmailVerified)
         {
             return Unauthorized("User email is not verified.");
         }
 
-        // Update last login time
-        user.LastLogin = DateTime.UtcNow;
-        user.FailedLoginAttempts = 0; // Reset failed login attempts on successful login
-        context.SaveChanges();
+        user.ResetFailedLogin();
+        user.UpdateLastLogin();
+        await context.SaveChangesAsync();
 
-        return Ok(new UserLoginResponseModel
+        return Ok(new UserLoginResponse
         {
             Id = user.Id,
             Email = user.Email,
@@ -71,15 +69,16 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserRegisterRequest>> UserRegister(UserRegisterRequest userRegisterRequest)
+    [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
+    public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
-        Guid? TenantId = GetTenantIdHeader();
+        Guid? TenantId = tenantProvider.TenantId;
         if (TenantId == null)
         {
             return BadRequest("TenantId header is missing or invalid.");
         }
 
-        Guid tenantIdValue = (Guid)TenantId; 
+        Guid tenantIdValue = (Guid)TenantId;
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email && u.TenantId == tenantIdValue);
 
@@ -88,18 +87,15 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return BadRequest("User already exists.");
         }
 
-        var newUser = new UserEntity
-        {
-            Email = userRegisterRequest.Email,
-            Password = PasswordHasher.Hash(userRegisterRequest.Password),
-            FirstName = userRegisterRequest.FirstName,
-            LastName = userRegisterRequest.LastName,
-            LastLogin = DateTime.UtcNow,
-            PhoneNumber = userRegisterRequest.PhoneNumber,
-            Address = userRegisterRequest.Address,
-            TenantId = tenantIdValue,
-            CreatedAt = DateTime.UtcNow
-        };
+        var newUser = UserEntity.Create(
+            password: PasswordHasher.Hash(userRegisterRequest.Password),
+            email: userRegisterRequest.Email,
+            phoneNumber: userRegisterRequest.PhoneNumber,
+            firstName: userRegisterRequest.FirstName,
+            lastName: userRegisterRequest.LastName,
+            address: userRegisterRequest.Address,
+            tenantId: tenantIdValue
+        );        
 
         context.Users.Add(newUser);
         context.SaveChanges();
@@ -125,7 +121,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                     <p>Best regards,<br/>Your Company Name</p>"
                     );
 
-        return CreatedAtAction(nameof(UserLogin), new UserRegisterResponseModel
+        return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
         {
             Id = newUser.Id,
             Email = newUser.Email,
@@ -135,7 +131,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             UpdatedAt = newUser.UpdatedAt,
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
-            PhoneNumber = newUser.PhoneNumber
+            PhoneNumber = newUser.PhoneNumber,
+            TenantId = newUser.TenantId
         });
     }
 
@@ -149,26 +146,25 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return BadRequest("Tenant with same email or phone number already exists.");
         }
 
-        var newtant = new TenantEntity
-        {
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+       TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
 
-        var newUser = new UserEntity
+        var newUser = UserEntity.Create(
+            password: PasswordHasher.Hash(userRegisterRequest.Password),
+            email: userRegisterRequest.Email,
+            phoneNumber: userRegisterRequest.PhoneNumber,
+            firstName: userRegisterRequest.FirstName,
+            lastName: userRegisterRequest.LastName,
+            address: userRegisterRequest.Address,
+            tenant: newtant,
+            true
+        );
+
+        var features = FeatureFactory.GetFlattenedPermissionList();
+
+        foreach(var feature in features)
         {
-            Email = userRegisterRequest.Email,
-            Password = PasswordHasher.Hash(userRegisterRequest.Password),
-            FirstName = userRegisterRequest.FirstName,
-            LastName = userRegisterRequest.LastName,
-            LastLogin = DateTime.UtcNow,
-            PhoneNumber = userRegisterRequest.PhoneNumber,
-            Address = userRegisterRequest.Address,
-            TenantId = newtant.Id,
-            IsTenantPrimary= true,
-            Tenant = newtant,
-            CreatedAt = DateTime.UtcNow
-        };
+            newUser.AddPermission(PermissionsEntity.Create(feature,newUser));
+        }
 
         context.Users.Add(newUser);
         await context.SaveChangesAsync();
@@ -193,7 +189,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                     <p>Best regards,<br/>Your Company Name</p>");
 
 
-        return CreatedAtAction(nameof(UserLogin), new UserRegisterResponseModel
+        return CreatedAtAction(nameof(UserLogin), value: new UserRegisterResponse
         {
             Id = newUser.Id,
             Email = newUser.Email,
@@ -203,7 +199,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             UpdatedAt = newUser.UpdatedAt,
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
-            PhoneNumber = newUser.PhoneNumber
+            PhoneNumber = newUser.PhoneNumber,
+            TenantId = newUser.TenantId
         });
     }
 
@@ -223,14 +220,10 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return Unauthorized("User account is locked.");
         }
 
-        if (!PasswordHasher.Verify(userLoginRequest.Password, user.Password))
+        if (!PasswordHasher.Verify(user.Password, userLoginRequest.Password))
         {
-            if (user.FailedLoginAttempts >= 3)
-            {
-                user.IsLocked = true; // Lock the account after 3 failed attempts
-                context.SaveChanges();
-                return Unauthorized("User account is locked due to too many failed login attempts.");
-            }
+            user.IncreaseFailedLogin();
+            await context.SaveChangesAsync();
             return Unauthorized("Invalid username or password.");
         }
 
@@ -241,19 +234,21 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (!user.IsTenantPrimary)
         {
-            return Unauthorized("User is not a tenant primary user.");
+            return Unauthorized("User is not a tenant primary user. User should be primary tenant account.");
         }
-        user.FailedLoginAttempts = 0;
-        context.SaveChanges();
+
+        user.ResetFailedLogin();
+        await context.SaveChangesAsync();
 
         return Ok(user.TenantId);
 
     }
 
     [HttpPost]
+    [AppAuthorize("SendLink")]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
-        Guid? TenantId = GetTenantIdHeader();
+        Guid? TenantId = tenantProvider.TenantId;
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
         if (user == null)
@@ -268,12 +263,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         if (!PasswordHasher.Verify(userLoginRequest.Password, user.Password))
         {
-            if (user.FailedLoginAttempts >= 3)
-            {
-                user.IsLocked = true; // Lock the account after 3 failed attempts
-                context.SaveChanges();
-                return Unauthorized("User account is locked due to too many failed login attempts.");
-            }
+            user.IncreaseFailedLogin();
+            await context.SaveChangesAsync();
             return Unauthorized("Invalid username or password.");
         }
 
@@ -311,7 +302,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         return Ok("Link resent successfully.");
     }
-    
+
     [HttpGet]
     public async Task<ActionResult> VerifyUser(string token)
     {
@@ -332,10 +323,9 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return Unauthorized("emial is already verified");
         }
 
-        user.IsEmailVerified = true;
-        user.UpdatedAt = DateTime.UtcNow;
+        user.VerifyEmail();
 
-        var url = $"https://yourdomain.com/login?email={user.Email}"; 
+        var url = $"https://yourdomain.com/login?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,
@@ -353,20 +343,5 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         context.SaveChanges();
         return Ok("Email verified successfully.");
-    }
-    private Guid? GetTenantIdHeader()
-    {
-        if (!Request.Headers.TryGetValue("TenantId", out var tenantId))
-        {
-            return null;
-        }
-
-        // Optional: Parse to int or GUID
-        if (!Guid.TryParse(tenantId, out Guid parsedTenantId))
-        {
-            return null;
-        }
-
-        return parsedTenantId;
     }
 }
