@@ -9,58 +9,95 @@ using Models.RequestModels;
 
 namespace EcommerceApi.Controllers;
 
+
+/// <summary>
+/// Handles permission management endpoints for users and tenants.
+/// </summary>
+/// <remarks>
+/// <b>Error Messages Returned by This Controller:</b> <br></br>
+/// <list type="bullet">
+///   <item>Invalid permission requested.</item><br></br>
+///   <item>User does not exist.</item><br></br>
+///   <item>User already has this permission.</item><br></br>
+///   <item>You cannot remove permissions from the primary tenant user.</item><br></br>
+///   <item>User does not have this permission.</item><br></br>
+///   <item>TenantId is missing.</item><br></br>
+/// </list>
+/// <b>HTTP Status Codes Used:</b>
+/// <list type="bullet">
+///   <item>200 OK</item>
+///   <item>400 BadRequest</item>
+///   <item>403 Forbidden</item>
+///   <item>409 Conflict</item>
+/// </list>
+/// </remarks>
+[Produces("application/json")]
 [Route("api/[controller]/[action]")]
 [ApiController]
 public class PermisstionController(AppDbContext appDbContext, ITenantProvider tenantProvider) : ControllerBase
 {
+    private readonly AppDbContext appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
+    private readonly ITenantProvider tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
+
+    /// <summary>
+    /// Gets all permissions as a JSON object.
+    /// </summary>
+    /// <response code="200">Returns all permissions in JSON format.</response>
+    [Produces("application/json")]
     [HttpGet]
     public IActionResult GetAllPermissionsAsJson()
     {
-
         return Ok(FeatureFactory.GetJsonRepresentation());
     }
 
+    /// <summary>
+    /// Gets a flattened list of all permissions.
+    /// </summary>
+    /// <response code="200">Returns a list of all permissions.</response>
+    [Produces("application/json")]
     [HttpGet]
     public IActionResult GetAllPermissions()
     {
-
         return Ok(FeatureFactory.GetFlattenedPermissionList());
     }
 
+    /// <summary>
+    /// Assigns a permission to a user.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>Invalid permission requested.</item><br></br>
+    ///   <item>User does not exist.</item><br></br>
+    ///   <item>User already has this permission.</item><br></br>
+    ///   <item>TenantId is missing.</item><br></br>
+    /// </list>
+    /// </remarks>
+    /// <response code="200">Permission assigned successfully.</response>
+    /// <response code="400">Invalid permission or user does not exist.</response>
+    /// <response code="403">Forbidden.</response>
+    /// <response code="409">User already has this permission.</response>
+    [Produces("application/json")]
     [HttpPost]
     [AppAuthorize(FeatureFactory.Permission.CanGivePermisston)]
     public async Task<IActionResult> GivePermission(GivePermisstionRequest request)
     {
         if (!FeatureFactory.GetFlattenedPermissionList().Contains(request.Permission))
         {
-            return Problem(
-               detail: "Invalid permission requested.",
-               title: "Failed",
-               statusCode: StatusCodes.Status400BadRequest,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("Invalid permission requested.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
         }
-        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
 
+        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
         var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
+
         if (excestinguser == null)
         {
-            return Problem(
-               detail: "User does exist.",
-               title: "Failed",
-               statusCode: StatusCodes.Status400BadRequest,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
         }
 
         if (excestinguser.Permissions.Any(p => p.Name == request.Permission))
         {
-            return Problem(
-               detail: "User already has this permission.",
-               title: "Failed",
-               statusCode: StatusCodes.Status409Conflict,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User already has this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
         }
 
         await appDbContext.UserPermissions.AddAsync(PermissionsEntity.Create(request.Permission, request.UserId));
@@ -68,93 +105,106 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
         return Ok();
     }
 
+
+    /// <summary>
+    /// Removes a permission from a user by permission name.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b>
+    /// <list type="bullet">
+    ///   <item>Invalid permission requested.</item><br></br>
+    ///   <item>User does not exist.</item><br></br>
+    ///   <item>You cannot remove permissions from the primary tenant user.</item><br></br>
+    ///   <item>User does not have this permission.</item><br></br>
+    ///   <item>TenantId is missing.</item><br></br>
+    /// </list>
+    /// </remarks>
+    /// <response code="200">Permission removed successfully.</response>
+    /// <response code="400">Invalid permission or user does not exist.</response>
+    /// <response code="403">Cannot remove from primary tenant user.</response>
+    /// <response code="409">User does not have this permission.</response>
+    [Produces("application/json")]
     [HttpPost]
     [AppAuthorize(FeatureFactory.Permission.CanRemovePermisston)]
     public async Task<IActionResult> RemovePermissionByName(RemovePermisstionByNameRequest request)
     {
         if (!FeatureFactory.GetFlattenedPermissionList().Contains(request.Permission))
         {
-            return Problem(
-               detail: "Invalid permission requested.",
-               title: "Failed",
-               statusCode: StatusCodes.Status400BadRequest,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("Invalid permission requested.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
         }
+
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
         var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
 
         if (excestinguser == null)
         {
-            return Problem(
-               detail: "User does exist.",
-               title: "Failed",
-               statusCode: StatusCodes.Status400BadRequest,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
         }
 
         if (excestinguser.IsTenantPrimary)
         {
-            return Problem(
-               detail: "You cannot remove permissions from the primary tenant user.",
-               title: "Failed",
-               statusCode: StatusCodes.Status403Forbidden,
-               instance: HttpContext.Request.Path);
+            return Problem("You cannot remove permissions from the primary tenant user.", "Failed", StatusCodes.Status403Forbidden, HttpContext.Request.Path);
         }
 
         if (excestinguser.RemovePermission(request.Permission))
         {
-            return Problem(
-               detail: "User does not have this permission.",
-               title: "Failed",
-               statusCode: StatusCodes.Status409Conflict,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User does not have this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
         }
 
         await appDbContext.SaveChangesAsync();
         return Ok();
     }
 
+    /// <summary>
+    /// Removes a permission from a user by permission ID.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b>
+    /// <list type="bullet">
+    ///   <item>User does not exist.</item><br></br>
+    ///   <item>You cannot remove permissions from the primary tenant user.</item><br></br>
+    ///   <item>User does not have this permission.</item><br></br>
+    ///   <item>TenantId is missing.</item><br></br>
+    /// </list>
+    /// </remarks>
+    /// <response code="200">Permission removed successfully.</response>
+    /// <response code="400">User does not exist.</response>
+    /// <response code="403">Cannot remove from primary tenant user.</response>
+    /// <response code="409">User does not have this permission.</response>
+    [Produces("application/json")]
     [HttpPost]
     [AppAuthorize(FeatureFactory.Permission.CanRemovePermisston)]
     public async Task<IActionResult> RemovePermission(RemovePermisstionRequest request)
     {
-
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
         var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
 
         if (excestinguser == null)
         {
-            return Problem(
-               detail: "User does exist.",
-               title: "Failed",
-               statusCode: StatusCodes.Status400BadRequest,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
         }
 
         if (excestinguser.IsTenantPrimary)
         {
-            return Problem(
-               detail: "You cannot remove permissions from the primary tenant user.",
-               title: "Failed",
-               statusCode: StatusCodes.Status403Forbidden,
-               instance: HttpContext.Request.Path);
+            return Problem("You cannot remove permissions from the primary tenant user.", "Failed", StatusCodes.Status403Forbidden, HttpContext.Request.Path);
         }
 
         if (excestinguser.RemovePermission(request.PermissionId))
         {
-            return Problem(
-               detail: "User does not have this permission.",
-               title: "Failed",
-               statusCode: StatusCodes.Status409Conflict,
-               instance: HttpContext.Request.Path
-           );
+            return Problem("User does not have this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
         }
 
         await appDbContext.SaveChangesAsync();
         return Ok();
+    }
+
+    private IActionResult Problem(string detail, string title, int statusCode, string instance)
+    {
+        return Problem(
+            detail: detail,
+            title: title,
+            statusCode: statusCode,
+            instance: instance
+        );
     }
 }

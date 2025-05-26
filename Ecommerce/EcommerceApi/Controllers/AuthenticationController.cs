@@ -13,10 +13,54 @@ using System.Security.Claims;
 
 namespace Ecommerce.Controllers;
 
+/// <summary>
+/// Handles authentication and user management endpoints for the API.
+/// </summary>
+/// <remarks>
+/// <b>Error Messages Returned by This Controller:</b>
+/// <list type="bullet">
+///   <item>TenantId header is missing or invalid.</item>
+///   <item>Invalid username or password.</item>
+///   <item>User already exists.</item>
+///   <item>User email is not verified.</item>
+///   <item>User account is locked.</item>
+///   <item>A tenant with the same email or phone number already exists.</item>
+///   <item>User is not a tenant primary user. User should be primary tenant account.</item>
+///   <item>Expirecd or invalid link.</item>
+///   <item>User account is already verified.</item>
+///   <item>emial is already verified.</item>
+///   <item>TenantId cant be null</item>
+/// </list>
+/// <b>HTTP Status Codes Used:</b>
+/// <list type="bullet">
+///   <item>400 BadRequest</item>
+///   <item>401 Unauthorized</item>
+///   <item>201 Created</item>
+///   <item>200 OK</item>
+/// </list>
+/// </remarks>
+[Produces("application/json")]
 [Route("api/[controller]/[Action]")]
 [ApiController]
 public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender, ITenantProvider tenantProvider) : ControllerBase
 {
+    /// <summary>
+    /// Authenticates a user and returns a JWT token if successful.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>TenantId header is missing or invalid.</item><br></br>
+    ///   <item>Invalid username or password.</item><br></br>
+    ///   <item>User email is not verified.</item><br></br>
+    ///   <item>User account is locked.</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 200 OK with <see cref="UserLoginResponse"/> on success; 400/401 with problem details on failure.
+    /// </remarks>
+    /// <response code="200">Login successful</response>
+    /// <response code="400">Bad request or invalid credentials</response>
+    /// <response code="401">Unauthorized (email not verified or account locked)</response>
+    [Produces("application/json")]
     [HttpPost]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
@@ -79,6 +123,20 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
     }
 
+    /// <summary>
+    /// Registers a new user for an existing tenant.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>User already exists.</item><br></br>
+    ///   <item>TenantId cant be null</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 201 Created with <see cref="UserRegisterResponse"/> on success; 401 with problem details on failure.
+    /// </remarks>
+    /// <response code="201">User created</response>
+    /// <response code="401">User already exists or tenant ID missing</response>
+    [Produces("application/json")]
     [HttpPost]
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
@@ -146,6 +204,19 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         });
     }
 
+    /// <summary>
+    /// Registers a new tenant and primary user.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>A tenant with the same email or phone number already exists.</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 201 Created with <see cref="UserRegisterResponse"/> on success; 400 with problem details on failure.
+    /// </remarks>
+    /// <response code="201">Tenant and user created</response>
+    /// <response code="400">Tenant already exists</response>
+    [Produces("application/json")]
     [HttpPost]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
     {
@@ -217,6 +288,23 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         });
     }
 
+    /// <summary>
+    /// Gets the tenant ID for a user if credentials are valid and user is primary tenant.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>Invalid username or password.</item><br></br>
+    ///   <item>User account is locked.</item><br></br>
+    ///   <item>User email is not verified.</item><br></br>
+    ///   <item>User is not a tenant primary user. User should be primary tenant account.</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 200 OK with tenant ID on success; 400/401 with problem details on failure.
+    /// </remarks>
+    /// <response code="200">Tenant ID returned</response>
+    /// <response code="400">Invalid credentials</response>
+    /// <response code="401">Unauthorized (account locked, email not verified, or not primary tenant)</response>
+    [Produces("application/json")]
     [HttpGet]
     public async Task<ActionResult<Guid>> GetTenantId(UserLoginRequest userLoginRequest)
     {
@@ -258,6 +346,24 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
     }
 
+    /// <summary>
+    /// Resends the email verification link to the user.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>Expirecd or invalid link.</item><br></br>
+    ///   <item>Invalid username or password</item><br></br>
+    ///   <item>TenantId header is missing</item><br></br>
+    ///   <item>User account is locked.</item><br></br>
+    ///   <item>User account is already verified.</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 200 OK on success; 400/401 with problem details on failure.
+    /// </remarks>
+    /// <response code="200">Link resent successfully</response>
+    /// <response code="400">Bad request or invalid credentials</response>
+    /// <response code="401">Unauthorized (account locked or already verified)</response>
+    [Produces("application/json")]
     [HttpPost]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
@@ -324,6 +430,21 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         return Ok("Link resent successfully.");
     }
 
+    /// <summary>
+    /// Verifies a user's email using a token.
+    /// </summary>
+    /// <remarks>
+    /// <b>Error Messages:</b><br></br>
+    /// <list type="bullet">
+    ///   <item>Expirecd or invalid link.</item><br></br>
+    ///   <item>emial is already verified.</item><br></br>
+    /// </list>
+    /// <b>Returns:</b> 200 OK on success; 400/401 with problem details on failure.
+    /// </remarks>
+    /// <response code="200">Email verified successfully</response>
+    /// <response code="400">Invalid or expired link</response>
+    /// <response code="401">Email already verified</response>
+    [Produces("application/json")]
     [HttpGet]
     public async Task<ActionResult> Verify(string token)
     {
