@@ -83,19 +83,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
-        Guid? TenantId = tenantProvider.TenantId;
-        if (TenantId == null)
-        {
-            return Problem(
-                detail: "TenantId header is missing or invalid.",
-                title: "Registration Failed",
-                statusCode: StatusCodes.Status400BadRequest,
-                instance: HttpContext.Request.Path
-            );
-
-        }
-
-        Guid tenantIdValue = (Guid)TenantId;
+        Guid tenantIdValue = (tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId cant be null"));
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email && u.TenantId == tenantIdValue);
 
@@ -122,14 +110,14 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         context.Users.Add(newUser);
         context.SaveChanges();
 
-        var link = jwtTokenGenerator.GenerateToken(
+        var token = jwtTokenGenerator.GenerateToken(
             newUser.Id,
             newUser.FirstName + " " + newUser.LastName,
             newUser.Email,
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        string verificationUrl = $"https://yourdomain.com/verify?token={link}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
@@ -230,7 +218,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     }
 
     [HttpGet]
-    public async Task<ActionResult<string>> GetTenantId(UserLoginRequest userLoginRequest)
+    public async Task<ActionResult<Guid>> GetTenantId(UserLoginRequest userLoginRequest)
     {
         // Validate the user credentials against the database        
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
@@ -253,7 +241,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return Problem(detail: "User account is locked.", title: "Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
 
-        if (user.IsEmailVerified)
+        if (!user.IsEmailVerified)
         {
             return Problem(detail: "User email is not verified.", title: "Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
         }
@@ -271,7 +259,6 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     }
 
     [HttpPost]
-    [AppAuthorize("SendLink")]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -282,7 +269,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             return Problem(detail: "Expirecd or invalid link.", title: "Verify Failed", statusCode: StatusCodes.Status400BadRequest, instance: HttpContext.Request.Path);
         }
 
-        if (!PasswordHasher.Verify(userLoginRequest.Password, user.Password))
+        if (!PasswordHasher.Verify(user.Password, userLoginRequest.Password))
         {
             user.IncreaseFailedLogin();
             await context.SaveChangesAsync();
@@ -307,14 +294,20 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         }
 
-        var link = jwtTokenGenerator.GenerateToken(
+        if (user.IsEmailVerified)
+        {
+            return Problem(detail: "User account is already verified.", title: "Verify Failed", statusCode: StatusCodes.Status401Unauthorized, instance: HttpContext.Request.Path);
+
+        }
+
+        var token = jwtTokenGenerator.GenerateToken(
              user.Id,
              user.FirstName + " " + user.LastName,
              user.Email,
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"https://yourdomain.com/verify?token={link}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: user.Email,

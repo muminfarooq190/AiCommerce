@@ -7,20 +7,14 @@ public static class FeatureFactory
 {
     public static class Authentication
     {
-        public const string CanLogin = nameof(CanLogin);
-        public const string CanCreateUser = nameof(CanCreateUser);
-        public const string CanLogout = nameof(CanLogout);
+        public const string CanCreateUser = $"{nameof(Authentication)}.{nameof(CanCreateUser)}";
     }
     public static class Permission
     {
-        public const string CanGivePermisston = nameof(CanGivePermisston);
+        public const string CanGivePermisston = $"{nameof(Authentication)}.{nameof(CanGivePermisston)}";
+        public const string CanRemovePermisston = $"{nameof(Authentication)}.{nameof(CanRemovePermisston)}";
     }
-    public static class Category
-    {
-        public const string CanCreateCategory = nameof(CanCreateCategory);
-        public const string CanUpdateCategory = nameof(CanUpdateCategory);
-        public const string CanDeleteCategory = nameof(CanDeleteCategory);
-    }
+
     public static string GetJsonRepresentation()
     {
         var result = new Dictionary<string, Dictionary<string, string>>();
@@ -53,7 +47,11 @@ public static class FeatureFactory
 
             foreach (var constant in constants)
             {
-                flatList.Add($"{nestedType.Name}.{constant.Name}");
+                var value = constant.GetRawConstantValue()?.ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    flatList.Add(value);
+                }
             }
         }
 

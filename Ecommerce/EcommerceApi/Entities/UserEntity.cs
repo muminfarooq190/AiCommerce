@@ -25,7 +25,7 @@ public class UserEntity
     public TenantEntity? Tenant { get; private set; } // Navigation property for TenantEntity
     private List<PermissionsEntity> _Permissions { get; set; } = new(); // Navigation property for PermissionsEntity
 
-    public IReadOnlyCollection<PermissionsEntity> Permissions => _Permissions.AsReadOnly(); // Read-only collection of permissions
+    public IReadOnlyList<PermissionsEntity> Permissions => _Permissions; // Read-only collection of permissions
 
     private UserEntity() { } // Private constructor to enforce the use of the factory method
 
@@ -33,6 +33,38 @@ public class UserEntity
     {
         _Permissions.Add(permission);
     }
+
+    public bool RemovePermission(string name)
+    {
+        var existingPermission = _Permissions.FirstOrDefault(p=> p.Name == name);
+        if (existingPermission != null) {
+            _Permissions.Remove(existingPermission);
+            return true;
+        }
+        return false;
+    }
+
+    public bool RemovePermission(PermissionsEntity permission)
+    {
+        if (_Permissions.Contains(permission))
+        {
+            _Permissions.Remove(permission);
+            return true;
+        }
+        return false;
+    }
+
+    public bool RemovePermission(Guid id)
+    {
+        var existingPermission = _Permissions.FirstOrDefault(p => p.Id == Id);
+        if (existingPermission != null)
+        {
+            _Permissions.Remove(existingPermission);
+            return true;
+        }
+        return false;
+    }
+
     public void AddPermissions(IEnumerable<PermissionsEntity> permission)
     {
         _Permissions.AddRange(permission);

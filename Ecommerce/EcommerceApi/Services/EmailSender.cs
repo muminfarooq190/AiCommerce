@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Configurations;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -18,13 +19,12 @@ public class EmailSender(IOptions<EmailSettings> options,ILogger<EmailSender> lo
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = subject;
 
-            message.Body = new TextPart("html")
-            {
-                Text = body
-            };
+            message.Body = new TextPart("html") { Text = body };
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(_settings.SmtpServer, _settings.Port, false);
+            client.Timeout = 10000;
+
+            await client.ConnectAsync(_settings.SmtpServer, _settings.Port, SecureSocketOptions.Auto);
 
             if (!string.IsNullOrEmpty(_settings.Username))
             {
@@ -32,7 +32,7 @@ public class EmailSender(IOptions<EmailSettings> options,ILogger<EmailSender> lo
             }
 
             await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            await client.DisconnectAsync(false);
             return true;
         }
         catch (Exception ex)
@@ -40,5 +40,6 @@ public class EmailSender(IOptions<EmailSettings> options,ILogger<EmailSender> lo
             logger.LogError(ex, "Failed to send email to {Email}", toEmail);
             return false;
         }
+
     }
 }

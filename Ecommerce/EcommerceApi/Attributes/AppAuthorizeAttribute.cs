@@ -8,6 +8,7 @@ using System.Security.Claims;
 
 namespace EcommerceApi.Attributes;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 {
     private readonly string? _permission;
@@ -16,59 +17,92 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
         _permission = permission;
     }
-    public AppAuthorizeAttribute(){    }
+
+    public AppAuthorizeAttribute() { }
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var httpContext = context.HttpContext;
         var user = httpContext.User;
-
-        if (!user.Identity?.IsAuthenticated ?? true)
+        
+        if (!IsUserAuthenticated(user, out Guid userId))
         {
-            context.Result = new ForbidResult();
+            context.Result = BuildUnauthorizedResult();
             return;
         }
 
-        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrWhiteSpace(_permission))
+            return;
+
+        var dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
+        var tenantProvider = httpContext.RequestServices.GetRequiredService<ITenantProvider>();
+        var memoryCache = httpContext.RequestServices.GetRequiredService<IMemoryCache>();
+
+        if (tenantProvider.TenantId == null)
         {
-            context.Result = new ForbidResult("Bearer");
+            context.Result = new JsonResult(new
+            {
+                error = "TenentId is missing.",
+            })
+            {
+                StatusCode = StatusCodes.Status400BadRequest
+            };
             return;
         }
 
-        if (!Guid.TryParse(userId,out Guid guidUserid))
+        string cacheKey = $"permissions:{userId}";
+        if (!memoryCache.TryGetValue(cacheKey, out List<string>? permissions))
         {
-            context.Result = new ForbidResult("Bearer");
-            return;
-        }
+            var userWithPermissions = await dbContext.Users
+                .Include(u => u.Permissions)
+                .FirstOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantProvider.TenantId);
 
-        if (string.IsNullOrEmpty(_permission))
-        {
-            return;
-        }
+            if (userWithPermissions == null)
+            {
+                context.Result = BuildUnauthorizedResult();
+                return;
+            }
 
-        var db = httpContext.RequestServices.GetRequiredService<AppDbContext>();
-        var tenent = httpContext.RequestServices.GetRequiredService<ITenantProvider>();
-        var cache = httpContext.RequestServices.GetRequiredService<IMemoryCache>();
-
-        string cacheKey = $"perm:{userId}";
-
-        List<string>? permissions;
-
-        if (!cache.TryGetValue(cacheKey, out permissions))
-        {
-            permissions = await db.UserPermissions
-                .Where(p => p.UserId == guidUserid && p.User!.TenantId == tenent.TenantId)
+            permissions = userWithPermissions.Permissions
                 .Select(p => p.Name)
-                .ToListAsync();
+                .ToList();
 
-            // Cache the permissions for 10 minutes
-            cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(10));
+            memoryCache.Set(cacheKey, permissions, TimeSpan.FromMinutes(10));
         }
 
         if (permissions == null || !permissions.Contains(_permission, StringComparer.OrdinalIgnoreCase))
         {
-            context.Result = new ForbidResult("Bearer");
+            context.Result = new JsonResult(new
+            {
+                error = "Permission denied.",
+                requiredPermission = _permission
+            })
+            {
+                StatusCode = StatusCodes.Status403Forbidden
+            };
         }
     }
+
+    private static bool IsUserAuthenticated(ClaimsPrincipal user, out Guid userId)
+    {
+        userId = Guid.Empty;
+
+        if (user?.Identity?.IsAuthenticated != true)
+            return false;
+
+        var idClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(idClaim) || !Guid.TryParse(idClaim, out userId))
+            return false;
+
+        return true;
+    }
+
+    private static IActionResult BuildUnauthorizedResult() =>
+        new JsonResult(new
+        {
+            error = "You are not authenticated."
+        })
+        {
+            StatusCode = StatusCodes.Status401Unauthorized
+        };
 }
