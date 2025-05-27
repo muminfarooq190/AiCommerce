@@ -1,4 +1,4 @@
-﻿namespace EcommerceWeb.Patterns.Results;
+﻿namespace EcommerceWeb.Utilities.Results;
 public class Error(string title,string message) : IEquatable<Error>
 {
     public string Title { get; } = title;

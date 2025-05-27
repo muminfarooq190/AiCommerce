@@ -1,9 +1,9 @@
-﻿using EcommerceWeb.Patterns.Results;
+﻿using EcommerceWeb.Utilities.ApiResult;
 
 namespace EcommerceWeb.Services.Contarcts;
 
 public interface IApiClient
 {
-    Task<Result<T>> GetAsync<T>(string endpoint);
-    Task<Result<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload);
+    Task<ApiResult<T>> GetAsync<T>(string endpoint);
+    Task<ApiResult<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload);
 }

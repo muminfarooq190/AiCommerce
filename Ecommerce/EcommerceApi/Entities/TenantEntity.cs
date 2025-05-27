@@ -1,8 +1,12 @@
-﻿namespace Ecommerce.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
+namespace Ecommerce.Entities;
+
+[Index(nameof(CompanyName), IsUnique = true)]
 public class TenantEntity
 {
     private TenantEntity() { }
+    
     public Guid Id { get; init; }
     public required string CompanyName { get; init; }
     public required DateTime CreatedAt { get; init; }

@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Entities;
 using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
+using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
@@ -84,7 +85,16 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
     {
         if (!FeatureFactory.GetFlattenedPermissionList().Contains(request.Permission))
         {
-            return Problem("Invalid permission requested.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.Permission), "Invalid permission requested.");
+            return this.ApplicationProblem
+            (
+                detail: "Invalid permission requested.",
+                title: "Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.InvalidPermission,
+                modelState: ModelState
+            );
         }
 
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
@@ -92,12 +102,31 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
 
         if (excestinguser == null)
         {
-            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.UserId), "User does not exist.");
+            return this.ApplicationProblem
+            (
+                detail: "User does not exist.",
+                title: "Failed",
+                statusCode: StatusCodes.Status404NotFound,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.UserNotFound,
+                modelState: ModelState
+            );
+
         }
 
         if (excestinguser.Permissions.Any(p => p.Name == request.Permission))
         {
-            return Problem("User already has this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.Permission), "User already has this permission.");
+            return this.ApplicationProblem
+            (
+                detail: "User already has this permission.",
+                title: "Failed",
+                statusCode: StatusCodes.Status409Conflict,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.PermissionAlreadyExists,
+                modelState: ModelState
+            );
         }
 
         await appDbContext.UserPermissions.AddAsync(PermissionsEntity.Create(request.Permission, request.UserId));
@@ -130,7 +159,16 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
     {
         if (!FeatureFactory.GetFlattenedPermissionList().Contains(request.Permission))
         {
-            return Problem("Invalid permission requested.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.Permission), "Invalid permission requested.");
+            return this.ApplicationProblem
+            (
+                detail: "Invalid permission requested.",
+                title: "Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.InvalidPermission,
+                modelState: ModelState
+            );
         }
 
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
@@ -138,17 +176,46 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
 
         if (excestinguser == null)
         {
-            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.UserId), "User does not exist.");
+            return this.ApplicationProblem
+            (
+                detail: "User does not exist.",
+                title: "Failed",
+                statusCode: StatusCodes.Status404NotFound,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.UserNotFound,
+                modelState: ModelState
+            );
+
         }
 
         if (excestinguser.IsTenantPrimary)
         {
-            return Problem("You cannot remove permissions from the primary tenant user.", "Failed", StatusCodes.Status403Forbidden, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(excestinguser.IsTenantPrimary), "You cannot remove permissions of the primary tenant user.");
+            return this.ApplicationProblem
+            (
+                detail: "You cannot remove permissions of the primary tenant user.",
+                title: "Failed",
+                statusCode: StatusCodes.Status403Forbidden,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.CantRemoveAccessToPrimary,
+                modelState: ModelState
+            );
         }
 
         if (excestinguser.RemovePermission(request.Permission))
         {
-            return Problem("User does not have this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.Permission), "User does not have this permission.");
+            return this.ApplicationProblem
+            (
+                detail: "User does not have this permission.",
+                title: "Failed",
+                statusCode: StatusCodes.Status404NotFound,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.PermissionNotExist,
+                modelState: ModelState
+            );
+
         }
 
         await appDbContext.SaveChangesAsync();
@@ -181,30 +248,47 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
 
         if (excestinguser == null)
         {
-            return Problem("User does not exist.", "Failed", StatusCodes.Status400BadRequest, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.UserId), "User does not exist.");
+            return this.ApplicationProblem
+            (
+                detail: "User does not exist.",
+                title: "Failed",
+                statusCode: StatusCodes.Status404NotFound,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.UserNotFound,
+                modelState: ModelState
+            );
         }
 
         if (excestinguser.IsTenantPrimary)
         {
-            return Problem("You cannot remove permissions from the primary tenant user.", "Failed", StatusCodes.Status403Forbidden, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(excestinguser.IsTenantPrimary), "You cannot remove permissions from the primary tenant user.");
+            return this.ApplicationProblem
+            (
+                detail: "You cannot remove permissions from the primary tenant user.",
+                title: "Failed",
+                statusCode: StatusCodes.Status403Forbidden,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.CantRemoveAccessToPrimary,
+                modelState: ModelState
+            );
         }
 
         if (excestinguser.RemovePermission(request.PermissionId))
         {
-            return Problem("User does not have this permission.", "Failed", StatusCodes.Status409Conflict, HttpContext.Request.Path);
+            ModelState.AddModelError(nameof(request.PermissionId), "User does not have this permission.");
+            return this.ApplicationProblem
+            (
+                detail: "User does not have this permission.",
+                title: "Failed",
+                statusCode: StatusCodes.Status409Conflict,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.PermissionNotExist,
+                modelState: ModelState
+            );
         }
 
         await appDbContext.SaveChangesAsync();
         return Ok();
-    }
-
-    private IActionResult Problem(string detail, string title, int statusCode, string instance)
-    {
-        return Problem(
-            detail: detail,
-            title: title,
-            statusCode: statusCode,
-            instance: instance
-        );
     }
 }

@@ -1,14 +1,16 @@
 ﻿using EcommerceWeb.Entities;
+using EcommerceWeb.Extensions;
 using EcommerceWeb.Models;
-using EcommerceWeb.Patterns.Results;
 using EcommerceWeb.Services.Contarcts;
+using EcommerceWeb.Utilities.ApiResult;
+using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Models.RequestModels;
 using Models.ResponseModels;
 
 namespace EcommerceWeb.Controllers;
 
-public class AuthenticationController(IApiClient apiClient, ILogger<AuthenticationController> logger,AppDbContext appDbContext) : Controller
+public class AuthenticationController(IApiClient apiClient, ILogger<AuthenticationController> logger, AppDbContext appDbContext) : Controller
 {
     public IActionResult Index()
     {
@@ -40,17 +42,19 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
             CompanyName = model.CompanyName
         };
 
-        Result<UserRegisterResponse> response = await apiClient.PostAsync<UserRegisterRequest, UserRegisterResponse>(Endpoints.AuthenticationEndpoints.RegisterTenant, modelReqister);
+        ApiResult<UserRegisterResponse> response = await apiClient.PostAsync<UserRegisterRequest, UserRegisterResponse>(Endpoints.AuthenticationEndpoints.RegisterTenant, modelReqister);
+        ModelState.AddApiResult(response);
 
-        if (!response.IsValid)
+        if (response.ResultType != ResultType.Success)
         {
-            logger.LogError("Registration failed: {Errors}", string.Join(",", response.Errors));
+            logger.LogError("Registration failed: {Errors}", response.Errors.ToString());
             return View(model);
         }
+
         var newtc = new TenantConfigEntity
         {
-            TenantId = response.Value.TenantId,
-            TempUrlPrefix = response.Value.CompanyName.ToLower().Replace(" ", ""),
+            TenantId = response.Data.TenantId,
+            TempUrlPrefix = response.Data.CompanyName.ToLower().Replace(" ", ""),
 
         };
 

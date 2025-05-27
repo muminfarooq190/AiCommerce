@@ -15,7 +15,7 @@ public static class FeatureFactory
         public const string CanRemovePermisston = $"{nameof(Authentication)}.{nameof(CanRemovePermisston)}";
     }
 
-    public static string GetJsonRepresentation()
+    public static Dictionary<string, Dictionary<string, string>> GetJsonRepresentation()
     {
         var result = new Dictionary<string, Dictionary<string, string>>();
 
@@ -32,7 +32,7 @@ public static class FeatureFactory
             result[nestedType.Name] = constants;
         }
 
-        return JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+        return result;
     }
     public static List<string> GetFlattenedPermissionList()
     {

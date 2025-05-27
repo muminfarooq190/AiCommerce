@@ -1,4 +1,4 @@
-﻿namespace EcommerceWeb.Patterns.Results;
+﻿namespace EcommerceWeb.Utilities.Results;
 
 public class Result
 {

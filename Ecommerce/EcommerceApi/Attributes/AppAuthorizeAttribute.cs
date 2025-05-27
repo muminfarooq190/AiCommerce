@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -27,7 +28,22 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         
         if (!IsUserAuthenticated(user, out Guid userId))
         {
-            context.Result = BuildUnauthorizedResult();
+            
+            var problem = new ProblemDetails
+            {
+                Title = "You are not authenticated.",
+                Detail = "You are not authenticated.",
+                Status = StatusCodes.Status401Unauthorized,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Instance = context.HttpContext.Request.Path
+            };
+
+            problem.Extensions["errorCode"] = ErrorCodes.TanentIdMissing;
+
+            context.Result = new ObjectResult(problem)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
             return;
         }
 
@@ -40,14 +56,22 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         if (tenantProvider.TenantId == null)
         {
-            context.Result = new JsonResult(new
+            var problem = new ProblemDetails
             {
-                error = "TenentId is missing.",
-            })
+                Title = "Tenant ID is missing.",
+                Detail = "The request did not contain a valid tenant ID.",
+                Status = StatusCodes.Status400BadRequest,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Instance = context.HttpContext.Request.Path
+            };
+
+            problem.Extensions["errorCode"] = ErrorCodes.TanentIdMissing;
+
+            context.Result = new ObjectResult(problem)
             {
                 StatusCode = StatusCodes.Status400BadRequest
             };
-            return;
+
         }
 
         string cacheKey = $"permissions:{userId}";
@@ -59,7 +83,21 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
             if (userWithPermissions == null)
             {
-                context.Result = BuildUnauthorizedResult();
+                var problem = new ProblemDetails
+                {
+                    Title = "You are not authorized.",
+                    Detail = "You are not authorized.",
+                    Status = StatusCodes.Status401Unauthorized,
+                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                    Instance = context.HttpContext.Request.Path
+                };
+
+                problem.Extensions["errorCode"] = ErrorCodes.InsufficientPermissions;
+
+                context.Result = new ObjectResult(problem)
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
                 return;
             }
 
@@ -72,14 +110,23 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         if (permissions == null || !permissions.Contains(_permission, StringComparer.OrdinalIgnoreCase))
         {
-            context.Result = new JsonResult(new
+            var problem = new ProblemDetails
             {
-                error = "Permission denied.",
-                requiredPermission = _permission
-            })
-            {
-                StatusCode = StatusCodes.Status403Forbidden
+                Title = "You are not authorized.",
+                Detail = "You are not authorized.",
+                Status = StatusCodes.Status401Unauthorized,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Instance = context.HttpContext.Request.Path
             };
+
+            problem.Extensions["errorCode"] = ErrorCodes.InsufficientPermissions;
+
+            context.Result = new ObjectResult(problem)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
+
+            return;
         }
     }
 
@@ -97,12 +144,6 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         return true;
     }
 
-    private static IActionResult BuildUnauthorizedResult() =>
-        new JsonResult(new
-        {
-            error = "You are not authenticated."
-        })
-        {
-            StatusCode = StatusCodes.Status401Unauthorized
-        };
+    
+        
 }

@@ -1,7 +1,8 @@
-﻿using EcommerceWeb.Patterns.Results;
-using EcommerceWeb.Services.Contarcts;
+﻿using EcommerceWeb.Services.Contarcts;
+using EcommerceWeb.Utilities.ApiResult;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Mime;
+using Newtonsoft.Json;
 
 namespace EcommerceWeb.Services;
 
@@ -16,19 +17,19 @@ public class ApiClient : IApiClient
         _logger = logger;
     }
 
-    public async Task<Result<T>> GetAsync<T>(string endpoint)
+    public async Task<ApiResult<T>> GetAsync<T>(string endpoint)
     {
         HttpResponseMessage response = await _httpClient.GetAsync(endpoint);
         return await HandleResponse<T>(response);
     }
 
-    public async Task<Result<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload)
+    public async Task<ApiResult<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload)
     {
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(endpoint, payload);
         return await HandleResponse<TResponse>(response);
     }
 
-    private async Task<Result<T>> HandleResponse<T>(HttpResponseMessage response)
+    private async Task<ApiResult<T>> HandleResponse<T>(HttpResponseMessage response)
     {
         try
         {
@@ -39,9 +40,9 @@ public class ApiClient : IApiClient
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     _logger.LogError("Unknown Content Return from Api: " + content + " status code: " + (int)response.StatusCode);
-                    return Result.Failure<T>(new Error("Unknown Error","Something went wrong"), (int)response.StatusCode);
+                    return ApiResult.Failure<T>("Unknown Error", "Something went wrong");
                 }
-                return Result.Success(data);
+                return ApiResult.Success(data, response.StatusCode);
             }
 
             var contentType = response.Content.Headers.ContentType?.MediaType;
@@ -51,41 +52,43 @@ public class ApiClient : IApiClient
 
             if (contentType == "application/problem+json" || contentType == "application/json")
             {
-                try
-                {
-                    validationProblem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-                }
-                catch
-                {
-                    genericProblem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-                }
-            }
+                var Content = await response.Content.ReadAsStringAsync();
 
-            var errorMessages = new List<string>();
+                validationProblem = JsonConvert.DeserializeObject<ValidationProblemDetails>(Content);
 
-            if (validationProblem?.Errors is not null)
-            {
-                foreach (var kvp in validationProblem.Errors)
+                if (validationProblem != null && validationProblem.Errors.Count > 0)
                 {
-                    foreach (var message in kvp.Value)
+                    var errorMessages = validationProblem.Errors.SelectMany(e => e.Value).ToList();
+                    return ApiResult.Failure<T>("Validation Error", string.Join(", ", errorMessages));
+                }
+
+                genericProblem = JsonConvert.DeserializeObject<ProblemDetails>(Content);
+
+                if (genericProblem != null)
+                {
+                    if (genericProblem.Title == null && genericProblem.Detail == null)
                     {
-                        errorMessages.Add($"{kvp.Key}: {message}");
+                        _logger.LogError("Unknown Content Return from Api: " + Content + " status code: " + (int)response.StatusCode);
                     }
-                }
-            }
-            var error = new Error(
-                    title: validationProblem?.Title ?? genericProblem?.Title ?? "Unknown error",
-                    message: string.Join("; ", errorMessages)
-                );
 
-            return Result.Failure<T>(error, (int)response.StatusCode);
-        }catch(Exception ex)
+                    return ApiResult.Failure<T>(genericProblem.Title ?? "Failed", genericProblem.Detail ?? "Failed");
+                }
+
+                return ApiResult.Failure<T>("Unknown Error", "Something went wrong");
+
+            }
+            else
+            {
+                var Content = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Unknown Content Return from Api: " + Content + " status code: " + (int)response.StatusCode);
+                return ApiResult.Failure<T>("Unknown Error", "Something went wrong");
+
+            }
+        }
+        catch (Exception ex)
         {
             _logger.LogError(ex.ToString());
-
-            var error = new Error("Unknown Error", "Something went wrong");
-
-            return Result.Failure<T>(error, (int)response.StatusCode);
+            return ApiResult.Failure<T>("Unknown Error", "Something went wrong");
 
         }
     }
