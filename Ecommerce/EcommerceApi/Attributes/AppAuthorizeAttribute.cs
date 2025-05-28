@@ -1,5 +1,4 @@
-﻿using Ecommerce.Entities;
-using EcommerceApi.Models;
+﻿using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -25,10 +24,10 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
         var httpContext = context.HttpContext;
         var user = httpContext.User;
-        
+
         if (!IsUserAuthenticated(user, out Guid userId))
         {
-            
+
             var problem = new ProblemDetails
             {
                 Title = "You are not authenticated.",
@@ -79,7 +78,7 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         {
             var userWithPermissions = await dbContext.Users
                 .Include(u => u.Permissions)
-                .FirstOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantProvider.TenantId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (userWithPermissions == null)
             {
@@ -144,6 +143,4 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         return true;
     }
 
-    
-        
 }

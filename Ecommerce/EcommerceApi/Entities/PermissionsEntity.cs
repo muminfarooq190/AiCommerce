@@ -11,8 +11,7 @@ public class PermissionsEntity
     public UserEntity? User { get; private set; }
     public Guid UserId { get; private set; }
 
-    private PermissionsEntity() { } // EF Core requires a parameterless constructor
-
+    private PermissionsEntity() { }
     public static PermissionsEntity Create(string name)
     {
         return new PermissionsEntity
