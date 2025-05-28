@@ -44,17 +44,13 @@ namespace EcommerceApi.Controllers;
 /// </list>
 /// </remarks>
 [Produces("application/json")]
-[Route("api/[controller]/[Action]")]
+[Route("api")]
 [ApiController]
 public class AuthenticationController(
-    IServiceProvider serviceProvider,
     AppDbContext context,
-    TenantDbContext tenantDbContext,
     JwtTokenGenerator jwtTokenGenerator,
     EmailSender emailSender,
-    ITenantProvider tenantProvider,
-    IConfiguration configuration,
-    SchemaCloner schemaCloner) : ControllerBase
+    ITenantProvider tenantProvider) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns a JWT token if successful.
@@ -73,7 +69,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (email not verified or account locked)</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost("Login")]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -181,11 +177,11 @@ public class AuthenticationController(
     /// <response code="201">User created</response>
     /// <response code="401">User already exists or tenant ID missing</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost("CreateUser")]
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
-        Guid tenantIdValue = (tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId cant be null"));
+        TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email);
 
@@ -209,7 +205,8 @@ public class AuthenticationController(
             phoneNumber: userRegisterRequest.PhoneNumber,
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
-            address: userRegisterRequest.Address
+            address: userRegisterRequest.Address,
+            TenantId: tenant.Id
         );
 
         await context.Users.AddAsync(newUser);
@@ -222,9 +219,7 @@ public class AuthenticationController(
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
-
-        TenantEntity tenant = await tenantDbContext.Tenants.FirstAsync(f => f.Id == tenantIdValue);
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/verify?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
@@ -255,108 +250,6 @@ public class AuthenticationController(
     }
 
     /// <summary>
-    /// Registers a new tenant and primary user.
-    /// </summary>
-    /// <remarks>
-    /// <b>Error Messages:</b><br></br>
-    /// <list type="bullet">
-    ///   <item>A tenant with the same email or phone number already exists.</item><br></br>
-    /// </list>
-    /// <b>Returns:</b> 201 Created with <see cref="UserRegisterResponse"/> on success; 400 with problem details on failure.
-    /// </remarks>
-    /// <response code="201">Tenant and user created</response>
-    /// <response code="400">Tenant already exists</response>
-    [Produces("application/json")]
-    [HttpPost]
-    public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
-    {        
-        var Schema = new SchemaProvider(configuration["DefaultTenant:CompanyName"] ?? throw new ArgumentNullException("DefaultTenant:CompanyName is not configured in appsetting")).Schema;
-        
-        var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userRegisterRequest.CompanyName);
-
-        if (Tenant != null)
-        {
-            ModelState.AddModelError(nameof(userRegisterRequest.CompanyName), "A tenant with the same company name already exists.");
-            return this.ApplicationProblem(
-                detail: "A tenant with the same company name already exists.",
-                title: "Registration Failed",
-                statusCode: StatusCodes.Status409Conflict,
-                errorCode: ErrorCodes.CompanyAlreadyExist,
-                instance: HttpContext.Request.Path,
-                modelState: ModelState
-            );
-        }
-
-        TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
-
-        tenantDbContext.Tenants.Add(newtant);
-        await tenantDbContext.SaveChangesAsync();
-
-        tenantProvider.SetTenantId(newtant.Id);
-
-        await schemaCloner.CloneSchema(Schema,  newtant.SchemaName);
-
-        var newUser = UserEntity.Create(
-            password: PasswordHasher.Hash(userRegisterRequest.Password),
-            email: userRegisterRequest.Email,
-            phoneNumber: userRegisterRequest.PhoneNumber,
-            firstName: userRegisterRequest.FirstName,
-            lastName: userRegisterRequest.LastName,
-            address: userRegisterRequest.Address,
-            true
-        );
-
-        var features = FeatureFactory.GetFlattenedPermissionList();
-
-        foreach (var feature in features)
-        {
-            newUser.AddPermission(PermissionsEntity.Create(feature, newUser));
-        }
-
-        using var scope = serviceProvider.CreateScope();
-
-            var appdbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            appdbContext.Users.Add(newUser);
-            await appdbContext.SaveChangesAsync();
-
-        var token = jwtTokenGenerator.GenerateToken(
-             newUser.Id,
-             newUser.FirstName + " " + newUser.LastName,
-             newUser.Email,
-             DateTime.UtcNow.AddMinutes(10)
-         );
-
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
-
-        string body = $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
-                    <p>Please click the link below to verify your email address:</p>
-                    <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
-                    <p>This link is valid for the next 10 minutes.</p>
-                    <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>Your Company Name</p>";
-
-        await emailSender.SendEmailAsync(toEmail: newUser.Email, subject: "Verify Your Email Address", body);
-
-        return CreatedAtAction(nameof(UserLogin), value: new UserRegisterResponse
-        {
-            Id = newUser.Id,
-            Email = newUser.Email,
-            FirstName = newUser.FirstName,
-            LastName = newUser.LastName,
-            CreatedAt = newUser.CreatedAt,
-            UpdatedAt = newUser.UpdatedAt,
-            Address = newUser.Address,
-            LastLogin = newUser.LastLogin,
-            PhoneNumber = newUser.PhoneNumber,
-            TenantId = newtant.Id,
-            CompanyName = newtant.CompanyName
-        });
-    }
-
-
-
-
-    /// <summary>
     /// Gets the tenant ID for a user if credentials are valid and user is primary tenant.
     /// </summary>
     /// <remarks>
@@ -373,7 +266,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid credentials</response>
     /// <response code="401">Unauthorized (account locked, email not verified, or not primary tenant)</response>
     [Produces("application/json")]
-    [HttpGet]
+    [HttpPost("GetTenentId")]
     public async Task<ActionResult<Guid>> GetTenantId(UserLoginRequest userLoginRequest)
     {
         // Validate the user credentials against the database        
@@ -453,7 +346,7 @@ public class AuthenticationController(
         user.ResetFailedLogin();
         await context.SaveChangesAsync();
         // need to change the return type to Guid
-        return Ok();
+        return Ok(user.TenantId);
 
     }
 
@@ -475,7 +368,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (account locked or already verified)</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost("ResendLink")]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -523,7 +416,7 @@ public class AuthenticationController(
                 modelState: ModelState
             );
         }
-        /*else if (TenantId != user.TenantId)
+        else if (TenantId != user.TenantId)
         {
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid username or password");
             return this.ApplicationProblem(
@@ -535,7 +428,7 @@ public class AuthenticationController(
                 modelState: ModelState
             );
 
-        }*/
+        }
 
         if (user.IsLocked)
         {
@@ -603,7 +496,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid or expired link</response>
     /// <response code="401">Email already verified</response>
     [Produces("application/json")]
-    [HttpGet]
+    [HttpGet("Verify")]
     public async Task<ActionResult> Verify(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);
@@ -667,7 +560,7 @@ public class AuthenticationController(
 
         user.VerifyEmail();
 
-        string url = $"{Request.Scheme}://{Request.Host}/api/authentication/userlogin?email={user.Email}";
+        string url = $"{Request.Scheme}://{Request.Host}/api/Login?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,
@@ -682,8 +575,7 @@ public class AuthenticationController(
             <p>Best regards,<br/>Your Company Name</p>"
      );
 
-
         await context.SaveChangesAsync();
-        return Ok("Email verified successfully.");
+        return Ok();
     }
 }

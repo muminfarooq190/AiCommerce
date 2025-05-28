@@ -1,22 +1,23 @@
 ﻿using Ecommerce.Entities;
+using EcommerceApi.Configrations;
 using EcommerceApi.Entities;
 using EcommerceApi.Providers;
+using EcommerceApi.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options, IServiceProvider serviceProvider) : DbContext(options)
 {
-    private readonly IServiceProvider _serviceProvider;
-    public string Schema { get; set; }
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, IServiceProvider serviceProvider)
-        : base(options)
-    {
-        _serviceProvider = serviceProvider;
-        Schema = _serviceProvider.GetRequiredService<SchemaProvider>().Schema;
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        var tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+        var Schema = tenantProvider.GetCurrentTenant()?.SchemaName;
+        if (Schema == null)
+        {
+            var defaultTenant = serviceProvider.GetRequiredService<IOptions<DefaultTenant>>().Value;
+            Schema = SchemaGenerater.Generate(defaultTenant.CompanyName);
+
+        }
         modelBuilder.HasDefaultSchema(Schema);
     }
 

@@ -1,15 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace EcommerceApi.Providers;
+namespace EcommerceApi.Utilities;
 
-public class SchemaProvider
-{
-    public SchemaProvider(string companyName)
-    {
-        Schema = ToSafeSchemaName(companyName);
-    }
-    public string Schema { get; }
-    private string ToSafeSchemaName(string CompanyName)
+public class SchemaGenerater
+{   
+    public static string Generate(string CompanyName)
     {
         if (string.IsNullOrWhiteSpace(CompanyName))
             throw new ArgumentException("Company name cannot be empty.");

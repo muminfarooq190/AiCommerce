@@ -1,5 +1,4 @@
-﻿using EcommerceApi.Entities.DbContexts;
-using EcommerceApi.Models;
+﻿using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -143,7 +142,5 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         return true;
     }
-
-
 
 }

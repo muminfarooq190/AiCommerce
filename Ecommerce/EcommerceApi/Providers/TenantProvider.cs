@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EcommerceApi.Providers;
-public class TenantProvider(IMemoryCache memoryCache, TenantDbContext resolverContext) : ITenantProvider
+public class TenantProvider(IMemoryCache memoryCache, TenantDbContext tenantDbContext) : ITenantProvider
 {
 
     public TenantEntity? GetCurrentTenant()
@@ -17,7 +17,7 @@ public class TenantProvider(IMemoryCache memoryCache, TenantDbContext resolverCo
         string cacheKey = $"Tenants:{TenantId}";
         if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
         {
-            Tenant = resolverContext.Tenants
+            Tenant = tenantDbContext.Tenants
             .AsNoTracking()
             .FirstOrDefault(t => t.Id == TenantId);
         }
@@ -37,5 +37,23 @@ public class TenantProvider(IMemoryCache memoryCache, TenantDbContext resolverCo
     public void ResetSetTenantId()
     {
         TenantId = null;
+    }
+
+    public async Task<TenantEntity?> GetCurrentTenantAsync()
+    {
+        if (TenantId == null)
+        {
+            return null;
+        }
+
+        string cacheKey = $"Tenants:{TenantId}";
+        if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
+        {
+            Tenant = await tenantDbContext.Tenants
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == TenantId);
+        }
+
+        return Tenant;
     }
 }
