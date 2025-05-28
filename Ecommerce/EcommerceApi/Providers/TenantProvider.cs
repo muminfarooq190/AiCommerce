@@ -1,25 +1,41 @@
-﻿namespace EcommerceApi.Providers;
-public class TenantProvider : ITenantProvider
+﻿using Ecommerce.Entities;
+using EcommerceApi.Entities.DbContexts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+
+namespace EcommerceApi.Providers;
+public class TenantProvider(IMemoryCache memoryCache, TenantDbContext resolverContext) : ITenantProvider
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public TenantProvider(IHttpContextAccessor httpContextAccessor)
+    public TenantEntity? GetCurrentTenant()
     {
-        _httpContextAccessor = httpContextAccessor;
-    }
-
-    public Guid? TenantId
-    {
-        get
+        if (TenantId == null)
         {
-            var context = _httpContextAccessor.HttpContext;
-
-            if (context != null && context.Request.Headers.TryGetValue("TenantId", out var tenantId) && Guid.TryParse(tenantId, out var parsedTenantId))
-            {
-                return parsedTenantId;
-            }           
-
             return null;
         }
+
+        string cacheKey = $"Tenants:{TenantId}";
+        if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
+        {
+            Tenant = resolverContext.Tenants
+            .AsNoTracking()
+            .FirstOrDefault(t => t.Id == TenantId);
+        }
+
+        return Tenant;
+    }
+    public Guid? TenantId
+    {
+        get;
+        private set;
+    }
+    public void SetTenantId(Guid tenantId)
+    {
+        TenantId = tenantId;
+    }
+
+    public void ResetSetTenantId()
+    {
+        TenantId = null;
     }
 }

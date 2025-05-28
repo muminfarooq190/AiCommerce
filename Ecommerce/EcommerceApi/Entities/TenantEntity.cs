@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EcommerceApi.Providers;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Ecommerce.Entities;
 
@@ -9,6 +11,7 @@ public class TenantEntity
     
     public Guid Id { get; init; }
     public required string CompanyName { get; init; }
+    public required string SchemaName { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime UpdatedAt { get; init; }
 
@@ -18,8 +21,20 @@ public class TenantEntity
         {
             Id = Guid.NewGuid(),
             CompanyName = companyName,
+            SchemaName = new SchemaProvider(companyName).Schema,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
     }
+    public static TenantEntity Set(Guid guid, string companyName,DateTime CreatedAt,DateTime updatedAt)
+    {
+        return new TenantEntity
+        {
+            Id = Guid.NewGuid(),
+            CompanyName = companyName,
+            SchemaName = new SchemaProvider(companyName).Schema,
+            CreatedAt = CreatedAt,
+            UpdatedAt = updatedAt
+        };
+    }    
 }

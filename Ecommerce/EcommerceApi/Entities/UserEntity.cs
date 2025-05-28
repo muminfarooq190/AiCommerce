@@ -21,8 +21,6 @@ public class UserEntity
     public string? ProfilePictureUrl { get; private set; } // Optional profile picture URL
     public  string Address { get; private set; } // Optional address for the user   
     public bool IsTenantPrimary { get; private set; } = false; // Indicates if the user is a tenant primarty user so it can be deleted.
-    public Guid TenantId { get; private set; } // Foreign key to TenantEntity
-    public TenantEntity? Tenant { get; private set; } // Navigation property for TenantEntity
     private List<PermissionsEntity> _Permissions { get; set; } = new(); // Navigation property for PermissionsEntity
 
     public IReadOnlyList<PermissionsEntity> Permissions => _Permissions; // Read-only collection of permissions
@@ -95,7 +93,6 @@ public class UserEntity
         string firstName,
         string lastName,
         string address,
-        Guid tenantId,
         bool isTenentPrimary = false)
     {
         return new UserEntity
@@ -109,40 +106,7 @@ public class UserEntity
             Address = address,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            LastLogin = DateTime.UtcNow,
-            TenantId = tenantId,
-            IsTenantPrimary = isTenentPrimary
-        };
-    }
-    public static UserEntity Create(
-    string password,
-    string email,
-    string phoneNumber,
-    string firstName,
-    string lastName,
-    string address,
-    TenantEntity tenant,
-    bool isTenentPrimary = false
-        )
-    {
-        if (tenant == null)
-        {
-            throw new ArgumentNullException(nameof(tenant), "Tenant cannot be null.");
-        }
-        return new UserEntity
-        {
-            Id = Guid.NewGuid(),
-            Password = password,
-            Email = email,
-            PhoneNumber = phoneNumber,
-            FirstName = firstName,
-            LastName = lastName,
-            Address = address,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            LastLogin = DateTime.UtcNow,
-            TenantId = tenant.Id,
-            Tenant = tenant,
+            LastLogin = DateTime.UtcNow,           
             IsTenantPrimary = isTenentPrimary
         };
     }

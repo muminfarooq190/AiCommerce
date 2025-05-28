@@ -3,14 +3,17 @@ using Ecommerce.Services;
 using Ecommerce.Utilities;
 using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
+using EcommerceApi.Entities.DbContexts;
+using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
+using EcommerceApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Models.RequestModels;
 using Models.ResponseModels;
 using System.Security.Claims;
-using EcommerceApi.Extensions;
 
 namespace EcommerceApi.Controllers;
 
@@ -43,7 +46,15 @@ namespace EcommerceApi.Controllers;
 [Produces("application/json")]
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class AuthenticationController(AppDbContext context, JwtTokenGenerator jwtTokenGenerator, EmailSender emailSender, ITenantProvider tenantProvider) : ControllerBase
+public class AuthenticationController(
+    IServiceProvider serviceProvider,
+    AppDbContext context,
+    TenantDbContext tenantDbContext,
+    JwtTokenGenerator jwtTokenGenerator,
+    EmailSender emailSender,
+    ITenantProvider tenantProvider,
+    IConfiguration configuration,
+    SchemaCloner schemaCloner) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns a JWT token if successful.
@@ -76,12 +87,12 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
                 modelState: ModelState,
-                errorCode : ErrorCodes.TenantIdMissingOrInvalid
+                errorCode: ErrorCodes.TenantIdMissingOrInvalid
             );
 
         }
 
-        var user = context.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email && u.TenantId == TenantId);
+        var user = context.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email);
 
         if (user == null)
         {
@@ -108,7 +119,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 title: "Login Failed",
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
-                errorCode:ErrorCodes.InvalidEmailOrPassword,
+                errorCode: ErrorCodes.InvalidEmailOrPassword,
                 modelState: ModelState
             );
         }
@@ -121,7 +132,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 title: "Login Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
                 instance: HttpContext.Request.Path,
-                errorCode:ErrorCodes.UnverifiedEmail,
+                errorCode: ErrorCodes.UnverifiedEmail,
                 modelState: ModelState
             );
         }
@@ -176,7 +187,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     {
         Guid tenantIdValue = (tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId cant be null"));
 
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email && u.TenantId == tenantIdValue);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email);
 
         if (user != null)
         {
@@ -186,8 +197,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 detail: "User already exists.",
                 title: "Registration Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
-                modelState:ModelState,
-                errorCode:ErrorCodes.EmailAlreadyExist,
+                modelState: ModelState,
+                errorCode: ErrorCodes.EmailAlreadyExist,
                 instance: HttpContext.Request.Path
             );
         }
@@ -198,8 +209,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             phoneNumber: userRegisterRequest.PhoneNumber,
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
-            address: userRegisterRequest.Address,
-            tenantId: tenantIdValue
+            address: userRegisterRequest.Address
         );
 
         await context.Users.AddAsync(newUser);
@@ -214,7 +224,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
 
-        TenantEntity tenant = await context.Tenant.FirstAsync(f => f.Id == tenantIdValue);
+        TenantEntity tenant = await tenantDbContext.Tenants.FirstAsync(f => f.Id == tenantIdValue);
 
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
@@ -225,7 +235,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>{tenant.CompanyName}</p>"                    );
+                    <p>Best regards,<br/>{tenant.CompanyName}</p>");
 
 
         return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
@@ -239,7 +249,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = newUser.TenantId,
+            TenantId = tenant.Id,
             CompanyName = tenant.CompanyName
         });
     }
@@ -259,54 +269,32 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
     [Produces("application/json")]
     [HttpPost]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
-    {
-        var user = await context.Users.Include(u => u.Tenant)
-            .FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email || u.PhoneNumber == userRegisterRequest.PhoneNumber || u.Tenant!.CompanyName == userRegisterRequest.CompanyName);
-
-        if (user != null)
-        {
-            if(user.Tenant!.CompanyName == userRegisterRequest.CompanyName)
-            {
-                ModelState.AddModelError(nameof(userRegisterRequest.CompanyName), "A tenant with the same company name already exists.");
-                return this.ApplicationProblem(
-                    detail: "A tenant with the same company name already exists.",
-                    title: "Registration Failed",
-                    statusCode: StatusCodes.Status409Conflict,
-                    errorCode: ErrorCodes.CompanyAlreadyExist,
-                    instance: HttpContext.Request.Path,
-                    modelState: ModelState
-                );
-            }
-
-            if (user.Email == userRegisterRequest.Email)
-            {
-                ModelState.AddModelError(nameof(userRegisterRequest.Email), "A tenant with the same email already exists.");
-                return this.ApplicationProblem(
-                    detail: "A tenant with the same email already exists.",
-                    title: "Registration Failed",
-                    statusCode: StatusCodes.Status409Conflict,
-                    errorCode: ErrorCodes.EmailAlreadyExist,
-                    instance: HttpContext.Request.Path,
-                    modelState: ModelState
-                );
-            }
-
-            if (user.PhoneNumber == userRegisterRequest.PhoneNumber)
-            {
-                ModelState.AddModelError(nameof(userRegisterRequest.PhoneNumber), "A tenant with the same phone number already exists.");
-                return this.ApplicationProblem(
-                    detail: "A tenant with the same phone number already exists.",
-                    title: "Registration Failed",
-                    statusCode: StatusCodes.Status409Conflict,
-                    errorCode: ErrorCodes.PhoneAlreadyExist,
-                    instance: HttpContext.Request.Path,
-                    modelState: ModelState
-                );
-            }
-            
-        }
+    {        
+        var Schema = new SchemaProvider(configuration["DefaultTenant:CompanyName"] ?? throw new ArgumentNullException("DefaultTenant:CompanyName is not configured in appsetting")).Schema;
         
+        var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userRegisterRequest.CompanyName);
+
+        if (Tenant != null)
+        {
+            ModelState.AddModelError(nameof(userRegisterRequest.CompanyName), "A tenant with the same company name already exists.");
+            return this.ApplicationProblem(
+                detail: "A tenant with the same company name already exists.",
+                title: "Registration Failed",
+                statusCode: StatusCodes.Status409Conflict,
+                errorCode: ErrorCodes.CompanyAlreadyExist,
+                instance: HttpContext.Request.Path,
+                modelState: ModelState
+            );
+        }
+
         TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
+
+        tenantDbContext.Tenants.Add(newtant);
+        await tenantDbContext.SaveChangesAsync();
+
+        tenantProvider.SetTenantId(newtant.Id);
+
+        await schemaCloner.CloneSchema(Schema,  newtant.SchemaName);
 
         var newUser = UserEntity.Create(
             password: PasswordHasher.Hash(userRegisterRequest.Password),
@@ -315,7 +303,6 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
             address: userRegisterRequest.Address,
-            tenant: newtant,
             true
         );
 
@@ -326,8 +313,11 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             newUser.AddPermission(PermissionsEntity.Create(feature, newUser));
         }
 
-        context.Users.Add(newUser);
-        await context.SaveChangesAsync();
+        using var scope = serviceProvider.CreateScope();
+
+            var appdbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            appdbContext.Users.Add(newUser);
+            await appdbContext.SaveChangesAsync();
 
         var token = jwtTokenGenerator.GenerateToken(
              newUser.Id,
@@ -358,10 +348,13 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = newUser.TenantId,
+            TenantId = newtant.Id,
             CompanyName = newtant.CompanyName
         });
     }
+
+
+
 
     /// <summary>
     /// Gets the tenant ID for a user if credentials are valid and user is primary tenant.
@@ -459,8 +452,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
 
         user.ResetFailedLogin();
         await context.SaveChangesAsync();
-
-        return Ok(user.TenantId);
+        // need to change the return type to Guid
+        return Ok();
 
     }
 
@@ -521,16 +514,16 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
         {
             if (!user.IsTenantPrimary)
                 ModelState.AddModelError(nameof(userLoginRequest.Email), "TenantId header is missing");
-                return this.ApplicationProblem(
-                    detail: "TenantId header is missing",
-                    title: "Verify Failed",
-                    statusCode: StatusCodes.Status400BadRequest,
-                    instance: HttpContext.Request.Path,
-                    errorCode: ErrorCodes.TanentIdMissing,
-                    modelState: ModelState
-                );
+            return this.ApplicationProblem(
+                detail: "TenantId header is missing",
+                title: "Verify Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.TanentIdMissing,
+                modelState: ModelState
+            );
         }
-        else if (TenantId != user.TenantId)
+        /*else if (TenantId != user.TenantId)
         {
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid username or password");
             return this.ApplicationProblem(
@@ -542,7 +535,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 modelState: ModelState
             );
 
-        }
+        }*/
 
         if (user.IsLocked)
         {
@@ -554,7 +547,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 instance: HttpContext.Request.Path,
                 errorCode: ErrorCodes.AccountLocked,
                 modelState: ModelState
-            ); 
+            );
         }
 
         if (user.IsEmailVerified)
@@ -625,7 +618,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                instance: HttpContext.Request.Path,
                errorCode: ErrorCodes.ExpiredOrInvalidLink,
                modelState: ModelState
-               );            
+               );
         }
 
         var UserId = clams.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
@@ -640,8 +633,8 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                instance: HttpContext.Request.Path,
                errorCode: ErrorCodes.ExpiredOrInvalidLink,
                modelState: ModelState
-               );          
-           
+               );
+
         }
 
         UserEntity? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userIdValue);
@@ -656,7 +649,7 @@ public class AuthenticationController(AppDbContext context, JwtTokenGenerator jw
                 errorCode: ErrorCodes.ExpiredOrInvalidLink,
                 modelState: ModelState,
                 instance: HttpContext.Request.Path
-            );           
+            );
         }
 
         if (user.IsEmailVerified)

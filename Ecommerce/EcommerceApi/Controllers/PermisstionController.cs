@@ -1,6 +1,6 @@
-﻿using Ecommerce.Entities;
-using EcommerceApi.Attributes;
+﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
+using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
@@ -98,7 +98,7 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
         }
 
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
+        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {
@@ -172,7 +172,7 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
         }
 
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
+        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {
@@ -244,7 +244,7 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
     public async Task<IActionResult> RemovePermission(RemovePermisstionRequest request)
     {
         var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId && u.TenantId == tenantid);
+        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {
