@@ -271,27 +271,6 @@
     </main>
 </div>
 
-<script>
-   
 
-    document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-
-                // Store state in localStorage
-                const isCollapsed = sidebar.classList.contains('collapsed');
-                localStorage.setItem('sidebarCollapsed', isCollapsed);
-            });
-
-            // Check localStorage for saved state
-            if (localStorage.getItem('sidebarCollapsed') === 'true') {
-                sidebar.classList.add('collapsed');
-            }
-        });
-
-</script>
 
 

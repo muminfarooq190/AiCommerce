@@ -1,0 +1,976 @@
+﻿<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#10a37f',
+                    'ai-dark': '#202123',
+                    'ai-light': '#f7f7f8',
+                    'ai-gray': '#343541',
+                }
+            }
+        }
+    }
+</script>
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+    }
+
+    .sidebar {
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .customer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .customer-detail-item {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 0;
+    }
+
+        .customer-detail-item:last-child {
+            border-bottom: none;
+        }
+
+    .animate-pulse {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+</style>
+<!-- Main Content -->
+<div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Navigation -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center justify-between px-6 py-3">
+            <div class="flex items-center">
+               
+                <h2 class="text-xl font-semibold text-gray-800">Customer Management</h2>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                        <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-sm font-medium">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <!-- Customer Management -->
+        <div class="space-y-6">
+            <!-- Customer Actions -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold">Customer Database</h2>
+                    <p class="text-gray-600">Manage and analyze your customer base</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                        <i class="fas fa-filter mr-2 text-gray-600"></i>
+                        Filters
+                    </button>
+                    <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                        <i class="fas fa-download mr-2 text-gray-600"></i>
+                        Export
+                    </button>
+                    <button class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Customer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Customer Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Customers</p>
+                            <h3 class="text-xl font-bold">2,487</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">New This Month</p>
+                            <h3 class="text-xl font-bold">184</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Active Customers</p>
+                            <h3 class="text-xl font-bold">1,752</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Avg. Order Value</p>
+                            <h3 class="text-xl font-bold">$89.24</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Growth Chart -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Customer Growth</h3>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm bg-gray-100 rounded">Monthly</button>
+                        <button class="px-3 py-1 text-sm bg-white border rounded">Quarterly</button>
+                        <button class="px-3 py-1 text-sm bg-white border rounded">Yearly</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <!-- Chart will be rendered here -->
+                    <div class="w-full h-full flex items-center justify-center bg-gray-50 rounded">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-chart-line text-4xl mb-2"></i>
+                            <p>Customer growth chart will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer View Options -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <button class="px-3 py-1 bg-ai-blue text-white rounded-lg">All</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">New</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Active</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Inactive</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">VIP</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">At Risk</button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative w-full md:w-64">
+                            <input type="text" placeholder="Search customers..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <button class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer List View -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Customer
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Phone
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Location
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Orders
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="customersTableBody">
+                            <!-- Customers will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-ai-blue font-medium">1</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">4</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
+                    <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">12</a>
+                    <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Customer Detail Modal -->
+        <div id="customerDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold">Customer Details - <span id="customerDetailName"></span></h3>
+                    <button id="closeCustomerDetailModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Customer Summary -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <div class="flex items-center space-x-4 mb-6">
+                                    <div class="flex-shrink-0">
+                                        <img id="customerDetailAvatar" class="h-16 w-16 rounded-full" src="https://via.placeholder.com/80" alt="">
+                                    </div>
+                                    <div>
+                                        <h4 id="customerDetailFullName" class="text-xl font-semibold"></h4>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span id="customerDetailStatus" class="status-badge bg-green-100 text-green-800">Active</span>
+                                            <span id="customerDetailTier" class="status-badge bg-blue-100 text-blue-800">VIP</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer Since</label>
+                                        <span id="customerDetailSince" class="text-sm">Jan 12, 2021</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Purchase</label>
+                                        <span id="customerDetailLastPurchase" class="text-sm">3 days ago</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Total Orders</label>
+                                        <span id="customerDetailTotalOrders" class="text-sm">24</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Total Spent</label>
+                                        <span id="customerDetailTotalSpent" class="text-sm">$2,487.50</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Customer Notes</label>
+                                    <textarea class="w-full border border-gray-300 rounded p-3 text-sm focus:ring-ai-blue focus:border-ai-blue" rows="3" placeholder="Add notes about this customer...">This customer prefers email communication and has a preference for eco-friendly products.</textarea>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-medium text-lg mb-4">Recent Orders</h4>
+                                    <div class="space-y-3" id="customerRecentOrders">
+                                        <!-- Recent orders will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Meta -->
+                        <div>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-lg mb-4">Contact Information</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <div class="flex items-center">
+                                            <span id="customerDetailEmail" class="text-sm">john.doe@example.com</span>
+                                            <button class="ml-2 text-gray-500 hover:text-ai-blue">
+                                                <i class="fas fa-envelope"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                        <div class="flex items-center">
+                                            <span id="customerDetailPhone" class="text-sm">+1 (555) 123-4567</span>
+                                            <button class="ml-2 text-gray-500 hover:text-ai-blue">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                        <span id="customerDetailAddress" class="text-sm">123 Main St, Apt 4B, New York, NY 10001, United States</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-lg mb-4">Customer Preferences</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Contact</label>
+                                        <span id="customerDetailPreferredContact" class="text-sm">Email</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Category</label>
+                                        <span id="customerDetailPreferredCategory" class="text-sm">Electronics</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Average Order Value</label>
+                                        <span id="customerDetailAOV" class="text-sm">$103.65</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-medium text-lg mb-4">Customer Actions</h4>
+                                <div class="space-y-3">
+                                    <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                        <i class="fas fa-envelope mr-2"></i>
+                                        Send Email
+                                    </button>
+                                    <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                        <i class="fas fa-tag mr-2"></i>
+                                        Apply Discount
+                                    </button>
+                                    <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                        <i class="fas fa-star mr-2"></i>
+                                        Upgrade to VIP
+                                    </button>
+                                    <button class="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 flex items-center justify-center">
+                                        <i class="fas fa-ban mr-2"></i>
+                                        Deactivate Account
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Actions -->
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Print Profile
+                        </button>
+                        <button class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Customer Modal -->
+        <div id="addCustomerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold">Add New Customer</h3>
+                    <button id="closeAddCustomerModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input type="tel" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                                <select class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                                    <option>United States</option>
+                                    <option>Canada</option>
+                                    <option>United Kingdom</option>
+                                    <option>Australia</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Customer Notes</label>
+                                <textarea class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" id="cancelAddCustomer" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                Add Customer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sample customer data
+    const customers = [
+        {
+            id: "CUST-001",
+            firstName: "John",
+            lastName: "Doe",
+            email: "john.doe@example.com",
+            phone: "+1 (555) 123-4567",
+            avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+            joinDate: "2021-01-12",
+            lastPurchase: "2023-06-15",
+            totalOrders: 24,
+            totalSpent: 2487.50,
+            status: "active",
+            tier: "vip",
+            address: "123 Main St, Apt 4B, New York, NY 10001, United States",
+            preferredContact: "email",
+            preferredCategory: "electronics",
+            aov: 103.65,
+            notes: "This customer prefers email communication and has a preference for eco-friendly products.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-001",
+                    date: "2023-06-15",
+                    amount: 168.40,
+                    status: "pending",
+                    items: ["Wireless Headphones", "USB-C Cable"]
+                },
+                {
+                    id: "ORD-2023-002",
+                    date: "2023-05-28",
+                    amount: 245.99,
+                    status: "delivered",
+                    items: ["Smart Watch", "Screen Protector"]
+                },
+                {
+                    id: "ORD-2023-003",
+                    date: "2023-05-10",
+                    amount: 89.99,
+                    status: "delivered",
+                    items: ["Wireless Earbuds"]
+                }
+            ]
+        },
+        {
+            id: "CUST-002",
+            firstName: "Jane",
+            lastName: "Smith",
+            email: "jane.smith@example.com",
+            phone: "+1 (555) 987-6543",
+            avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+            joinDate: "2021-03-05",
+            lastPurchase: "2023-06-14",
+            totalOrders: 18,
+            totalSpent: 1872.25,
+            status: "active",
+            tier: "premium",
+            address: "456 Oak Ave, Suite 200, Los Angeles, CA 90012, United States",
+            preferredContact: "phone",
+            preferredCategory: "fashion",
+            aov: 104.01,
+            notes: "Responds well to SMS promotions. Frequently purchases women's apparel.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-004",
+                    date: "2023-06-14",
+                    amount: 338.41,
+                    status: "processing",
+                    items: ["Smart Watch Series 5", "Leather Band"]
+                },
+                {
+                    id: "ORD-2023-005",
+                    date: "2023-04-22",
+                    amount: 156.75,
+                    status: "delivered",
+                    items: ["Summer Dress", "Sandals"]
+                }
+            ]
+        },
+        {
+            id: "CUST-003",
+            firstName: "Robert",
+            lastName: "Johnson",
+            email: "robert.j@example.com",
+            phone: "+1 (555) 456-7890",
+            avatar: "https://randomuser.me/api/portraits/men/67.jpg",
+            joinDate: "2021-07-18",
+            lastPurchase: "2023-06-13",
+            totalOrders: 12,
+            totalSpent: 987.50,
+            status: "active",
+            tier: "regular",
+            address: "789 Pine Rd, Boston, MA 02108, United States",
+            preferredContact: "email",
+            preferredCategory: "electronics",
+            aov: 82.29,
+            notes: "Occasional buyer. Mostly purchases computer accessories.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-006",
+                    date: "2023-06-13",
+                    amount: 92.65,
+                    status: "shipped",
+                    items: ["Wireless Mouse", "Mouse Pad"]
+                },
+                {
+                    id: "ORD-2023-007",
+                    date: "2023-03-15",
+                    amount: 245.99,
+                    status: "delivered",
+                    items: ["Mechanical Keyboard", "Gaming Mouse"]
+                }
+            ]
+        },
+        {
+            id: "CUST-004",
+            firstName: "Emily",
+            lastName: "Wilson",
+            email: "emily.w@example.com",
+            phone: "+1 (555) 789-0123",
+            avatar: "https://randomuser.me/api/portraits/women/28.jpg",
+            joinDate: "2022-02-10",
+            lastPurchase: "2023-06-12",
+            totalOrders: 8,
+            totalSpent: 1254.75,
+            status: "active",
+            tier: "premium",
+            address: "321 Elm St, Chicago, IL 60601, United States",
+            preferredContact: "email",
+            preferredCategory: "electronics",
+            aov: 156.84,
+            notes: "High-value customer. Purchases flagship electronics.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-008",
+                    date: "2023-06-12",
+                    amount: 662.93,
+                    status: "delivered",
+                    items: ["Latest Smartphone"]
+                },
+                {
+                    id: "ORD-2023-009",
+                    date: "2023-04-05",
+                    amount: 349.99,
+                    status: "delivered",
+                    items: ["Tablet"]
+                }
+            ]
+        },
+        {
+            id: "CUST-005",
+            firstName: "Michael",
+            lastName: "Brown",
+            email: "michael.b@example.com",
+            phone: "+1 (555) 234-5678",
+            avatar: "https://randomuser.me/api/portraits/men/75.jpg",
+            joinDate: "2022-05-22",
+            lastPurchase: "2023-06-11",
+            totalOrders: 5,
+            totalSpent: 487.25,
+            status: "inactive",
+            tier: "regular",
+            address: "654 Cedar Ln, Austin, TX 78701, United States",
+            preferredContact: "email",
+            preferredCategory: "home",
+            aov: 97.45,
+            notes: "Account deactivated per customer request.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-010",
+                    date: "2023-06-11",
+                    amount: 146.78,
+                    status: "cancelled",
+                    items: ["Bluetooth Speaker"]
+                }
+            ]
+        },
+        {
+            id: "CUST-006",
+            firstName: "Sarah",
+            lastName: "Miller",
+            email: "sarah.m@example.com",
+            phone: "+1 (555) 345-6789",
+            avatar: "https://randomuser.me/api/portraits/women/42.jpg",
+            joinDate: "2022-08-15",
+            lastPurchase: "2023-06-10",
+            totalOrders: 15,
+            totalSpent: 1875.50,
+            status: "active",
+            tier: "vip",
+            address: "987 Maple Ave, Seattle, WA 98101, United States",
+            preferredContact: "email",
+            preferredCategory: "beauty",
+            aov: 125.03,
+            notes: "Loyal customer. Responds well to loyalty rewards.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-011",
+                    date: "2023-06-10",
+                    amount: 187.50,
+                    status: "processing",
+                    items: ["Skincare Set"]
+                },
+                {
+                    id: "ORD-2023-012",
+                    date: "2023-05-28",
+                    amount: 245.75,
+                    status: "delivered",
+                    items: ["Perfume", "Makeup Kit"]
+                }
+            ]
+        },
+        {
+            id: "CUST-007",
+            firstName: "David",
+            lastName: "Taylor",
+            email: "david.t@example.com",
+            phone: "+1 (555) 456-7890",
+            avatar: "https://randomuser.me/api/portraits/men/68.jpg",
+            joinDate: "2022-11-30",
+            lastPurchase: "2023-06-08",
+            totalOrders: 3,
+            totalSpent: 325.75,
+            status: "active",
+            tier: "regular",
+            address: "159 Birch Blvd, Denver, CO 80202, United States",
+            preferredContact: "phone",
+            preferredCategory: "sports",
+            aov: 108.58,
+            notes: "New customer. Interested in fitness equipment.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-013",
+                    date: "2023-06-08",
+                    amount: 199.99,
+                    status: "delivered",
+                    items: ["Dumbbell Set"]
+                }
+            ]
+        },
+        {
+            id: "CUST-008",
+            firstName: "Jessica",
+            lastName: "Anderson",
+            email: "jessica.a@example.com",
+            phone: "+1 (555) 567-8901",
+            avatar: "https://randomuser.me/api/portraits/women/33.jpg",
+            joinDate: "2023-01-05",
+            lastPurchase: "2023-06-05",
+            totalOrders: 7,
+            totalSpent: 625.25,
+            status: "active",
+            tier: "premium",
+            address: "753 Walnut St, Miami, FL 33101, United States",
+            preferredContact: "email",
+            preferredCategory: "jewelry",
+            aov: 89.32,
+            notes: "Frequently purchases gifts. Seasonal buyer.",
+            recentOrders: [
+                {
+                    id: "ORD-2023-014",
+                    date: "2023-06-05",
+                    amount: 175.50,
+                    status: "delivered",
+                    items: ["Silver Necklace"]
+                }
+            ]
+        }
+    ];
+
+    // DOM Elements
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const customersTableBody = document.getElementById('customersTableBody');
+    const customerDetailModal = document.getElementById('customerDetailModal');
+    const closeCustomerDetailModal = document.getElementById('closeCustomerDetailModal');
+    const customerDetailName = document.getElementById('customerDetailName');
+    const customerDetailAvatar = document.getElementById('customerDetailAvatar');
+    const customerDetailFullName = document.getElementById('customerDetailFullName');
+    const customerDetailStatus = document.getElementById('customerDetailStatus');
+    const customerDetailTier = document.getElementById('customerDetailTier');
+    const customerDetailSince = document.getElementById('customerDetailSince');
+    const customerDetailLastPurchase = document.getElementById('customerDetailLastPurchase');
+    const customerDetailTotalOrders = document.getElementById('customerDetailTotalOrders');
+    const customerDetailTotalSpent = document.getElementById('customerDetailTotalSpent');
+    const customerDetailEmail = document.getElementById('customerDetailEmail');
+    const customerDetailPhone = document.getElementById('customerDetailPhone');
+    const customerDetailAddress = document.getElementById('customerDetailAddress');
+    const customerDetailPreferredContact = document.getElementById('customerDetailPreferredContact');
+    const customerDetailPreferredCategory = document.getElementById('customerDetailPreferredCategory');
+    const customerDetailAOV = document.getElementById('customerDetailAOV');
+    const customerRecentOrders = document.getElementById('customerRecentOrders');
+    const addCustomerModal = document.getElementById('addCustomerModal');
+    const closeAddCustomerModal = document.getElementById('closeAddCustomerModal');
+    const cancelAddCustomer = document.getElementById('cancelAddCustomer');
+
+    // Sidebar toggle for mobile
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+    });
+
+    // Render customers table
+    function renderCustomersTable() {
+        customersTableBody.innerHTML = '';
+
+        customers.forEach(customer => {
+            const statusBadgeClasses = {
+                active: 'bg-green-100 text-green-800',
+                inactive: 'bg-red-100 text-red-800'
+            };
+
+            const tierBadgeClasses = {
+                vip: 'bg-purple-100 text-purple-800',
+                premium: 'bg-blue-100 text-blue-800',
+                regular: 'bg-gray-100 text-gray-800'
+            };
+
+            // Calculate days since last purchase
+            const lastPurchaseDate = new Date(customer.lastPurchase);
+            const today = new Date();
+            const diffTime = Math.abs(today - lastPurchaseDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const lastPurchaseText = diffDays === 0 ? 'Today' : `${diffDays} days ago`;
+
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 cursor-pointer';
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                            <img class="h-10 w-10 rounded-full" src="${customer.avatar}" alt="${customer.firstName} ${customer.lastName}">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${customer.firstName} ${customer.lastName}</div>
+                            <div class="text-sm text-gray-500">${customer.id}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${customer.email}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${customer.phone}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${customer.address.split(',')[2] || customer.address.split(',')[1]}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${customer.totalOrders}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="status-badge ${statusBadgeClasses[customer.status]}">${customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}</span>
+                    <span class="status-badge ${tierBadgeClasses[customer.tier]}">${customer.tier.toUpperCase()}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button class="text-ai-blue hover:text-ai-dark mr-3 view-customer-btn" data-customer-id="${customer.id}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </td>
+            `;
+
+            customersTableBody.appendChild(row);
+        });
+
+        // Add event listeners to view buttons
+        document.querySelectorAll('.view-customer-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const customerId = btn.getAttribute('data-customer-id');
+                showCustomerDetails(customerId);
+            });
+        });
+
+        // Add event listeners to table rows
+        document.querySelectorAll('#customersTableBody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                const customerId = row.querySelector('.view-customer-btn').getAttribute('data-customer-id');
+                showCustomerDetails(customerId);
+            });
+        });
+    }
+
+    // Show customer details modal
+    function showCustomerDetails(customerId) {
+        const customer = customers.find(c => c.id === customerId);
+        if (!customer) return;
+
+        // Set customer name
+        customerDetailName.textContent = `${customer.firstName} ${customer.lastName}`;
+        customerDetailFullName.textContent = `${customer.firstName} ${customer.lastName}`;
+
+        // Set avatar
+        customerDetailAvatar.src = customer.avatar;
+        customerDetailAvatar.alt = `${customer.firstName} ${customer.lastName}`;
+
+        // Set status and tier
+        const statusBadgeClasses = {
+            active: 'bg-green-100 text-green-800',
+            inactive: 'bg-red-100 text-red-800'
+        };
+
+        const tierBadgeClasses = {
+            vip: 'bg-purple-100 text-purple-800',
+            premium: 'bg-blue-100 text-blue-800',
+            regular: 'bg-gray-100 text-gray-800'
+        };
+
+        customerDetailStatus.className = `status-badge ${statusBadgeClasses[customer.status]}`;
+        customerDetailStatus.textContent = customer.status.charAt(0).toUpperCase() + customer.status.slice(1);
+
+        customerDetailTier.className = `status-badge ${tierBadgeClasses[customer.tier]}`;
+        customerDetailTier.textContent = customer.tier.toUpperCase();
+
+        // Set customer info
+        customerDetailSince.textContent = new Date(customer.joinDate).toLocaleDateString();
+
+        const lastPurchaseDate = new Date(customer.lastPurchase);
+        const today = new Date();
+        const diffTime = Math.abs(today - lastPurchaseDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        customerDetailLastPurchase.textContent = diffDays === 0 ? 'Today' : `${diffDays} days ago`;
+
+        customerDetailTotalOrders.textContent = customer.totalOrders;
+        customerDetailTotalSpent.textContent = `$${customer.totalSpent.toFixed(2)}`;
+        customerDetailEmail.textContent = customer.email;
+        customerDetailPhone.textContent = customer.phone;
+        customerDetailAddress.textContent = customer.address;
+        customerDetailPreferredContact.textContent = customer.preferredContact.charAt(0).toUpperCase() + customer.preferredContact.slice(1);
+        customerDetailPreferredCategory.textContent = customer.preferredCategory.charAt(0).toUpperCase() + customer.preferredCategory.slice(1);
+        customerDetailAOV.textContent = `$${customer.aov.toFixed(2)}`;
+
+        // Render recent orders
+        customerRecentOrders.innerHTML = '';
+        customer.recentOrders.forEach(order => {
+            const orderElement = document.createElement('div');
+            orderElement.className = 'flex items-center justify-between p-3 bg-white rounded border border-gray-200';
+            orderElement.innerHTML = `
+                <div>
+                    <div class="text-sm font-medium">${order.id}</div>
+                    <div class="text-xs text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm font-medium">$${order.amount.toFixed(2)}</div>
+                    <div class="text-xs">
+                        <span class="status-badge ${order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                            order.status === 'processing' ? 'bg-purple-100 text-purple-800' :
+                            order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                    </div>
+                </div>
+            `;
+            customerRecentOrders.appendChild(orderElement);
+        });
+
+        // Show modal
+        customerDetailModal.classList.remove('hidden');
+    }
+
+    // Close customer detail modal
+    closeCustomerDetailModal.addEventListener('click', () => {
+        customerDetailModal.classList.add('hidden');
+    });
+
+    // Show add customer modal
+    document.querySelector('.gradient-bg').addEventListener('click', () => {
+        addCustomerModal.classList.remove('hidden');
+    });
+
+    // Close add customer modal
+    closeAddCustomerModal.addEventListener('click', () => {
+        addCustomerModal.classList.add('hidden');
+    });
+
+    // Cancel add customer
+    cancelAddCustomer.addEventListener('click', () => {
+        addCustomerModal.classList.add('hidden');
+    });
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+        renderCustomersTable();
+    });
+</script>

@@ -149,7 +149,7 @@
                     <h3 class="text-xs uppercase text-gray-400 font-bold mb-2 sidebar-section-title">Main</h3>
                     <ul>
                         <li>
-                            <a href="/portal/dashboard" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-tachometer-alt text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Dashboard</span>
                                 <span class="sidebar-tooltip">Dashboard</span>
@@ -163,42 +163,42 @@
                     <h3 class="text-xs uppercase text-gray-400 font-bold mb-2 sidebar-section-title">Management</h3>
                     <ul>
                         <li>
-                            <a href="/portal/categories" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal/category" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-tags text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Categories</span>
                                 <span class="sidebar-tooltip">Categories</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/portal/products" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal/product" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-box-open text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Products</span>
                                 <span class="sidebar-tooltip">Products</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/portal/orders" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal/order" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-shopping-cart text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Orders</span>
                                 <span class="sidebar-tooltip">Orders</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/portal/customers" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal/customer" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-users text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Customers</span>
                                 <span class="sidebar-tooltip">Customers</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/portal/users" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                            <a href="/portal/user" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-user-shield text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">User Management</span>
                                 <span class="sidebar-tooltip">User Management</span>
                             </a>
                         </li>
                         <li>
-                            <a href="/portal/roles" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item active">
+                            <a href="/portal/role" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item active">
                                 <i class="fas fa-user-cog text-gray-300 mr-3"></i>
                                 <span class="sidebar-text">Role Management</span>
                                 <span class="sidebar-tooltip">Role Management</span>
@@ -234,3 +234,25 @@
     </div>
 </body>
 </html>
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+
+                // Store state in localStorage
+                const isCollapsed = sidebar.classList.contains('collapsed');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+            });
+
+            // Check localStorage for saved state
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+        });
+
+</script>

@@ -1,0 +1,940 @@
+﻿  <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ai-blue': '#10a37f',
+                        'ai-dark': '#202123',
+                        'ai-light': '#f7f7f8',
+                        'ai-gray': '#343541',
+                    }
+                }
+            }
+        }
+    </script>
+
+<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+    }
+
+    .sidebar {
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .table-row:hover {
+        background-color: #f0fdf4;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(16, 163, 127, 0.2);
+    }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    
+
+    .drag-handle {
+        cursor: move;
+    }
+</style>
+
+<div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Navigation -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center justify-between px-6 py-3">
+            <div class="flex items-center">
+               
+                <h2 class="text-xl font-semibold text-gray-800">Category Management</h2>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                        <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-sm font-medium">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <!-- Category Management -->
+        <div class="space-y-6">
+            <!-- Category Actions -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold">Product Categories</h2>
+                    <p class="text-gray-600">Organize your products with categories and subcategories</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                        <i class="fas fa-filter mr-2 text-gray-600"></i>
+                        Filters
+                    </button>
+                    <button id="addCategoryBtn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Category
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Categories</p>
+                            <h3 class="text-xl font-bold">24</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Active Categories</p>
+                            <h3 class="text-xl font-bold">22</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Featured Categories</p>
+                            <h3 class="text-xl font-bold">8</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Products in Categories</p>
+                            <h3 class="text-xl font-bold">1,248</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category View Options -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex items-center space-x-2">
+                        <button class="px-3 py-1 bg-ai-blue text-white rounded-lg">All</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Top Level</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Subcategories</button>
+                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Featured</button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative w-full md:w-64">
+                            <input type="text" placeholder="Search categories..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <button class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-sort-alpha-down"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category List View -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex items-center">
+                                        <span class="drag-handle mr-2"><i class="fas fa-grip-lines text-gray-400"></i></span>
+                                        Category
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Products
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Featured
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Last Updated
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- Category 1 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                            <i class="fas fa-microchip"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Electronics</div>
+                                            <div class="text-sm text-gray-500">Main Category</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">428</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                        Yes
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    2 days ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Category 2 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                            <i class="fas fa-tshirt"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Apparel</div>
+                                            <div class="text-sm text-gray-500">Main Category</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">312</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                        Yes
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    1 week ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Category 3 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                            <i class="fas fa-home"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Home Goods</div>
+                                            <div class="text-sm text-gray-500">Main Category</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">198</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        No
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    3 days ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Category 4 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                            <i class="fas fa-car"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Automotive</div>
+                                            <div class="text-sm text-gray-500">Main Category</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">87</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        No
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    2 weeks ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Category 5 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">AI & Smart Devices</div>
+                                            <div class="text-sm text-gray-500">Subcategory of Electronics</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">128</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                        Yes
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    1 day ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Category 6 -->
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                                            <i class="fas fa-laptop"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Computer Components</div>
+                                            <div class="text-sm text-gray-500">Subcategory of Electronics</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">76</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        No
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    5 days ago
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Category Grid View (Alternative View) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
+                <!-- Category Card 1 -->
+                <div class="category-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
+                    <div class="relative h-40 bg-gradient-to-r from-blue-100 to-blue-50 flex items-center justify-center">
+                        <i class="fas fa-microchip text-4xl text-blue-600"></i>
+                        <div class="absolute top-3 right-3 flex space-x-1">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-edit text-gray-600"></i>
+                            </button>
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-trash text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg text-ai-dark">Electronics</h3>
+                        <p class="text-gray-500 text-sm">Main Category</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-700">428 products</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Card 2 -->
+                <div class="category-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
+                    <div class="relative h-40 bg-gradient-to-r from-green-100 to-green-50 flex items-center justify-center">
+                        <i class="fas fa-tshirt text-4xl text-green-600"></i>
+                        <div class="absolute top-3 right-3 flex space-x-1">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-edit text-gray-600"></i>
+                            </button>
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-trash text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg text-ai-dark">Apparel</h3>
+                        <p class="text-gray-500 text-sm">Main Category</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-700">312 products</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Card 3 -->
+                <div class="category-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
+                    <div class="relative h-40 bg-gradient-to-r from-yellow-100 to-yellow-50 flex items-center justify-center">
+                        <i class="fas fa-home text-4xl text-yellow-600"></i>
+                        <div class="absolute top-3 right-3 flex space-x-1">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-edit text-gray-600"></i>
+                            </button>
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-trash text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg text-ai-dark">Home Goods</h3>
+                        <p class="text-gray-500 text-sm">Main Category</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-700">198 products</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Card 4 -->
+                <div class="category-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
+                    <div class="relative h-40 bg-gradient-to-r from-red-100 to-red-50 flex items-center justify-center">
+                        <i class="fas fa-car text-4xl text-red-600"></i>
+                        <div class="absolute top-3 right-3 flex space-x-1">
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-edit text-gray-600"></i>
+                            </button>
+                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                <i class="fas fa-trash text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg text-ai-dark">Automotive</h3>
+                        <p class="text-gray-500 text-sm">Main Category</p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="text-sm text-gray-700">87 products</span>
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-ai-blue font-medium">1</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">4</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
+                    <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">12</a>
+                    <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Add/Edit Category Modal -->
+        <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold" id="categoryModalTitle">Add New Category</h3>
+                    <button id="closeCategoryModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form id="categoryForm">
+                        <input type="hidden" id="categoryId">
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Basic Information -->
+                            <div>
+                                <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Basic Information</h4>
+                                <div class="mb-4">
+                                    <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name*</label>
+                                    <input type="text" id="categoryName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryParent" class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
+                                    <select id="categoryParent" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <option value="">None (Top Level Category)</option>
+                                        <option value="1">Electronics</option>
+                                        <option value="2">Apparel</option>
+                                        <option value="3">Home Goods</option>
+                                        <option value="4">Automotive</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <textarea id="categoryDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Display Settings -->
+                            <div>
+                                <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Display Settings</h4>
+                                <div class="mb-4">
+                                    <label for="categoryIcon" class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
+                                    <div class="flex items-center">
+                                        <div class="mr-4">
+                                            <div id="categoryIconPreview" class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                <i class="fas fa-tag"></i>
+                                            </div>
+                                        </div>
+                                        <select id="categoryIcon" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="fa-tag">Default (fa-tag)</option>
+                                            <option value="fa-microchip">Electronics (fa-microchip)</option>
+                                            <option value="fa-tshirt">Apparel (fa-tshirt)</option>
+                                            <option value="fa-home">Home (fa-home)</option>
+                                            <option value="fa-car">Automotive (fa-car)</option>
+                                            <option value="fa-robot">AI (fa-robot)</option>
+                                            <option value="fa-laptop">Computer (fa-laptop)</option>
+                                            <option value="fa-mobile">Mobile (fa-mobile)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryColor" class="block text-sm font-medium text-gray-700 mb-1">Color Theme</label>
+                                    <select id="categoryColor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <option value="blue">Blue</option>
+                                        <option value="green">Green</option>
+                                        <option value="yellow">Yellow</option>
+                                        <option value="red">Red</option>
+                                        <option value="purple">Purple</option>
+                                        <option value="pink">Pink</option>
+                                        <option value="indigo">Indigo</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryImage" class="block text-sm font-medium text-gray-700 mb-1">Featured Image</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                                        <div class="flex flex-col items-center justify-center py-4">
+                                            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                            <p class="text-sm text-gray-500 mb-1">Drag & drop image here or click to browse</p>
+                                            <p class="text-xs text-gray-400">Recommended size: 800x800px</p>
+                                        </div>
+                                        <input type="file" id="categoryImage" class="hidden" accept="image/*">
+                                        <button type="button" id="uploadCategoryImageBtn" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
+                                            Upload Image
+                                        </button>
+                                    </div>
+                                    <div class="mt-2" id="categoryImagePreview">
+                                        <!-- Image preview will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status & SEO -->
+                            <div>
+                                <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Status & SEO</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="mb-4">
+                                        <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status*</label>
+                                        <select id="categoryStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                            <option value="draft">Draft</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="categoryFeatured" class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
+                                        <select id="categoryFeatured" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="0">No</option>
+                                            <option value="1">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryMetaTitle" class="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
+                                    <input type="text" id="categoryMetaTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categoryMetaDescription" class="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+                                    <textarea id="categoryMetaDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="categorySlug" class="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
+                                    <input type="text" id="categorySlug" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" id="cancelCategoryBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
+                            <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">Save Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Sample data for categories
+    const categories = [
+        {
+            id: 1,
+            name: "Electronics",
+            parent: null,
+            description: "All electronic devices and components",
+            icon: "fa-microchip",
+            color: "blue",
+            image: null,
+            status: "active",
+            featured: true,
+            metaTitle: "Electronics - Best Deals on Gadgets",
+            metaDescription: "Shop the latest electronics and gadgets at the best prices",
+            slug: "electronics",
+            products: 428
+        },
+        {
+            id: 2,
+            name: "Apparel",
+            parent: null,
+            description: "Clothing and fashion accessories",
+            icon: "fa-tshirt",
+            color: "green",
+            image: null,
+            status: "active",
+            featured: true,
+            metaTitle: "Fashion & Apparel - Trendy Clothing",
+            metaDescription: "Discover the latest fashion trends and styles",
+            slug: "apparel",
+            products: 312
+        },
+        {
+            id: 3,
+            name: "Home Goods",
+            parent: null,
+            description: "Furniture and home decor items",
+            icon: "fa-home",
+            color: "yellow",
+            image: null,
+            status: "active",
+            featured: false,
+            metaTitle: "Home Goods & Furniture",
+            metaDescription: "Everything you need to furnish your home",
+            slug: "home-goods",
+            products: 198
+        },
+        {
+            id: 4,
+            name: "Automotive",
+            parent: null,
+            description: "Car parts and accessories",
+            icon: "fa-car",
+            color: "red",
+            image: null,
+            status: "active",
+            featured: false,
+            metaTitle: "Automotive Parts & Accessories",
+            metaDescription: "Quality parts for your vehicle",
+            slug: "automotive",
+            products: 87
+        },
+        {
+            id: 5,
+            name: "AI & Smart Devices",
+            parent: 1,
+            description: "Artificial intelligence powered devices",
+            icon: "fa-robot",
+            color: "purple",
+            image: null,
+            status: "active",
+            featured: true,
+            metaTitle: "AI & Smart Devices - Future Tech",
+            metaDescription: "Cutting-edge AI technology for your home and office",
+            slug: "ai-smart-devices",
+            products: 128
+        },
+        {
+            id: 6,
+            name: "Computer Components",
+            parent: 1,
+            description: "PC parts and accessories",
+            icon: "fa-laptop",
+            color: "blue",
+            image: null,
+            status: "active",
+            featured: false,
+            metaTitle: "Computer Parts & Components",
+            metaDescription: "Upgrade your PC with quality components",
+            slug: "computer-components",
+            products: 76
+        }
+    ];
+
+    // DOM Elements
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+    const addCategoryBtn = document.getElementById('addCategoryBtn');
+    const categoryModal = document.getElementById('categoryModal');
+    const closeCategoryModal = document.getElementById('closeCategoryModal');
+    const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+    const categoryForm = document.getElementById('categoryForm');
+    const uploadCategoryImageBtn = document.getElementById('uploadCategoryImageBtn');
+    const categoryImage = document.getElementById('categoryImage');
+    const categoryImagePreview = document.getElementById('categoryImagePreview');
+    const categoryIcon = document.getElementById('categoryIcon');
+    const categoryIconPreview = document.getElementById('categoryIconPreview');
+    const categoryColor = document.getElementById('categoryColor');
+
+    // Sidebar toggle for mobile
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+    });
+
+    // Open category modal for adding new category
+    addCategoryBtn.addEventListener('click', () => {
+        document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+        document.getElementById('categoryId').value = '';
+        categoryForm.reset();
+        categoryImagePreview.innerHTML = '';
+        categoryModal.classList.remove('hidden');
+    });
+
+    // Close category modal
+    closeCategoryModal.addEventListener('click', () => {
+        categoryModal.classList.add('hidden');
+    });
+
+    cancelCategoryBtn.addEventListener('click', () => {
+        categoryModal.classList.add('hidden');
+    });
+
+    // Handle image upload
+    uploadCategoryImageBtn.addEventListener('click', () => {
+        categoryImage.click();
+    });
+
+    categoryImage.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                categoryImagePreview.innerHTML = `
+                    <div class="relative">
+                        <img src="${event.target.result}" alt="Preview" class="w-full h-32 object-cover rounded">
+                        <button class="absolute top-1 right-1 bg-white p-1 rounded-full shadow-sm hover:bg-gray-100">
+                            <i class="fas fa-times text-red-500 text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Handle icon change
+    categoryIcon.addEventListener('change', (e) => {
+        const iconClass = e.target.value;
+        categoryIconPreview.innerHTML = `<i class="fas ${iconClass}"></i>`;
+    });
+
+    // Handle color change
+    categoryColor.addEventListener('change', (e) => {
+        const color = e.target.value;
+        const colorClasses = {
+            blue: 'bg-blue-100 text-blue-600',
+            green: 'bg-green-100 text-green-600',
+            yellow: 'bg-yellow-100 text-yellow-600',
+            red: 'bg-red-100 text-red-600',
+            purple: 'bg-purple-100 text-purple-600',
+            pink: 'bg-pink-100 text-pink-600',
+            indigo: 'bg-indigo-100 text-indigo-600'
+        };
+
+        // Remove all color classes
+        Object.keys(colorClasses).forEach(c => {
+            categoryIconPreview.classList.remove(`bg-${c}-100`, `text-${c}-600`);
+        });
+
+        // Add selected color classes
+        const classes = colorClasses[color].split(' ');
+        classes.forEach(c => categoryIconPreview.classList.add(c));
+    });
+
+    // Handle category form submission
+    categoryForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // In a real application, you would save the category data here
+        // For this demo, we'll just close the modal
+        categoryModal.classList.add('hidden');
+
+        // Show success message
+        alert('Category saved successfully!');
+    });
+
+    // Sample function to edit a category
+    function editCategory(id) {
+        const category = categories.find(c => c.id === id);
+        if (category) {
+            document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+            document.getElementById('categoryId').value = category.id;
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryParent').value = category.parent || '';
+            document.getElementById('categoryDescription').value = category.description;
+            document.getElementById('categoryIcon').value = category.icon;
+            document.getElementById('categoryColor').value = category.color;
+            document.getElementById('categoryStatus').value = category.status;
+            document.getElementById('categoryFeatured').value = category.featured ? '1' : '0';
+            document.getElementById('categoryMetaTitle').value = category.metaTitle;
+            document.getElementById('categoryMetaDescription').value = category.metaDescription;
+            document.getElementById('categorySlug').value = category.slug;
+
+            // Update icon preview
+            categoryIconPreview.innerHTML = `<i class="fas ${category.icon}"></i>`;
+
+            // Update color
+            const colorClasses = {
+                blue: 'bg-blue-100 text-blue-600',
+                green: 'bg-green-100 text-green-600',
+                yellow: 'bg-yellow-100 text-yellow-600',
+                red: 'bg-red-100 text-red-600',
+                purple: 'bg-purple-100 text-purple-600',
+                pink: 'bg-pink-100 text-pink-600',
+                indigo: 'bg-indigo-100 text-indigo-600'
+            };
+
+            // Remove all color classes
+            Object.keys(colorClasses).forEach(c => {
+                categoryIconPreview.classList.remove(`bg-${c}-100`, `text-${c}-600`);
+            });
+
+            // Add selected color classes
+            const classes = colorClasses[category.color].split(' ');
+            classes.forEach(c => categoryIconPreview.classList.add(c));
+
+            // Clear image preview (in a real app, you would load the existing image)
+            categoryImagePreview.innerHTML = '';
+
+            categoryModal.classList.remove('hidden');
+        }
+    }
+
+    // Sample function to delete a category
+    function deleteCategory(id) {
+        if (confirm('Are you sure you want to delete this category?')) {
+            // In a real application, you would delete the category here
+            alert('Category deleted successfully!');
+        }
+    }
+</script>

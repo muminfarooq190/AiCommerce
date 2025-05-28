@@ -3,7 +3,7 @@
 namespace EcommerceWeb.Areas.Portal.Controllers;
 
 [Area("Portal")]
-public class HomeController : Controller
+public class CategoryController : Controller
 {
     public IActionResult Index()
     {

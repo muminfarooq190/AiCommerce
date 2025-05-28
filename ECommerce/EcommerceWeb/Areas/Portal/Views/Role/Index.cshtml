@@ -1,0 +1,977 @@
+﻿<style>
+    .gradient-bg {
+        background: linear-gradient(135deg, #10a37f 0%, #1a73e8 100%);
+    }
+
+    .sidebar {
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-link.active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .role-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .permission-item {
+        transition: all 0.2s ease;
+    }
+
+        .permission-item:hover {
+            background-color: #f8fafc;
+        }
+
+    .role-tag {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .permission-group {
+        transition: all 0.2s ease;
+    }
+
+        .permission-group:hover {
+            background-color: #f3f4f6;
+        }
+
+    .animate-pulse {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+   
+</style>
+
+<!-- Main Content -->
+<div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Navigation -->
+    <header class="bg-white shadow-sm">
+        <div class="flex items-center justify-between px-6 py-3">
+            <div class="flex items-center">
+                
+                <h2 class="text-xl font-semibold text-gray-800">Role Management</h2>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+                    </button>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                        <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-sm font-medium">Admin</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-y-auto p-6">
+        <!-- Role Management -->
+        <div class="space-y-6">
+            <!-- Role Actions -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-semibold">Role Management</h2>
+                    <p class="text-gray-600">Create and manage system roles and permissions</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                        <i class="fas fa-filter mr-2 text-gray-600"></i>
+                        Filters
+                    </button>
+                    <button id="openAddRoleModal" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Role
+                    </button>
+                </div>
+            </div>
+
+            <!-- Role Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Roles</p>
+                            <h3 class="text-xl font-bold">8</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-user-tag"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Active Roles</p>
+                            <h3 class="text-xl font-bold">7</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">System Roles</p>
+                            <h3 class="text-xl font-bold">3</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Custom Roles</p>
+                            <h3 class="text-xl font-bold">5</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role List View -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Role Name
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Description
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Users
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Type
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="rolesTableBody">
+                            <!-- Roles will be dynamically inserted here -->
+                            <tr class="role-card">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                            <i class="fas fa-user-shield"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Super Admin</div>
+                                            <div class="text-sm text-gray-500">Full system access</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">Has complete access to all features and settings</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">5 users</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        System
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                    <button class="text-gray-400 cursor-not-allowed" disabled>
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="role-card">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Content Manager</div>
+                                            <div class="text-sm text-gray-500">Content management access</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">Can manage all content including products, categories, etc.</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">12 users</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Custom
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900 delete-role-btn">
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="role-card">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                            <i class="fas fa-edit"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Content Editor</div>
+                                            <div class="text-sm text-gray-500">Content editing access</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">Can create and edit content but cannot publish or delete</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">24 users</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Custom
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900 delete-role-btn">
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="role-card">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                            <i class="fas fa-eye"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Content Viewer</div>
+                                            <div class="text-sm text-gray-500">Read-only access</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">Can view content but cannot make any changes</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">18 users</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Custom
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900 delete-role-btn">
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="role-card">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                            <i class="fas fa-user-slash"></i>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Support Agent</div>
+                                            <div class="text-sm text-gray-500">Customer support access</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">Can access customer support tools and view orders</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">8 users</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Custom
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        Inactive
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-600 hover:text-blue-900 mr-3 edit-role-btn">
+                                        <i class="fas fa-edit mr-1"></i> Edit
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-900 delete-role-btn">
+                                        <i class="fas fa-trash mr-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-blue-600 font-medium">1</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                    <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
+                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
+                    <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Role Detail Modal -->
+        <div id="roleDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold">Role Details - <span id="roleDetailName">Content Manager</span></h3>
+                    <button id="closeRoleDetailModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Role Summary -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <div class="flex items-center space-x-4 mb-6">
+                                    <div class="flex-shrink-0 h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-2xl">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <h4 id="roleDetailFullName" class="text-xl font-semibold">Content Manager</h4>
+                                        <div class="flex items-center space-x-2 mt-1">
+                                            <span id="roleDetailStatus" class="status-badge bg-green-100 text-green-800">Active</span>
+                                            <span id="roleDetailType" class="status-badge bg-yellow-100 text-yellow-800">Custom</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Created On</label>
+                                        <span id="roleDetailCreated" class="text-sm">Mar 15, 2022</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
+                                        <span id="roleDetailUpdated" class="text-sm">2 weeks ago</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Users</label>
+                                        <span id="roleDetailUsers" class="text-sm">12 users</span>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Permission Count</label>
+                                        <span id="roleDetailPermissions" class="text-sm">28 permissions</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Role Description</label>
+                                    <textarea id="roleDetailDescription" class="w-full border border-gray-300 rounded p-3 text-sm focus:ring-blue-600 focus:border-blue-600" rows="3">Can manage all content including products, categories, blog posts, and media. Can approve content submitted by editors but cannot modify system settings or user permissions.</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Permissions Section -->
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-lg mb-4">Assigned Permissions</h4>
+
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="block text-sm font-medium text-gray-700">Search Permissions</label>
+                                        <button class="text-blue-600 text-sm">Select All</button>
+                                    </div>
+                                    <input type="text" placeholder="Filter permissions..." class="w-full border border-gray-300 rounded-lg py-2 px-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                </div>
+
+                                <div class="border rounded-lg overflow-hidden">
+                                    <div class="grid grid-cols-1 divide-y divide-gray-200">
+                                        <!-- Permission Group -->
+                                        <div class="p-3 bg-gray-100 permission-group">
+                                            <div class="flex items-center justify-between">
+                                                <h5 class="font-medium">Content Management</h5>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <!-- Permission Items -->
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Create Content</span>
+                                                    <p class="text-xs text-gray-500">Add new articles, products, etc.</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Edit Content</span>
+                                                    <p class="text-xs text-gray-500">Modify existing content</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Delete Content</span>
+                                                    <p class="text-xs text-gray-500">Remove content from the system</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Publish Content</span>
+                                                    <p class="text-xs text-gray-500">Make content visible to public</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Another Permission Group -->
+                                        <div class="p-3 bg-gray-100 permission-group">
+                                            <div class="flex items-center justify-between">
+                                                <h5 class="font-medium">Category Management</h5>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <!-- Permission Items -->
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Add Category</span>
+                                                    <p class="text-xs text-gray-500">Create new content categories</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Edit Category</span>
+                                                    <p class="text-xs text-gray-500">Modify existing categories</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Delete Category</span>
+                                                    <p class="text-xs text-gray-500">Remove categories from system</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer">
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Another Permission Group -->
+                                        <div class="p-3 bg-gray-100 permission-group">
+                                            <div class="flex items-center justify-between">
+                                                <h5 class="font-medium">Product Management</h5>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <!-- Permission Items -->
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Add Product</span>
+                                                    <p class="text-xs text-gray-500">Create new products</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Edit Product</span>
+                                                    <p class="text-xs text-gray-500">Modify existing products</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 permission-item">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <span class="font-medium">Delete Product</span>
+                                                    <p class="text-xs text-gray-500">Remove products from catalog</p>
+                                                </div>
+                                                <label class="inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" class="sr-only peer" checked>
+                                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Role Meta -->
+                        <div>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-lg mb-4">Role Settings</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Role Status</label>
+                                        <select id="roleDetailStatusSelect" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Role Type</label>
+                                        <div class="text-sm" id="roleDetailTypeText">Custom</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Created By</label>
+                                        <div class="flex items-center">
+                                            <div class="w-6 h-6 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                                <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="Admin" class="w-full h-full object-cover">
+                                            </div>
+                                            <span class="text-sm">Sarah Johnson</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                                <h4 class="font-medium text-lg mb-4">Assigned Users</h4>
+                                <div class="space-y-3 max-h-60 overflow-y-auto">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-full h-full object-cover">
+                                        </div>
+                                        <span class="text-sm">Michael Chen</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-full h-full object-cover">
+                                        </div>
+                                        <span class="text-sm">Emma Wilson</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="User" class="w-full h-full object-cover">
+                                        </div>
+                                        <span class="text-sm">David Kim</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="User" class="w-full h-full object-cover">
+                                        </div>
+                                        <span class="text-sm">Lisa Rodriguez</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
+                                            <img src="https://randomuser.me/api/portraits/men/42.jpg" alt="User" class="w-full h-full object-cover">
+                                        </div>
+                                        <span class="text-sm">James Smith</span>
+                                    </div>
+                                </div>
+                                <button class="w-full mt-3 bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center text-sm">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Assign Users
+                                </button>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-medium text-lg mb-4">Role Actions</h4>
+                                <div class="space-y-3">
+                                    <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                        <i class="fas fa-copy mr-2"></i>
+                                        Duplicate Role
+                                    </button>
+                                    <button class="w-full bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                                        <i class="fas fa-file-export mr-2"></i>
+                                        Export Permissions
+                                    </button>
+                                    <button class="w-full bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg hover:bg-red-100 flex items-center justify-center">
+                                        <i class="fas fa-trash mr-2"></i>
+                                        Delete Role
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Role Actions -->
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Discard Changes
+                        </button>
+                        <button class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Role Modal -->
+        <div id="addRoleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold">Create New Role</h3>
+                    <button id="closeAddRoleModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role Name</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="e.g. Marketing Manager">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role Description</label>
+                                <textarea class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" rows="3" placeholder="Describe what this role can do..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role Status</label>
+                                <select class="w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Assign Permissions</label>
+                                <div class="border rounded-lg p-3 max-h-60 overflow-y-auto">
+                                    <div class="space-y-2">
+                                        <div class="p-2 bg-gray-100 rounded">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium">Content Management</h4>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-create-content" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-create-content" class="ml-2 block text-sm text-gray-900">
+                                                Create Content
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-edit-content" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-edit-content" class="ml-2 block text-sm text-gray-900">
+                                                Edit Content
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-delete-content" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-delete-content" class="ml-2 block text-sm text-gray-900">
+                                                Delete Content
+                                            </label>
+                                        </div>
+
+                                        <div class="p-2 bg-gray-100 rounded mt-2">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium">Category Management</h4>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-add-category" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-add-category" class="ml-2 block text-sm text-gray-900">
+                                                Add Category
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-edit-category" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-edit-category" class="ml-2 block text-sm text-gray-900">
+                                                Edit Category
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-delete-category" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-delete-category" class="ml-2 block text-sm text-gray-900">
+                                                Delete Category
+                                            </label>
+                                        </div>
+
+                                        <div class="p-2 bg-gray-100 rounded mt-2">
+                                            <div class="flex items-center justify-between">
+                                                <h4 class="font-medium">Product Management</h4>
+                                                <button class="text-blue-600 text-sm">Select All</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-add-product" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-add-product" class="ml-2 block text-sm text-gray-900">
+                                                Add Product
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-edit-product" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-edit-product" class="ml-2 block text-sm text-gray-900">
+                                                Edit Product
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center pl-4">
+                                            <input id="perm-delete-product" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                            <label for="perm-delete-product" class="ml-2 block text-sm text-gray-900">
+                                                Delete Product
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" id="cancelAddRole" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                Create Role
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteRoleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                        <i class="fas fa-exclamation text-red-600 text-xl"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Delete Role</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">Are you sure you want to delete this role? This action cannot be undone.</p>
+                            <p class="text-sm text-gray-500 mt-2"><span id="deleteRoleName" class="font-medium">Content Manager</span> is currently assigned to <span id="deleteRoleUsers" class="font-medium">12 users</span>.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="confirmDeleteRole" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete Role
+                    </button>
+                    <button type="button" id="cancelDeleteRole" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Toggle sidebar
+    document.getElementById('sidebarToggle').addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('hidden');
+    });
+
+    // Role detail modal functionality
+    const editButtons = document.querySelectorAll('.edit-role-btn');
+    const roleDetailModal = document.getElementById('roleDetailModal');
+    const closeRoleDetailModal = document.getElementById('closeRoleDetailModal');
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get role data from the row
+            const row = this.closest('tr');
+            const roleName = row.querySelector('div.text-sm.font-medium').textContent;
+            const roleDescription = row.querySelector('div.text-sm.text-gray-500').textContent;
+            const roleStatus = row.querySelector('td:nth-child(5) span').textContent;
+            const roleType = row.querySelector('td:nth-child(4) span').textContent;
+
+            // Update modal with role data
+            document.getElementById('roleDetailName').textContent = roleName;
+            document.getElementById('roleDetailFullName').textContent = roleName;
+            document.getElementById('roleDetailDescription').value = roleDescription;
+            document.getElementById('roleDetailStatus').textContent = roleStatus;
+            document.getElementById('roleDetailType').textContent = roleType;
+            document.getElementById('roleDetailTypeText').textContent = roleType;
+
+            // Show modal
+            roleDetailModal.classList.remove('hidden');
+        });
+    });
+
+    closeRoleDetailModal.addEventListener('click', function() {
+        roleDetailModal.classList.add('hidden');
+    });
+
+    // Add role modal functionality
+    const addRoleModal = document.getElementById('addRoleModal');
+    const openAddRoleModal = document.getElementById('openAddRoleModal');
+    const closeAddRoleModal = document.getElementById('closeAddRoleModal');
+    const cancelAddRole = document.getElementById('cancelAddRole');
+
+    openAddRoleModal.addEventListener('click', function() {
+        addRoleModal.classList.remove('hidden');
+    });
+
+    closeAddRoleModal.addEventListener('click', function() {
+        addRoleModal.classList.add('hidden');
+    });
+
+    cancelAddRole.addEventListener('click', function() {
+        addRoleModal.classList.add('hidden');
+    });
+
+    // Delete role modal functionality
+    const deleteButtons = document.querySelectorAll('.delete-role-btn');
+    const deleteRoleModal = document.getElementById('deleteRoleModal');
+    const confirmDeleteRole = document.getElementById('confirmDeleteRole');
+    const cancelDeleteRole = document.getElementById('cancelDeleteRole');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Get role data from the row
+            const row = this.closest('tr');
+            const roleName = row.querySelector('div.text-sm.font-medium').textContent;
+            const userCount = row.querySelector('td:nth-child(3) div').textContent;
+
+            // Update modal with role data
+            document.getElementById('deleteRoleName').textContent = roleName;
+            document.getElementById('deleteRoleUsers').textContent = userCount;
+
+            // Show modal
+            deleteRoleModal.classList.remove('hidden');
+        });
+    });
+
+    confirmDeleteRole.addEventListener('click', function() {
+        // Here you would add code to actually delete the role
+        deleteRoleModal.classList.add('hidden');
+        // Show a success message
+        alert('Role deleted successfully');
+    });
+
+    cancelDeleteRole.addEventListener('click', function() {
+        deleteRoleModal.classList.add('hidden');
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === roleDetailModal) {
+            roleDetailModal.classList.add('hidden');
+        }
+        if (event.target === addRoleModal) {
+            addRoleModal.classList.add('hidden');
+        }
+        if (event.target === deleteRoleModal) {
+            deleteRoleModal.classList.add('hidden');
+        }
+    });
+
+    // Toggle all permissions in a group
+    document.querySelectorAll('.permission-group button').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const group = this.closest('.permission-group');
+            const permissionItems = group.nextElementSibling;
+            while(permissionItems && !permissionItems.classList.contains('permission-group')) {
+                if(permissionItems.classList.contains('permission-item')) {
+                    const checkbox = permissionItems.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+                permissionItems = permissionItems.nextElementSibling;
+            }
+        });
+    });
+</script>
