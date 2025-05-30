@@ -1,22 +1,81 @@
-﻿using EcommerceWeb.Entities;
+﻿using Azure;
+using EcommerceWeb.Entities;
 using EcommerceWeb.Extensions;
 using EcommerceWeb.Models;
 using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult;
 using EcommerceWeb.Utilities.ApiResult.Enums;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
+using System.Security.Claims;
 
 namespace EcommerceWeb.Controllers;
 
 public class AuthenticationController(IApiClient apiClient, ILogger<AuthenticationController> logger, AppDbContext appDbContext) : Controller
 {
+    [HttpGet]
     public IActionResult Index()
     {
         return View();
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Index(LoginViewModel request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(request);
+        }
+
+        var userLoginRequest = new UserLoginRequest
+        {
+            Email = request.Email,
+            Password = request.Password
+        };
+
+        var apiResponce = await apiClient.PostAsync<UserLoginRequest, UserLoginResponse>(
+            Endpoints.AuthenticationEndpoints.Login,
+            userLoginRequest
+        );
+
+        ModelState.AddApiResult(apiResponce);
+
+        if (apiResponce.ResultType != ResultType.Success)
+        {
+            logger.LogError("Login failed: {Errors}", apiResponce.Errors.ToString());
+            return View(request);
+        }
+
+        var user = apiResponce.Data;
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Email),
+            new Claim(ClaimTypes.Email, user.Email),
+            // i will add User permisstons here
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = request.RememberMe,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(claimsIdentity),
+            authProperties
+        );
+
+        return Redirect("Portal");
+    }
+
 
     [HttpGet]
     public IActionResult Register()

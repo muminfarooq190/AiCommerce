@@ -2,6 +2,7 @@
 using Ecommerce.Services;
 using Ecommerce.Utilities;
 using EcommerceApi.Attributes;
+using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
@@ -43,6 +44,7 @@ namespace EcommerceApi.Controllers;
 [Produces("application/json")]
 [ApiController]
 public class AuthenticationController(
+    TenantDbContext tenantDbContext,
     AppDbContext context,
     JwtTokenGenerator jwtTokenGenerator,
     EmailSender emailSender,
@@ -173,7 +175,7 @@ public class AuthenticationController(
     /// <response code="201">User created</response>
     /// <response code="401">User already exists or tenant ID missing</response>
     [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.Createuser)]
+    [HttpPost(Endpoints.AuthenticationEndpoints.CreateUser)]
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
@@ -265,8 +267,22 @@ public class AuthenticationController(
     [HttpPost(Endpoints.AuthenticationEndpoints.GetTenentId)]
     public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
+        var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userLoginRequest.CompanyName);
+
+        if (Tenant == null)
+        {
+            ModelState.AddModelError(nameof(userLoginRequest.CompanyName), "invalid company name.");
+            return this.ApplicationProblem(
+                detail: "invalid company name.",
+                title: "Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.CompanyNotExist,
+                modelState: ModelState
+            );
+        }
         // Validate the user credentials against the database        
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email && u.TenantId == Tenant.Id);
 
         if (user == null)
         {
@@ -300,9 +316,9 @@ public class AuthenticationController(
 
         if (user.IsLocked)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "User account is locked.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "account is locked.");
             return this.ApplicationProblem(
-                detail: "User account is locked.",
+                detail: "account is locked.",
                 title: "Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
                 instance: HttpContext.Request.Path,
@@ -314,9 +330,9 @@ public class AuthenticationController(
 
         if (!user.IsEmailVerified)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "User email is not verified.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "email is not verified.");
             return this.ApplicationProblem(
-                detail: "User email is not verified.",
+                detail: "email is not verified.",
                 title: "Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
                 instance: HttpContext.Request.Path,

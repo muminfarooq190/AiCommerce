@@ -1,4 +1,6 @@
-﻿namespace Sheared.Models.RequestModels;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Sheared.Models.RequestModels;
 
 public record UserLoginRequest
 {
