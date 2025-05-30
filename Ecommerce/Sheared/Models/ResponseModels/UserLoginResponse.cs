@@ -1,4 +1,4 @@
-﻿namespace Models.ResponseModels;
+﻿namespace Sheared.Models.ResponseModels;
 
 public class UserLoginResponse
 {

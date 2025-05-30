@@ -11,12 +11,12 @@ using EcommerceApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Models.RequestModels;
-using Models.ResponseModels;
+using Sheared;
+using Sheared.Models.RequestModels;
+using Sheared.Models.ResponseModels;
 
 namespace EcommerceApi.Controllers.Tenant;
 
-[Route("api/Tenant")]
 [ApiController]
 public class AuthenticationController(
     TenantDbContext tenantDbContext,
@@ -40,7 +40,7 @@ public class AuthenticationController(
     /// <response code="201">Tenant and user created</response>
     /// <response code="400">Tenant already exists</response>
     [Produces("application/json")]
-    [HttpPost("Register")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.RegisterTenant)]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
     {
         var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userRegisterRequest.CompanyName);

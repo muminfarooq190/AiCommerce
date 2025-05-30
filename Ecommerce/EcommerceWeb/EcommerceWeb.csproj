@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Models\Models.csproj" />
+    <ProjectReference Include="..\Sheared\Sheared.csproj" />
   </ItemGroup>
 
 </Project>

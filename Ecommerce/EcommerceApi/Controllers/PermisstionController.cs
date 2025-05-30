@@ -1,12 +1,11 @@
 ﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
-using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models.RequestModels;
+using Sheared.Models.RequestModels;
 
 namespace EcommerceApi.Controllers;
 

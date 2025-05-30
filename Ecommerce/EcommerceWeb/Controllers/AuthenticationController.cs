@@ -5,8 +5,9 @@ using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult;
 using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Models.RequestModels;
-using Models.ResponseModels;
+using Sheared;
+using Sheared.Models.RequestModels;
+using Sheared.Models.ResponseModels;
 
 namespace EcommerceWeb.Controllers;
 

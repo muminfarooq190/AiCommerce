@@ -2,17 +2,14 @@
 using Ecommerce.Services;
 using Ecommerce.Utilities;
 using EcommerceApi.Attributes;
-using EcommerceApi.Entities;
-using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
-using EcommerceApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Models.RequestModels;
-using Models.ResponseModels;
+using Sheared;
+using Sheared.Models.RequestModels;
+using Sheared.Models.ResponseModels;
 using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
@@ -44,7 +41,6 @@ namespace EcommerceApi.Controllers;
 /// </list>
 /// </remarks>
 [Produces("application/json")]
-[Route("api")]
 [ApiController]
 public class AuthenticationController(
     AppDbContext context,
@@ -69,7 +65,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (email not verified or account locked)</response>
     [Produces("application/json")]
-    [HttpPost("Login")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.Login)]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -177,7 +173,7 @@ public class AuthenticationController(
     /// <response code="201">User created</response>
     /// <response code="401">User already exists or tenant ID missing</response>
     [Produces("application/json")]
-    [HttpPost("CreateUser")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.Createuser)]
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
@@ -266,8 +262,8 @@ public class AuthenticationController(
     /// <response code="400">Invalid credentials</response>
     /// <response code="401">Unauthorized (account locked, email not verified, or not primary tenant)</response>
     [Produces("application/json")]
-    [HttpPost("GetTenentId")]
-    public async Task<ActionResult<Guid>> GetTenantId(UserLoginRequest userLoginRequest)
+    [HttpPost(Endpoints.AuthenticationEndpoints.GetTenentId)]
+    public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
         // Validate the user credentials against the database        
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
@@ -368,7 +364,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (account locked or already verified)</response>
     [Produces("application/json")]
-    [HttpPost("ResendLink")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.ResendLink)]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -496,7 +492,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid or expired link</response>
     /// <response code="401">Email already verified</response>
     [Produces("application/json")]
-    [HttpGet("Verify")]
+    [HttpGet(Endpoints.AuthenticationEndpoints.Verify)]
     public async Task<ActionResult> Verify(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);

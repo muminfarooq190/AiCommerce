@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcommerceApi", "EcommerceAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcommerceWeb", "EcommerceWeb\EcommerceWeb.csproj", "{92ED45AA-F589-4B25-B858-AA0333B12E02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "..\Models\Models.csproj", "{40A1C080-FD09-4736-92E7-887209A536B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheared", "Sheared\Sheared.csproj", "{AAFDB4AE-CC99-F58D-BB0E-BA8FA9CB1427}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{92ED45AA-F589-4B25-B858-AA0333B12E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92ED45AA-F589-4B25-B858-AA0333B12E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92ED45AA-F589-4B25-B858-AA0333B12E02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{40A1C080-FD09-4736-92E7-887209A536B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{40A1C080-FD09-4736-92E7-887209A536B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{40A1C080-FD09-4736-92E7-887209A536B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{40A1C080-FD09-4736-92E7-887209A536B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AAFDB4AE-CC99-F58D-BB0E-BA8FA9CB1427}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AAFDB4AE-CC99-F58D-BB0E-BA8FA9CB1427}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AAFDB4AE-CC99-F58D-BB0E-BA8FA9CB1427}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AAFDB4AE-CC99-F58D-BB0E-BA8FA9CB1427}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
