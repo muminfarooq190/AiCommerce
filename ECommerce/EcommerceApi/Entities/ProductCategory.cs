@@ -2,10 +2,12 @@
 {
     public class ProductCategory
     {
-        public long ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public Product Product { get; set; } = default!;
 
-        public long CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public Category Category { get; set; } = default!;
+
+        public Guid TenantId { get; set; }
     }
 }

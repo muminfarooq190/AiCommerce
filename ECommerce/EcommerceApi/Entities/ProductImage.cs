@@ -2,12 +2,14 @@
 {
     public class ProductImage
     {
-        public long ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public Product Product { get; set; } = default!;
 
-        public long MediaFileId { get; set; }
+        public Guid MediaFileId { get; set; }
         public MediaFile MediaFile { get; set; } = default!;
 
         public int SortOrder { get; set; } = 0;
+
+        public Guid TenantId { get; set; }
     }
 }
