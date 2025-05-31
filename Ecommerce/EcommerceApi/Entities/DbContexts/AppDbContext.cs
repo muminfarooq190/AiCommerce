@@ -6,14 +6,7 @@ using System.Linq.Expressions;
 
 public sealed class AppDbContext : DbContext
 {
-    private Guid? TenantId { get; set; }
-    private bool ApplyTenantFilter { get; set; } = true;
-    public AppDbContext IgnoreTenantFilter()
-    {
-        ApplyTenantFilter = false;
-        return this;
-    }
-    
+    private Guid? TenantId;    
 
     public AppDbContext(DbContextOptions<AppDbContext> options, IUserProvider tenantProvider) : base(options)
     {
@@ -25,36 +18,12 @@ public sealed class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Apply tenant query filter dynamically to all tenant-aware entities
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (typeof(IBaseEntity).IsAssignableFrom(entityType.ClrType))
-            {
-                var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var dbContext = Expression.Constant(this);
-
-                // this._tenantId == null || e.TenantId == this._tenantId
-                var applyTenantFilter = Expression.Property(dbContext, nameof(ApplyTenantFilter));
-                var tenantIdValue = Expression.Property(dbContext, nameof(TenantId));
-
-                var tenantIdProperty = Expression.Property(parameter, nameof(IBaseEntity.TenantId));
-                var tenantCompare = Expression.Equal(
-                    tenantIdProperty,
-                    Expression.Convert(tenantIdValue, typeof(Guid))
-                );
-
-                var condition = Expression.OrElse(
-                    Expression.IsFalse(applyTenantFilter),
-                    Expression.OrElse(
-                        Expression.Equal(tenantIdValue, Expression.Constant(null, typeof(Guid?))),
-                        tenantCompare
-                    )
-                );
-
-                var lambda = Expression.Lambda(condition, parameter);
-                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
-            }
-        }
+        modelBuilder.Entity<User>()
+            .HasQueryFilter(u => TenantId == null || u.TenantId == TenantId);
+        modelBuilder.Entity<Permission>()
+                    .HasQueryFilter(u => TenantId == null || u.TenantId == TenantId);
+        modelBuilder.Entity<Cart>()
+            .HasQueryFilter(u => TenantId == null || u.TenantId == TenantId);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }

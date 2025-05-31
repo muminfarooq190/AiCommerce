@@ -36,10 +36,12 @@ public class AuthenticationController(
     {
         var user = await context.Users
                                 .Include(u => u.Tenant)
-                                .FirstOrDefaultAsync(u => 
+                                .Where(u => 
                                     u.Email == userRegisterRequest.Email || 
                                     u.PhoneNumber == userRegisterRequest.PhoneNumber ||
-                                    u.Tenant!.CompanyName == userRegisterRequest.CompanyName);
+                                    (u.Tenant != null && u.Tenant.CompanyName == userRegisterRequest.CompanyName))
+                                .FirstOrDefaultAsync();
+
 
         if (user != null)
         {

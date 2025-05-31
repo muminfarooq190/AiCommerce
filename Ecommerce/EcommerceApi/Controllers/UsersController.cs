@@ -107,10 +107,39 @@ public class UsersController(AppDbContext context,IUserProvider userProvider, Em
     [Produces("application/json")]
     [HttpGet(Endpoints.User.GetUsers)]
     [AppAuthorize(FeatureFactory.User.CanGetUsers)]
-    public async Task<ActionResult> GetUsers()
+    public async Task<ActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var user = await context.Users.ToListAsync();
+        if (page <= 0 || pageSize <= 0)
+        {
+            ModelState.AddModelError(nameof(page), "Page must be greater than zero.");
+            ModelState.AddModelError(nameof(pageSize), "PageSize must be greater than zero.");
+            return this.ApplicationProblem(
+                detail: "Page and PageSize must be greater than zero.",
+                title: "Invalid Pagination Parameters",
+                statusCode: StatusCodes.Status400BadRequest,
+                modelState: ModelState,
+                errorCode: ErrorCodes.InvalidPaginationParameters,
+                instance: HttpContext.Request.Path
+            );
+        }
 
-        return Ok(user);
+        var query = context.Users.Where(u => !u.IsTenantPrimary).AsQueryable();
+        var s = query.ToQueryString();
+        var totalCount = await query.CountAsync();
+        var users = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var result = new
+        {
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+            Users = users
+        };
+
+        return Ok(result);
     }
 }

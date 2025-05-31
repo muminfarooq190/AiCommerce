@@ -59,6 +59,7 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         if (!memoryCache.TryGetValue(cacheKey, out List<string>? permissions))
         {
             userWithPermissions = await dbContext.Users
+                .IgnoreQueryFilters()
                 .Include(u => u.Tenant)
                 .Include(u => u.Permissions)
                 .AsNoTracking()

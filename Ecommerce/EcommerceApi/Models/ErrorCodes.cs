@@ -21,4 +21,5 @@ public class ErrorCodes
     public const string PermissionNotExist = "PERMISSION_NOT_EXIST";
     public const string InsufficientPermissions = "Insufficient_Permissions";
     public const string CantRemoveAccessToPrimary = "CANT_REMOVE_ACCESS_TO_PRIMARY";
+    public const string InvalidPaginationParameters = "INVALID_PAGINATION_PARAMETERS";
 }

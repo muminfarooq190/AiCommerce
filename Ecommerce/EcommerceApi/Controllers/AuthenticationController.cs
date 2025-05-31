@@ -75,7 +75,7 @@ public class AuthenticationController(
                           .Include(u => u.Tenant)
                           .IgnoreQueryFilters()
                           .FirstOrDefault(u => u.Email == userLoginRequest.Email  && 
-                                               u.TenantId == userLoginRequest.TenentId);
+                                               u.TenantId == userLoginRequest.TenantId);
 
         if (user == null)
         {

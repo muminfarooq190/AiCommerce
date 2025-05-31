@@ -32,7 +32,7 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
 
         var userLoginRequest = new UserLoginRequest
         {
-            TenentId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
             Email = request.Email,
             Password = request.Password
         };
