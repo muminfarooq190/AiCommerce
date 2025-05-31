@@ -1,5 +1,4 @@
-﻿using EcommerceApi.Entities.DbContexts;
-using EcommerceApi.Providers;
+﻿using EcommerceApi.Providers;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApi.DependencyInjections;
@@ -21,9 +20,9 @@ public static class AddDatabasesToDI
         services.AddScoped(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<DbContextOptions<AppDbContext>>();
-            var _tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            var _tenantProvider = serviceProvider.GetRequiredService<IUserProvider>();
             return new AppDbContext(options, _tenantProvider);
         });
     }
-    
+
 }

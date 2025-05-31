@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using System.Security.Claims;
 
 namespace EcommerceApi.Attributes;
 
@@ -25,8 +24,8 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
         var httpContext = context.HttpContext;
         var user = httpContext.User;
-
-        if (!IsUserAuthenticated(user, out Guid userId))
+        var userProvider = httpContext.RequestServices.GetRequiredService<IUserProvider>();
+        if (!userProvider.IsAuthenticated)
         {
 
             var problem = new ProblemDetails
@@ -51,36 +50,21 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
             return;
 
         var dbContext = httpContext.RequestServices.GetRequiredService<AppDbContext>();
-        var tenantProvider = httpContext.RequestServices.GetRequiredService<ITenantProvider>();
+
         var memoryCache = httpContext.RequestServices.GetRequiredService<IMemoryCache>();
 
-        if (tenantProvider.TenantId == null)
-        {
-            var problem = new ProblemDetails
-            {
-                Title = "Tenant ID is missing.",
-                Detail = "The request did not contain a valid tenant ID.",
-                Status = StatusCodes.Status400BadRequest,
-                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                Instance = context.HttpContext.Request.Path
-            };
 
-            problem.Extensions["errorCode"] = ErrorCodes.TanentIdMissing;
-
-            context.Result = new ObjectResult(problem)
-            {
-                StatusCode = StatusCodes.Status400BadRequest
-            };
-            return;
-        }
-
-        string cacheKey = $"permissions:{userId}";
+        string cacheKey = $"permissions:{userProvider.UserId}:{userProvider.TenantId}";
         UserEntity? userWithPermissions = null;
         if (!memoryCache.TryGetValue(cacheKey, out List<string>? permissions))
         {
             userWithPermissions = await dbContext.Users
+                .Include(u => u.Tenant)
                 .Include(u => u.Permissions)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u =>
+                                        u.Id == userProvider.UserId &&
+                                        u.TenantId == userProvider.TenantId);
 
             if (userWithPermissions == null)
             {
@@ -102,48 +86,39 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
                 return;
             }
 
+            if (userWithPermissions.IsTenantPrimary)
+            {
+                return; // Tenant primary users are always authorized
+            }
+
             permissions = userWithPermissions.Permissions
                 .Select(p => p.Name)
                 .ToList();
 
             memoryCache.Set(cacheKey, permissions, TimeSpan.FromMinutes(10));
         }
-        if (!(userWithPermissions?.IsTenantPrimary ?? false)) {
-            if (permissions == null || !permissions.Contains(_permission, StringComparer.OrdinalIgnoreCase))
+
+        if (permissions == null || !permissions.Contains(_permission, StringComparer.OrdinalIgnoreCase))
+        {
+            var problem = new ProblemDetails
             {
-                var problem = new ProblemDetails
-                {
-                    Title = "You are not authorized.",
-                    Detail = "You are not authorized.",
-                    Status = StatusCodes.Status401Unauthorized,
-                    Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-                    Instance = context.HttpContext.Request.Path
-                };
+                Title = "You are not authorized.",
+                Detail = "You are not authorized.",
+                Status = StatusCodes.Status401Unauthorized,
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+                Instance = context.HttpContext.Request.Path
+            };
 
-                problem.Extensions["errorCode"] = ErrorCodes.InsufficientPermissions;
+            problem.Extensions["errorCode"] = ErrorCodes.InsufficientPermissions;
 
-                context.Result = new ObjectResult(problem)
-                {
-                    StatusCode = StatusCodes.Status401Unauthorized
-                };
+            context.Result = new ObjectResult(problem)
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
 
-                return;
-            }
+            return;
         }
-    }
 
-    private static bool IsUserAuthenticated(ClaimsPrincipal user, out Guid userId)
-    {
-        userId = Guid.Empty;
-
-        if (user?.Identity?.IsAuthenticated != true)
-            return false;
-
-        var idClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(idClaim) || !Guid.TryParse(idClaim, out userId))
-            return false;
-
-        return true;
     }
 
 }

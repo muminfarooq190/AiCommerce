@@ -31,7 +31,7 @@ public class AuthenticationController(
     /// <response code="201">Tenant and user created</response>
     /// <response code="400">Tenant already exists</response>
     [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.RegisterTenant)]
+    [HttpPost(Endpoints.Authentication.RegisterTenant)]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
     {
         var user = await context.Users
@@ -109,12 +109,14 @@ public class AuthenticationController(
 
         var token = jwtTokenGenerator.GenerateToken(
              newUser.Id,
+             newtant.Id,
              newUser.FirstName + " " + newUser.LastName,
              newUser.Email,
+             newtant.CompanyName,
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.Authentication.Verify}?token={token}";
 
         string body = $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
                     <p>Please click the link below to verify your email address:</p>
@@ -125,7 +127,7 @@ public class AuthenticationController(
 
         await emailSender.SendEmailAsync(toEmail: newUser.Email, subject: "Verify Your Email Address", body);
 
-        return Created(Endpoints.AuthenticationEndpoints.Login, value: new UserRegisterResponse
+        return Created(Endpoints.Authentication.Login, value: new UserRegisterResponse
         {
             Id = newUser.Id,
             Email = newUser.Email,

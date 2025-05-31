@@ -37,7 +37,6 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseMiddleware<TenentExtracterMiddleware>();
 
 app.MapControllers();
 app.Run();

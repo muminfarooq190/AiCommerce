@@ -11,4 +11,6 @@ public record UserLoginRequest
     [Required]
     [EmailAddress]
     public required string Email { get; set; }
+    [Required]
+    public required Guid TenentId { get; set; }
 }

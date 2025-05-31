@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public sealed class AppDbContext : DbContext
 {
-    /*──────────────────────── CONSTRUCTOR ────────────────────────*/
     private readonly Guid? _tenantId;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider)
-        : base(options) =>
-        _tenantId = tenantProvider.TenantId;
+    public AppDbContext(DbContextOptions<AppDbContext> options, IUserProvider tenantProvider) : base(options)
+    {
+        if(tenantProvider.IsAuthenticated)
+        {
+            _tenantId = tenantProvider.TenantId;
+        }     
 
     /*──────────────────────── ON-MODEL-CREATING ───────────────────*/
     protected override void OnModelCreating(ModelBuilder mb)

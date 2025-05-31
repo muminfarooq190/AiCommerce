@@ -14,10 +14,8 @@ public static class DependencyInjections
         services.AddAppAuthorization();
         services.AddSingleton<JwtTokenGenerator>();
         services.AddSingleton<EmailSender>();
-        services.AddSingleton<ITenantProvider, TenantProvider>();
+        services.AddScoped<IUserProvider, UserProvider>();
 
         return services;
     }
-
-
 }
