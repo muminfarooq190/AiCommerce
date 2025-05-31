@@ -2,8 +2,8 @@
 
 public enum ResultType
 {
-   Success = 1,
-   ValidationError = 2,
-   GenericError = 3,
+   Success = 0,
+   ValidationError = 1,
+   GenericError = 2,
 
 }

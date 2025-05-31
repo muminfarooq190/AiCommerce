@@ -9,6 +9,7 @@ public class ErrorCodes
     public const string AccountLocked = "ACCOUNT_LOCKED";
     public const string EmailAlreadyExist = "EMAIL_ALREADY_EXIST";
     public const string CompanyAlreadyExist = "COMPANY_ALREADY_EXIST";
+    public const string CompanyNotExist = "COMPANY_NOT_EXIST";
     public const string PhoneAlreadyExist = "PHONE_ALREADY_EXIST";
     public const string AccountNotPrimary = "ACCOUNT_NOT_PRIMARY";
     public const string AlreadyVerifiedEmail = "ALREADY_VERIFIED_EMAIL";

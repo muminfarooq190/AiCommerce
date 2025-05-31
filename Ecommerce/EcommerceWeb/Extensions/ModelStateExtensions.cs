@@ -25,7 +25,7 @@ public static class ModelStateExtensions
 
         if (apiResult.ResultType == ResultType.GenericError)
         {
-            modelState.AddModelError(string.Empty, apiResult.Details ?? "An error occurred while processing your request.");
+            modelState.AddModelError("GenericError", apiResult.Details ?? "An error occurred while processing your request.");
             return;
         }
     }

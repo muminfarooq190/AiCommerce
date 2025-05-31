@@ -1,7 +1,6 @@
 ﻿using EcommerceWeb.Utilities.ApiResult.Enums;
-using EcommerceWeb.Utilities.Results;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.ObjectModel;
 using System.Net;
 
 namespace EcommerceWeb.Utilities.ApiResult;
@@ -27,25 +26,26 @@ public class ApiResult<T> : ApiResult
     }
     public static ApiResult<T> Success(T value, HttpStatusCode statusCode)
     {
-       return new ApiResult<T> { _data = value , StatusCode = statusCode};
+        return new ApiResult<T> { _data = value, StatusCode = statusCode, ResultType = ResultType.Success };
 
-    }
-    public static ApiResult Success()
-    {
-        return new ApiResult { };
-
-    }
+    }   
     public static implicit operator ApiResult<T>(T value) => new ApiResult<T> { Data = value };
 
 }
-public class ApiResult {
+public class ApiResult
+{
     public ResultType ResultType { get; protected set; }
     public HttpStatusCode? StatusCode { get; protected set; }
     public string? Details { get; protected set; }
     public string? Title { get; protected set; }
     public static ApiResult<T> Success<T>(T value, HttpStatusCode statusCode)
     {
-        return ApiResult<T>.Success(value, statusCode); 
+        return ApiResult<T>.Success(value, statusCode);
+
+    }
+    public static ApiResult Success(HttpStatusCode statusCode)
+    {
+        return new ApiResult { ResultType = ResultType.Success,StatusCode = statusCode};
 
     }
     public IReadOnlyDictionary<string, string[]> Errors { get; protected set; } = new Dictionary<string, string[]>();
@@ -59,15 +59,15 @@ public class ApiResult {
             Title = errorTitle
         };
     }
-    public static ApiResult<T> ValidationError<T>(Dictionary<string, string[]> errors, string Title, string Detail)
+    public static ApiResult<T> ValidationError<T>(ValidationProblemDetails validationProblemDetails)
     {
         return new ApiResult<T>
         {
             ResultType = ResultType.ValidationError,
             StatusCode = HttpStatusCode.BadRequest,
-            Errors = errors,
-            Details = Detail,
-            Title = Title
+            Errors = validationProblemDetails.Errors.AsReadOnly(),
+            Details = validationProblemDetails.Detail,
+            Title = validationProblemDetails.Title
         };
     }
 

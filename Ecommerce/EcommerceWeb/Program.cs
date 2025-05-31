@@ -13,7 +13,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("Api"));
 
-
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Authentication/Index";
+        options.AccessDeniedPath = "/Authentication/Index";
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+        options.SlidingExpiration = true;
+    });
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
@@ -48,6 +56,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

@@ -1,6 +1,5 @@
 ﻿using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -42,6 +41,7 @@ public class ApiClient : IApiClient
                     _logger.LogError("Unknown Content Return from Api: " + content + " status code: " + (int)response.StatusCode);
                     return ApiResult.Failure<T>("Unknown Error", "Something went wrong");
                 }
+                
                 return ApiResult.Success(data, response.StatusCode);
             }
 
@@ -58,8 +58,7 @@ public class ApiClient : IApiClient
 
                 if (validationProblem != null && validationProblem.Errors.Count > 0)
                 {
-                    var errorMessages = validationProblem.Errors.SelectMany(e => e.Value).ToList();
-                    return ApiResult.Failure<T>("Validation Error", string.Join(", ", errorMessages));
+                    return ApiResult.ValidationError<T>(validationProblem);
                 }
 
                 genericProblem = JsonConvert.DeserializeObject<ProblemDetails>(Content);

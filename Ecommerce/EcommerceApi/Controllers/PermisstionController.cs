@@ -1,12 +1,11 @@
 ﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
-using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models.RequestModels;
+using Sheared.Models.RequestModels;
 
 namespace EcommerceApi.Controllers;
 
@@ -97,8 +96,9 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
             );
         }
 
-        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
+        var excestinguser = await appDbContext.Users
+                                              .Include(u => u.Permissions)
+                                              .FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {

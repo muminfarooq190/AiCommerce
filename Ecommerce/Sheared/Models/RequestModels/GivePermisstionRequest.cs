@@ -1,4 +1,4 @@
-﻿namespace Models.RequestModels;
+﻿namespace Sheared.Models.RequestModels;
 
 public class GivePermisstionRequest
 {

@@ -15,6 +15,14 @@ public static class FeatureFactory
         public const string CanRemovePermisston = $"{nameof(Authentication)}.{nameof(CanRemovePermisston)}";
     }
 
+    public static class User
+    {
+        public const string CanGetUsers = $"{nameof(User)}.{nameof(CanGetUsers)}";
+        public const string CanGetUserById = $"{nameof(User)}.{nameof(CanGetUserById)}";
+        public const string CanUpdateUser = $"{nameof(User)}.{nameof(CanUpdateUser)}";
+        public const string CanDeleteUser = $"{nameof(User)}.{nameof(CanDeleteUser)}";
+    }
+
     public static Dictionary<string, Dictionary<string, string>> GetJsonRepresentation()
     {
         var result = new Dictionary<string, Dictionary<string, string>>();
@@ -57,4 +65,5 @@ public static class FeatureFactory
 
         return flatList;
     }
+    
 }

@@ -2,17 +2,15 @@
 using Ecommerce.Services;
 using Ecommerce.Utilities;
 using EcommerceApi.Attributes;
-using EcommerceApi.Entities;
 using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
-using EcommerceApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Models.RequestModels;
-using Models.ResponseModels;
+using Sheared;
+using Sheared.Models.RequestModels;
+using Sheared.Models.ResponseModels;
 using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
@@ -44,7 +42,6 @@ namespace EcommerceApi.Controllers;
 /// </list>
 /// </remarks>
 [Produces("application/json")]
-[Route("api")]
 [ApiController]
 public class AuthenticationController(
     AppDbContext context,
@@ -69,7 +66,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (email not verified or account locked)</response>
     [Produces("application/json")]
-    [HttpPost("Login")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.Login)]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -177,11 +174,11 @@ public class AuthenticationController(
     /// <response code="201">User created</response>
     /// <response code="401">User already exists or tenant ID missing</response>
     [Produces("application/json")]
-    [HttpPost("CreateUser")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.CreateUser)]
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
-        TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
+       // TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email);
 
@@ -206,7 +203,7 @@ public class AuthenticationController(
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
             address: userRegisterRequest.Address,
-            TenantId: tenant.Id
+            TenantId: (Guid)tenantProvider.TenantId!
         );
 
         await context.Users.AddAsync(newUser);
@@ -219,7 +216,7 @@ public class AuthenticationController(
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/verify?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token=n={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
@@ -230,7 +227,7 @@ public class AuthenticationController(
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>{tenant.CompanyName}</p>");
+                    <p>Best regards,<br/>tenant.CompanyName</p>");
 
 
         return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
@@ -244,8 +241,8 @@ public class AuthenticationController(
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = tenant.Id,
-            CompanyName = tenant.CompanyName
+            TenantId = (Guid)tenantProvider.TenantId,
+            CompanyName = "tenant.CompanyName"
         });
     }
 
@@ -266,17 +263,20 @@ public class AuthenticationController(
     /// <response code="400">Invalid credentials</response>
     /// <response code="401">Unauthorized (account locked, email not verified, or not primary tenant)</response>
     [Produces("application/json")]
-    [HttpPost("GetTenentId")]
-    public async Task<ActionResult<Guid>> GetTenantId(UserLoginRequest userLoginRequest)
+    [HttpPost(Endpoints.AuthenticationEndpoints.GetTenentId)]
+    public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
-        // Validate the user credentials against the database        
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
+             
+        var user = await context.Users
+                                .Include(u => u.Tenant)
+                                .FirstOrDefaultAsync(u => 
+                                    u.Email == userLoginRequest.Email);
 
         if (user == null)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid Email or password.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "invalid email or password.");
             return this.ApplicationProblem(
-                detail: "Invalid Email or password.",
+                detail: "invalid email or password.",
                 title: "Failed",
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
@@ -293,7 +293,7 @@ public class AuthenticationController(
 
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid Email or password.");
             return this.ApplicationProblem(
-                detail: "Invalid Email or password.",
+                detail: "invalid email or password.",
                 title: "Failed",
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
@@ -302,11 +302,24 @@ public class AuthenticationController(
             );
         }
 
+        if (user.Tenant.CompanyName != userLoginRequest.CompanyName)
+        {
+            ModelState.AddModelError(nameof(userLoginRequest.CompanyName), "invalid company name.");
+            return this.ApplicationProblem(
+                detail: "invalid company name.",
+                title: "Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.CompanyNotExist,
+                modelState: ModelState
+            );
+        }
+
         if (user.IsLocked)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "User account is locked.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "account is locked.");
             return this.ApplicationProblem(
-                detail: "User account is locked.",
+                detail: "account is locked.",
                 title: "Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
                 instance: HttpContext.Request.Path,
@@ -318,9 +331,9 @@ public class AuthenticationController(
 
         if (!user.IsEmailVerified)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "User email is not verified.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "email is not verified.");
             return this.ApplicationProblem(
-                detail: "User email is not verified.",
+                detail: "email is not verified.",
                 title: "Failed",
                 statusCode: StatusCodes.Status401Unauthorized,
                 instance: HttpContext.Request.Path,
@@ -368,7 +381,7 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (account locked or already verified)</response>
     [Produces("application/json")]
-    [HttpPost("ResendLink")]
+    [HttpPost(Endpoints.AuthenticationEndpoints.ResendLink)]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
         Guid? TenantId = tenantProvider.TenantId;
@@ -406,15 +419,18 @@ public class AuthenticationController(
         if (TenantId == null)
         {
             if (!user.IsTenantPrimary)
+            { 
                 ModelState.AddModelError(nameof(userLoginRequest.Email), "TenantId header is missing");
-            return this.ApplicationProblem(
-                detail: "TenantId header is missing",
-                title: "Verify Failed",
-                statusCode: StatusCodes.Status400BadRequest,
-                instance: HttpContext.Request.Path,
-                errorCode: ErrorCodes.TanentIdMissing,
-                modelState: ModelState
-            );
+
+                return this.ApplicationProblem(
+                    detail: "TenantId header is missing",
+                    title: "Verify Failed",
+                    statusCode: StatusCodes.Status400BadRequest,
+                    instance: HttpContext.Request.Path,
+                    errorCode: ErrorCodes.TanentIdMissing,
+                    modelState: ModelState
+                );
+            }
         }
         else if (TenantId != user.TenantId)
         {
@@ -464,7 +480,7 @@ public class AuthenticationController(
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: user.Email,
@@ -496,7 +512,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid or expired link</response>
     /// <response code="401">Email already verified</response>
     [Produces("application/json")]
-    [HttpGet("Verify")]
+    [HttpGet(Endpoints.AuthenticationEndpoints.Verify)]
     public async Task<ActionResult> Verify(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);
@@ -560,7 +576,7 @@ public class AuthenticationController(
 
         user.VerifyEmail();
 
-        string url = $"{Request.Scheme}://{Request.Host}/api/Login?email={user.Email}";
+        string url = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Login}?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,

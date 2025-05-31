@@ -1,16 +1,16 @@
 ﻿using EcommerceApi.Entities.DbContexts;
+using EcommerceApi.Providers;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApi.DependencyInjections;
 
 public static class AddDatabasesToDI
 {
-    public static IServiceCollection AddDatabses(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
     {
         var connection = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("DefaultConnection is not configured properly in appsettings");
 
         AddAppDbContext(services, connection);
-        AddTenantDbContext(services, connection);
 
         return services;
     }
@@ -21,18 +21,9 @@ public static class AddDatabasesToDI
         services.AddScoped(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<DbContextOptions<AppDbContext>>();
-            return new AppDbContext(options, serviceProvider);
+            var _tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
+            return new AppDbContext(options, _tenantProvider);
         });
     }
-    private static void AddTenantDbContext(IServiceCollection services, string connection)
-    {
-        services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(connection));
-
-        services.AddScoped(serviceProvider =>
-        {
-            var options = serviceProvider.GetRequiredService<DbContextOptions<TenantDbContext>>();
-            return new TenantDbContext(options, serviceProvider);
-        });
-
-    }
+    
 }

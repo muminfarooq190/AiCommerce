@@ -125,3 +125,4 @@ Thumbs.db
 **/node_modules/
 /.vs/slnx.sqlite
 /Ecommerce/EcommerceApi/Migrations
+/Ecommerce/EcommerceWeb/Migrations/

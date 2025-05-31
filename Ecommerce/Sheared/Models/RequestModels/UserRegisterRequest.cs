@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Models.RequestModels;
+namespace Sheared.Models.RequestModels;
 
 public class UserRegisterRequest
 {
