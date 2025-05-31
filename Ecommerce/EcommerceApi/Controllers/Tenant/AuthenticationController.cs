@@ -1,16 +1,11 @@
 ﻿using Ecommerce.Entities;
 using Ecommerce.Services;
 using Ecommerce.Utilities;
-using EcommerceApi.Configrations;
 using EcommerceApi.Entities;
-using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
-using EcommerceApi.Providers;
-using EcommerceApi.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
@@ -19,13 +14,9 @@ namespace EcommerceApi.Controllers.Tenant;
 
 [ApiController]
 public class AuthenticationController(
-    TenantDbContext tenantDbContext,
-    ITenantProvider tenantProvider,
-    SchemaCloner schemaCloner,
-    IServiceProvider serviceProvider,
+    AppDbContext context,
     JwtTokenGenerator jwtTokenGenerator,
-    EmailSender emailSender,
-    IOptions<DefaultTenant> defaultTenant) : ControllerBase
+    EmailSender emailSender) : ControllerBase
 {
     /// <summary>
     /// Registers a new tenant and primary user.
@@ -43,30 +34,57 @@ public class AuthenticationController(
     [HttpPost(Endpoints.AuthenticationEndpoints.RegisterTenant)]
     public async Task<ActionResult<UserRegisterRequest>> RegisterTenant(UserRegisterRequest userRegisterRequest)
     {
-        var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userRegisterRequest.CompanyName);
+        var user = await context.Users
+                                .Include(u => u.Tenant)
+                                .FirstOrDefaultAsync(u => 
+                                    u.Email == userRegisterRequest.Email || 
+                                    u.PhoneNumber == userRegisterRequest.PhoneNumber ||
+                                    u.Tenant!.CompanyName == userRegisterRequest.CompanyName);
 
-        if (Tenant != null)
+        if (user != null)
         {
-            ModelState.AddModelError(nameof(userRegisterRequest.CompanyName), "A tenant with the same company name already exists.");
-            return this.ApplicationProblem(
-                detail: "A tenant with the same company name already exists.",
-                title: "Registration Failed",
-                statusCode: StatusCodes.Status409Conflict,
-                errorCode: ErrorCodes.CompanyAlreadyExist,
-                instance: HttpContext.Request.Path,
-                modelState: ModelState
-            );
+            if (user.Tenant!.CompanyName == userRegisterRequest.CompanyName)
+            {
+                ModelState.AddModelError(nameof(userRegisterRequest.CompanyName), "A tenant with the same company name already exists.");
+                return this.ApplicationProblem(
+                    detail: "A tenant with the same company name already exists.",
+                    title: "Registration Failed",
+                    statusCode: StatusCodes.Status409Conflict,
+                    errorCode: ErrorCodes.CompanyAlreadyExist,
+                    instance: HttpContext.Request.Path,
+                    modelState: ModelState
+                );
+            }
+
+            if (user.Email == userRegisterRequest.Email)
+            {
+                ModelState.AddModelError(nameof(userRegisterRequest.Email), "A tenant with the same email already exists.");
+                return this.ApplicationProblem(
+                    detail: "A tenant with the same email already exists.",
+                    title: "Registration Failed",
+                    statusCode: StatusCodes.Status409Conflict,
+                    errorCode: ErrorCodes.EmailAlreadyExist,
+                    instance: HttpContext.Request.Path,
+                    modelState: ModelState
+                );
+            }
+
+            if (user.PhoneNumber == userRegisterRequest.PhoneNumber)
+            {
+                ModelState.AddModelError(nameof(userRegisterRequest.PhoneNumber), "A tenant with the same phone number already exists.");
+                return this.ApplicationProblem(
+                    detail: "A tenant with the same phone number already exists.",
+                    title: "Registration Failed",
+                    statusCode: StatusCodes.Status409Conflict,
+                    errorCode: ErrorCodes.PhoneAlreadyExist,
+                    instance: HttpContext.Request.Path,
+                    modelState: ModelState
+                );
+            }
+
         }
 
         TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
-
-        tenantDbContext.Tenants.Add(newtant);
-        await tenantDbContext.SaveChangesAsync();
-
-        tenantProvider.SetTenantId(newtant.Id);
-
-        var oldSchema = SchemaGenerater.Generate(defaultTenant.Value.CompanyName);
-        await schemaCloner.CloneSchema(oldSchema, newtant.SchemaName);
 
         var newUser = UserEntity.Create(
             password: PasswordHasher.Hash(userRegisterRequest.Password),
@@ -75,7 +93,7 @@ public class AuthenticationController(
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
             address: userRegisterRequest.Address,
-            TenantId: newtant.Id,
+            tenant: newtant,
             true
         );
 
@@ -86,11 +104,8 @@ public class AuthenticationController(
             newUser.AddPermission(PermissionsEntity.Create(feature, newUser));
         }
 
-        using var scope = serviceProvider.CreateScope();
-
-        var appdbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        appdbContext.Users.Add(newUser);
-        await appdbContext.SaveChangesAsync();
+        context.Users.Add(newUser);
+        await context.SaveChangesAsync();
 
         var token = jwtTokenGenerator.GenerateToken(
              newUser.Id,
@@ -99,18 +114,18 @@ public class AuthenticationController(
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/verify?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token={token}";
 
         string body = $@"<p>Dear {newUser.FirstName} {newUser.LastName},</p>
                     <p>Please click the link below to verify your email address:</p>
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>{defaultTenant.Value.CompanyName}</p>";
+                    <p>Best regards,<br/>CompanyName</p>";
 
         await emailSender.SendEmailAsync(toEmail: newUser.Email, subject: "Verify Your Email Address", body);
 
-        return Created("api/Login", value: new UserRegisterResponse
+        return Created(Endpoints.AuthenticationEndpoints.Login, value: new UserRegisterResponse
         {
             Id = newUser.Id,
             Email = newUser.Email,

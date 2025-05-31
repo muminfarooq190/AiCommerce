@@ -14,7 +14,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 
         IServiceProvider provider =
                 new ServiceCollection()
-                .AddDatabses(configuration)
+                .AddDatabases(configuration)
                 .AddSingleton<IConfiguration>(configuration)
                 .AddOptionConfigrations(configuration)
                 .AddDependencies(configuration)

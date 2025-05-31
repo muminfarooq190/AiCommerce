@@ -44,7 +44,6 @@ namespace EcommerceApi.Controllers;
 [Produces("application/json")]
 [ApiController]
 public class AuthenticationController(
-    TenantDbContext tenantDbContext,
     AppDbContext context,
     JwtTokenGenerator jwtTokenGenerator,
     EmailSender emailSender,
@@ -217,7 +216,7 @@ public class AuthenticationController(
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/verify?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token=n={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: newUser.Email,
@@ -267,28 +266,17 @@ public class AuthenticationController(
     [HttpPost(Endpoints.AuthenticationEndpoints.GetTenentId)]
     public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
-        var Tenant = await tenantDbContext.Tenants.FirstOrDefaultAsync(t => t.CompanyName == userLoginRequest.CompanyName);
-
-        if (Tenant == null)
-        {
-            ModelState.AddModelError(nameof(userLoginRequest.CompanyName), "invalid company name.");
-            return this.ApplicationProblem(
-                detail: "invalid company name.",
-                title: "Failed",
-                statusCode: StatusCodes.Status400BadRequest,
-                instance: HttpContext.Request.Path,
-                errorCode: ErrorCodes.CompanyNotExist,
-                modelState: ModelState
-            );
-        }
-        // Validate the user credentials against the database        
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email && u.TenantId == Tenant.Id);
+             
+        var user = await context.Users
+                                .Include(u => u.Tenant)
+                                .FirstOrDefaultAsync(u => 
+                                    u.Email == userLoginRequest.Email);
 
         if (user == null)
         {
-            ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid Email or password.");
+            ModelState.AddModelError(nameof(userLoginRequest.Email), "invalid email or password.");
             return this.ApplicationProblem(
-                detail: "Invalid Email or password.",
+                detail: "invalid email or password.",
                 title: "Failed",
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
@@ -305,11 +293,24 @@ public class AuthenticationController(
 
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid Email or password.");
             return this.ApplicationProblem(
-                detail: "Invalid Email or password.",
+                detail: "invalid email or password.",
                 title: "Failed",
                 statusCode: StatusCodes.Status400BadRequest,
                 instance: HttpContext.Request.Path,
                 errorCode: ErrorCodes.InvalidEmailOrPassword,
+                modelState: ModelState
+            );
+        }
+
+        if (user.Tenant.CompanyName != userLoginRequest.CompanyName)
+        {
+            ModelState.AddModelError(nameof(userLoginRequest.CompanyName), "invalid company name.");
+            return this.ApplicationProblem(
+                detail: "invalid company name.",
+                title: "Failed",
+                statusCode: StatusCodes.Status400BadRequest,
+                instance: HttpContext.Request.Path,
+                errorCode: ErrorCodes.CompanyNotExist,
                 modelState: ModelState
             );
         }
@@ -418,15 +419,18 @@ public class AuthenticationController(
         if (TenantId == null)
         {
             if (!user.IsTenantPrimary)
+            { 
                 ModelState.AddModelError(nameof(userLoginRequest.Email), "TenantId header is missing");
-            return this.ApplicationProblem(
-                detail: "TenantId header is missing",
-                title: "Verify Failed",
-                statusCode: StatusCodes.Status400BadRequest,
-                instance: HttpContext.Request.Path,
-                errorCode: ErrorCodes.TanentIdMissing,
-                modelState: ModelState
-            );
+
+                return this.ApplicationProblem(
+                    detail: "TenantId header is missing",
+                    title: "Verify Failed",
+                    statusCode: StatusCodes.Status400BadRequest,
+                    instance: HttpContext.Request.Path,
+                    errorCode: ErrorCodes.TanentIdMissing,
+                    modelState: ModelState
+                );
+            }
         }
         else if (TenantId != user.TenantId)
         {
@@ -476,7 +480,7 @@ public class AuthenticationController(
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/api/authentication/verify?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: user.Email,
@@ -572,7 +576,7 @@ public class AuthenticationController(
 
         user.VerifyEmail();
 
-        string url = $"{Request.Scheme}://{Request.Host}/api/Login?email={user.Email}";
+        string url = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Login}?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,

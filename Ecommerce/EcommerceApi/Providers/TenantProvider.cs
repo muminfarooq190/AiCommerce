@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EcommerceApi.Providers;
-public class TenantProvider(IMemoryCache memoryCache, TenantDbContext tenantDbContext) : ITenantProvider
+public class TenantProvider(IMemoryCache memoryCache, AppDbContext context) : ITenantProvider
 {
 
     public TenantEntity? GetCurrentTenant()
@@ -17,7 +17,7 @@ public class TenantProvider(IMemoryCache memoryCache, TenantDbContext tenantDbCo
         string cacheKey = $"Tenants:{TenantId}";
         if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
         {
-            Tenant = tenantDbContext.Tenants
+            Tenant = context.Tenants
             .AsNoTracking()
             .FirstOrDefault(t => t.Id == TenantId);
         }
@@ -49,7 +49,7 @@ public class TenantProvider(IMemoryCache memoryCache, TenantDbContext tenantDbCo
         string cacheKey = $"Tenants:{TenantId}";
         if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
         {
-            Tenant = await tenantDbContext.Tenants
+            Tenant = await context.Tenants
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == TenantId);
         }

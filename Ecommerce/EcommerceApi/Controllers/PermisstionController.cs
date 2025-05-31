@@ -96,8 +96,9 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
             );
         }
 
-        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
+        var excestinguser = await appDbContext.Users
+                                              .Include(u => u.Permissions)
+                                              .FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {

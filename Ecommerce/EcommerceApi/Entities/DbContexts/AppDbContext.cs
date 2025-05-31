@@ -1,26 +1,23 @@
 ﻿using Ecommerce.Entities;
-using EcommerceApi.Configrations;
 using EcommerceApi.Entities;
 using EcommerceApi.Providers;
-using EcommerceApi.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options, IServiceProvider serviceProvider) : DbContext(options)
+public class AppDbContext : DbContext
 {
+    private readonly Guid? _tenantId;
+    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider) : base(options)
+    {
+        _tenantId = tenantProvider.TenantId;
+
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var tenantProvider = serviceProvider.GetRequiredService<ITenantProvider>();
-        var Schema = tenantProvider.GetCurrentTenant()?.SchemaName;
-        if (Schema == null)
-        {
-            var defaultTenant = serviceProvider.GetRequiredService<IOptions<DefaultTenant>>().Value;
-            Schema = SchemaGenerater.Generate(defaultTenant.CompanyName);
 
-        }
-        modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.Entity<UserEntity>().HasQueryFilter(u => u.TenantId == _tenantId || _tenantId == null);
     }
 
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<PermissionsEntity> UserPermissions { get; set; }
+    public DbSet<TenantEntity> Tenants { get; set; }
 }
