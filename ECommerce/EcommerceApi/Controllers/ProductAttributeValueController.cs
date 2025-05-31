@@ -11,7 +11,6 @@ using System.Security.Claims;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/productattributevalue")]
 public sealed class ProductAttributeValueController(
         AppDbContext db,
         IUserProvider userProvider) : ControllerBase
@@ -20,7 +19,7 @@ public sealed class ProductAttributeValueController(
     private readonly AppDbContext _db = db;
 
 
-    [HttpGet]
+    [HttpGet(Endpoints.ProductAttributes.GetList)]
     public async Task<ActionResult<IEnumerable<AttributeValueDto>>> List(
         Guid productId, CancellationToken ct)
     {

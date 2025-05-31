@@ -6,30 +6,26 @@ using Sheared;
 using Sheared.Enums;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route(Endpoints.Discounts.Base)]
 public sealed class DiscountController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
     private static DiscountDto Map(Discount d) => new(
         d.DiscountId, d.Code, d.Type, d.Value, d.IsActive,
         d.UsesSoFar, d.MaxUses, d.StartsAtUtc, d.ExpiresAtUtc);
 
 
-    [HttpGet]
+    [HttpGet(Endpoints.Discounts.GetAll)]
     public async Task<ActionResult<IEnumerable<DiscountDto>>> All(CancellationToken ct)
         => Ok((await _db.Discounts.AsNoTracking()
                                   .ToListAsync(ct)).Select(Map));
 
 
-    [HttpGet("{id:guid}")]
+    [HttpGet(Endpoints.Discounts.GetById)]
     public async Task<ActionResult<DiscountDto>> Get(Guid id, CancellationToken ct)
     {
         var d = await _db.Discounts.FirstOrDefaultAsync(
@@ -37,7 +33,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return d is null ? NotFound() : Ok(Map(d));
     }
 
-    [HttpPost]
+    [HttpPost(Endpoints.Discounts.Add)]
     public async Task<ActionResult<DiscountDto>> Create(
         [FromBody] UpsertDiscountRequest req, CancellationToken ct)
     {
@@ -65,7 +61,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return CreatedAtAction(nameof(Get), new { id = d.DiscountId }, Map(d));
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(Endpoints.Discounts.Update)]
     public async Task<IActionResult> Update(
         Guid id, [FromBody] UpsertDiscountRequest req, CancellationToken ct)
     {
@@ -109,7 +105,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         if (order is null) return NotFound("Order");
 
         var d = await _db.Discounts.FirstOrDefaultAsync(
-            x => x.Code == code.ToUpperInvariant() &&                
+            x => x.Code == code.ToUpperInvariant() &&
                  x.IsActive &&
                  (x.StartsAtUtc == null || x.StartsAtUtc <= DateTime.UtcNow) &&
                  (x.ExpiresAtUtc == null || x.ExpiresAtUtc >= DateTime.UtcNow) &&

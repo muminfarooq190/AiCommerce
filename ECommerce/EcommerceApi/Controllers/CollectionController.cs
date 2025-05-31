@@ -9,7 +9,6 @@ using Sheared.Models.ResponseModels;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route(Endpoints.Collections.Base)]
 public sealed class CollectionController(
         AppDbContext db,
         IUserProvider userProvider) : ControllerBase
@@ -27,7 +26,7 @@ public sealed class CollectionController(
         c.IsFeatured, c.HeroImageId,
         c.Products.OrderBy(cp => cp.SortOrder).Select(cp => cp.ProductId));
 
-    [HttpGet]
+    [HttpGet(Endpoints.Collections.GetAllCollection)]
     public async Task<ActionResult<IEnumerable<CollectionDto>>> GetAll(CancellationToken ct)
     {
         var list = await _db.Collections
@@ -39,7 +38,7 @@ public sealed class CollectionController(
     }
 
 
-    [HttpGet("{id:guid}")]
+    [HttpGet(Endpoints.Collections.GetCollectionById)]
     public async Task<ActionResult<CollectionDto>> Get(Guid id, CancellationToken ct)
     {
         var c = await _db.Collections.Include(x => x.Products)
@@ -48,7 +47,7 @@ public sealed class CollectionController(
         return c is null ? NotFound() : Ok(Map(c));
     }
 
-    [HttpPost]
+    [HttpPost(Endpoints.Collections.AddCollection)]
     public async Task<ActionResult<CollectionDto>> Create(
         [FromBody] CreateCollectionRequest req, CancellationToken ct)
     {
@@ -73,7 +72,7 @@ public sealed class CollectionController(
     }
 
 
-    [HttpPut("{id:guid}")]
+    [HttpPut(Endpoints.Collections.UpdateCollection)]
     public async Task<IActionResult> Update(
         Guid id, [FromBody] CreateCollectionRequest req, CancellationToken ct)
     {
@@ -90,7 +89,7 @@ public sealed class CollectionController(
     }
 
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete(Endpoints.Collections.DeleteCollection)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var c = await _db.Collections.FirstOrDefaultAsync(
@@ -104,7 +103,7 @@ public sealed class CollectionController(
 
 
     [HttpGet]
-    [Route(Endpoints.Collections.Products)]
+    [Route(Endpoints.Collections.GetCollectionIds)]
     public async Task<ActionResult<IEnumerable<Guid>>> ListProducts(
         Guid id, CancellationToken ct)
     {
@@ -118,7 +117,7 @@ public sealed class CollectionController(
 
 
     [HttpPost]
-    [Route(Endpoints.Collections.Products)]
+    [Route(Endpoints.Collections.AddProduct)]
     public async Task<IActionResult> AddProducts(
         Guid id, [FromBody] AddProductsRequest req, CancellationToken ct)
     {
@@ -160,7 +159,7 @@ public sealed class CollectionController(
     }
 
     [HttpDelete]
-    [Route(Endpoints.Collections.Product)]
+    [Route(Endpoints.Collections.RemoveProduct)]
     public async Task<IActionResult> RemoveProduct(
         Guid id, Guid prodId, CancellationToken ct)
     {

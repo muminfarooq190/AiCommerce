@@ -9,7 +9,6 @@ using System.Security.Claims;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route(Endpoints.Reviews.ByProduct)]
 public sealed class ProductReviewController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
@@ -23,7 +22,7 @@ public sealed class ProductReviewController(AppDbContext db, IUserProvider userP
                                              string? Title,
                                              string? Body);
 
-    [HttpGet]
+    [HttpGet(Endpoints.Reviews.GetReviews)]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> List(Guid productId, CancellationToken ct)
     {
         var list = await _db.ProductReviews
@@ -36,7 +35,7 @@ public sealed class ProductReviewController(AppDbContext db, IUserProvider userP
         return Ok(list.Select(Map));
     }
 
-    [HttpPost]
+    [HttpPost(Endpoints.Reviews.AddReview)]
     public async Task<ActionResult<ReviewDto>> Create(
         Guid productId,
         [FromBody] CreateReviewRequest req,

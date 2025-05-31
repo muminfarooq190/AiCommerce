@@ -1,4 +1,5 @@
-﻿@{
+﻿@model LoginViewModel
+@{
     ViewData["Title"] = "Authentication Page";
     Layout = "_AuthLayout";
 }
@@ -119,19 +120,21 @@
             <!-- Right Side - Auth Forms -->
             <div class="w-full md:w-1/2 p-8 md:p-12">
                 <!-- Login Form -->
-                <div id="loginForm" class="space-y-6">
+                <form asp-controller="Authentication" id="loginForm" class="space-y-6">
                     <div class="text-center mb-6">
                         <h3 class="text-2xl font-bold text-ai-dark mb-2">Welcome Back</h3>
                         <p class="text-gray-600">Sign in to access your OpenTrade account</p>
                     </div>
 
                     <div class="relative">
-                        <input type="email" id="loginEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <span asp-validation-for="Email" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Email" type="email" id="loginEmail" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
                         <label for="loginEmail" class="floating-label left-4 text-gray-500">Email Address</label>
                     </div>
 
                     <div class="relative">
-                        <input type="password" id="loginPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
+                        <span asp-validation-for="Password" class="text-sm text-red-600 mb-1"></span>
+                        <input asp-for="Password" type="password" id="loginPassword" class="w-full py-3 px-4 border border-gray-300 rounded-lg input-field focus:outline-none" required>
                         <label for="loginPassword" class="floating-label left-4 text-gray-500">Password</label>
                         <button style="transform: translate(0,-100%)" class="absolute right-3 top-1/2 text-gray-500">
                             <i class="far fa-eye-slash"></i>
@@ -167,7 +170,7 @@
                             <i class="fab fa-apple text-gray-800 mr-2"></i>
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
 

@@ -5,7 +5,10 @@ using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sheared;
 using Sheared.Models.RequestModels;
+using Sheared.Models.ResponseModels;
+using static EcommerceApi.Models.FeatureFactory;
 
 namespace EcommerceApi.Controllers;
 
@@ -32,19 +35,16 @@ namespace EcommerceApi.Controllers;
 /// </list>
 /// </remarks>
 [Produces("application/json")]
-[Route("api/[controller]/[action]")]
 [ApiController]
-public class PermisstionController(AppDbContext appDbContext, IUserProvider tenantProvider) : ControllerBase
+public class PermisstionController(AppDbContext appDbContext, IUserProvider userProvider) : ControllerBase
 {
-    private readonly AppDbContext appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
-    private readonly IUserProvider userProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
-
+    
     /// <summary>
     /// Gets all permissions as a JSON object.
     /// </summary>
     /// <response code="200">Returns all permissions in JSON format.</response>
     [Produces("application/json")]
-    [HttpGet]
+    [HttpGet(Endpoints.Permisstion.GetAllPermissionsAsJson)]
     public IActionResult GetAllPermissionsAsJson()
     {
         return Ok(FeatureFactory.GetJsonRepresentation());
@@ -55,10 +55,33 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
     /// </summary>
     /// <response code="200">Returns a list of all permissions.</response>
     [Produces("application/json")]
-    [HttpGet]
+    [HttpGet(Endpoints.Permisstion.GetAllPermissions)]
     public IActionResult GetAllPermissions()
     {
         return Ok(FeatureFactory.GetFlattenedPermissionList());
+    }
+
+    /// <summary>
+    /// Gets a flattened list of all permissions.
+    /// </summary>
+    /// <response code="200">Returns a list of all permissions.</response>
+    [Produces("application/json")]
+    [HttpGet(Endpoints.Permisstion.GetPermissions)]
+    [AppAuthorize]
+    public async Task<ActionResult<List<GetPermisstionResponse>>> GetPermissions()
+    {
+        List<GetPermisstionResponse> permisstions  = await appDbContext
+                                            .UserPermissions
+                                            .Where(p => p.UserId == userProvider.UserId)
+                                            .Select(p => new GetPermisstionResponse
+                                            {
+                                                PermissionId = p.PermissionId,
+                                                Name = p.Name,
+                                                CreatedAt = p.CreatedAt,
+                                                UpdatedAt = p.UpdatedAt
+                                            })
+                                            .ToListAsync();
+        return Ok(permisstions);
     }
 
     /// <summary>
@@ -78,7 +101,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
     /// <response code="403">Forbidden.</response>
     /// <response code="409">User already has this permission.</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost(Endpoints.Permisstion.GivePermission)]
     [AppAuthorize(FeatureFactory.Permission.CanGivePermisston)]
     public async Task<IActionResult> GivePermission(GivePermisstionRequest request)
     {
@@ -129,7 +152,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
             );
         }
 
-        await appDbContext.UserPermissions.AddAsync(Permission.Create(request.Permission, request.UserId));
+        await appDbContext.UserPermissions.AddAsync(Entities.Permission.Create(request.Permission, request.UserId));
         await appDbContext.SaveChangesAsync();
         return Ok();
     }
@@ -153,7 +176,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
     /// <response code="403">Cannot remove from primary tenant user.</response>
     /// <response code="409">User does not have this permission.</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost(Endpoints.Permisstion.RemovePermissionByName)]
     [AppAuthorize(FeatureFactory.Permission.CanRemovePermisston)]
     public async Task<IActionResult> RemovePermissionByName(RemovePermisstionByNameRequest request)
     {
@@ -239,7 +262,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
     /// <response code="403">Cannot remove from primary tenant user.</response>
     /// <response code="409">User does not have this permission.</response>
     [Produces("application/json")]
-    [HttpPost]
+    [HttpPost(Endpoints.Permisstion.RemovePermission)]
     [AppAuthorize(FeatureFactory.Permission.CanRemovePermisston)]
     public async Task<IActionResult> RemovePermission(RemovePermisstionRequest request)
     {

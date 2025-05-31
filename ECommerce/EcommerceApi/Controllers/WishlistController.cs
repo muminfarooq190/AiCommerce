@@ -2,12 +2,11 @@
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using Sheared;
 
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/wishlist")]
 public sealed class WishlistController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
@@ -15,7 +14,7 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
 
     public sealed record WishlistItemDto(Guid ProductId, string Name, string SKU, decimal Price);
 
-    [HttpGet]
+    [HttpGet(Endpoints.Wishlist.GetList)]
     public async Task<ActionResult<IEnumerable<WishlistItemDto>>> Get(CancellationToken ct)
     {
         var list = await _db.WishlistItems
@@ -28,12 +27,12 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
             w.ProductId, w.Product.Name, w.Product.SKU, w.Product.Price)));
     }
 
-    [HttpPost("{productId:guid}")]
+    [HttpPost(Endpoints.Wishlist.AddItem)]
     public async Task<IActionResult> Add(Guid productId, CancellationToken ct)
     {
         bool exists = await _db.WishlistItems
                                .AnyAsync(w => w.CustomerId == userProvider.UserId &&
-                                              w.ProductId == productId , ct);
+                                              w.ProductId == productId, ct);
         if (exists) return NoContent();
 
         var productExists = await _db.Products
@@ -51,7 +50,7 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
         return NoContent();
     }
 
-    [HttpDelete("{productId:guid}")]
+    [HttpDelete(Endpoints.Wishlist.RemoveItem)]
     public async Task<IActionResult> Remove(Guid productId, CancellationToken ct)
     {
         var row = await _db.WishlistItems.FirstOrDefaultAsync(

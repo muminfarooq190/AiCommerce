@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/orders")]
 public sealed class OrderController(
         AppDbContext db,
         IUserProvider userProvider) : ControllerBase
@@ -46,7 +45,7 @@ public sealed class OrderController(
 
 
     [HttpGet]
-    [Route("")]
+    [Route(Endpoints.Orders.GetAll)]
     public async Task<ActionResult<IEnumerable<OrderDto>>> List(CancellationToken ct)
     {
         var orders = await _db.Orders
@@ -61,7 +60,7 @@ public sealed class OrderController(
     }
 
     [HttpGet]
-    [Route(Endpoints.Orders.ById)]
+    [Route(Endpoints.Orders.GetById)]
     public async Task<ActionResult<OrderDto>> Get(Guid id, CancellationToken ct)
     {
         var o = await _db.Orders
@@ -144,7 +143,7 @@ public sealed class OrderController(
 
 
     [HttpPost]
-    [Route(Endpoints.Orders.ById + "/status")]
+    [Route(Endpoints.Orders.UpdateStatus)]
     public async Task<IActionResult> ChangeStatus(
         Guid id,
         [FromBody] ChangeStatusRequest req,
@@ -175,7 +174,7 @@ public sealed class OrderController(
 
 
     [HttpPost]
-    [Route(Endpoints.Orders.ById + "/payments")]
+    [Route(Endpoints.Orders.AddPayment)]
     public async Task<ActionResult<OrderDto>> AddPayment(
         Guid id,
         [FromBody] AddPaymentRequest req,
@@ -215,7 +214,7 @@ public sealed class OrderController(
 
 
     [HttpPost]
-    [Route(Endpoints.Orders.ById + "/shipments")]
+    [Route(Endpoints.Orders.AddPayment)]
     public async Task<ActionResult<OrderDto>> AddShipment(
         Guid id,
         [FromBody] AddShipmentRequest req,
@@ -251,7 +250,7 @@ public sealed class OrderController(
     }
 
     [HttpPut]
-    [Route(Endpoints.Orders.ById + "/shipments/{shipId:guid}")]
+    [Route(Endpoints.Orders.ShipUpdate)]
     public async Task<IActionResult> UpdateShipment(
         Guid id,
         Guid shipId,

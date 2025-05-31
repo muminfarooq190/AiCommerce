@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/products")]
 public sealed class ProductController(
         AppDbContext db,
         IUserProvider userProvider,
@@ -50,7 +49,7 @@ public sealed class ProductController(
         p.UpdatedAtUtc);
 
     [HttpGet]
-    [Route("")]
+    [Route(Endpoints.Products.GetAll)]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll(CancellationToken ct)
     {
         var list = await _db.Products
@@ -66,7 +65,7 @@ public sealed class ProductController(
     }
 
     [HttpGet]
-    [Route(Endpoints.Products.ById)]
+    [Route(Endpoints.Products.GetById)]
     public async Task<ActionResult<ProductDto>> GetById(Guid id, CancellationToken ct)
     {
         var product = await _db.Products

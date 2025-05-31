@@ -11,14 +11,11 @@ using System.Security.Claims;
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/cart")]
 public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     : ControllerBase
 {
 
     private readonly AppDbContext _db = db;
-    private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
 
     private static CartItemDto Map(CartItem ci) => new(ci.CartItemId, ci.ProductId,
         ci.Product.Name, ci.Product.SKU, ci.Qty, ci.UnitPriceSnap, ci.UnitPriceSnap * ci.Qty);
@@ -29,7 +26,6 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
         var subtotal = items.Sum(i => i.LineTotal);
         return new CartDto(cart.CartId, items, subtotal, items.Sum(i => i.Qty));
     }
-
 
     private async Task<Cart> GetOrCreateAsync(Guid customerId, CancellationToken ct)
     {
@@ -53,10 +49,10 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     }
 
 
-    [HttpGet]
+    [HttpGet(Endpoints.Cart.GetItem)]
     public async Task<ActionResult<CartDto>> Get(CancellationToken ct)
     {
-        var cart = await GetOrCreateAsync(CurrentUser, ct);
+        var cart = await GetOrCreateAsync(userProvider.UserId, ct);
         await _db.Entry(cart).Collection(c => c.Items).LoadAsync(ct);
         await _db.Entry(cart).Collection(c => c.Items)
                             .Query().Include(i => i.Product).LoadAsync(ct);
@@ -66,7 +62,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
 
 
     [HttpPost]
-    [Route(Endpoints.Cart.Items)]
+    [Route(Endpoints.Cart.AddItem)]
     public async Task<ActionResult<CartDto>> AddItem(
         [FromBody] AddItemRequest req, CancellationToken ct)
     {
@@ -76,7 +72,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
                                .FirstOrDefaultAsync(p => p.ProductId == req.ProductId,ct);
         if (product is null) return NotFound("Product");
 
-        var cart = await GetOrCreateAsync(CurrentUser, ct);
+        var cart = await GetOrCreateAsync(userProvider.UserId, ct);
 
         var item = cart.Items.FirstOrDefault(i => i.ProductId == req.ProductId);
         if (item is null)
@@ -103,7 +99,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
 
 
     [HttpPut]
-    [Route(Endpoints.Cart.Item)]
+    [Route(Endpoints.Cart.UpdateItemQty)]
     public async Task<ActionResult<CartDto>> UpdateQty(
         Guid itemId, [FromBody] UpdateQtyRequest req, CancellationToken ct)
     {
@@ -113,7 +109,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
                                       .FirstOrDefaultAsync(i => i.CartItemId == itemId, ct);
         if (item is null) return NotFound();
 
-        if (item.Cart.CustomerId != CurrentUser) return Forbid();
+        if (item.Cart.CustomerId != userProvider.UserId) return Forbid();
 
         if (req.Qty <= 0)
         {
@@ -130,13 +126,13 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
 
 
     [HttpDelete]
-    [Route(Endpoints.Cart.Item)]
+    [Route(Endpoints.Cart.RemoveItem)]
     public async Task<IActionResult> RemoveItem(Guid itemId, CancellationToken ct)
     {
         var item = await _db.CartItems.FirstOrDefaultAsync(i => i.CartItemId == itemId , ct);
         if (item is null) return NotFound();
         if (await _db.Carts.AnyAsync(c => c.CartId == item.CartId &&
-                                          c.CustomerId == CurrentUser, ct) == false)
+                                          c.CustomerId == userProvider.UserId, ct) == false)
             return Forbid();
 
         _db.CartItems.Remove(item);
@@ -148,7 +144,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     [Route(Endpoints.Cart.Clear)]
     public async Task<IActionResult> Clear(CancellationToken ct)
     {
-        var cart = await GetOrCreateAsync(CurrentUser, ct);
+        var cart = await GetOrCreateAsync(userProvider.UserId, ct);
         _db.CartItems.RemoveRange(cart.Items);
         await _db.SaveChangesAsync(ct);
         return NoContent();

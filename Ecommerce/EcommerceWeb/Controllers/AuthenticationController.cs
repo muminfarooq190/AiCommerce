@@ -7,6 +7,7 @@ using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
@@ -30,9 +31,22 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
             return View(request);
         }
 
+        var tempprefix = Request.Host.Host.Split('.').FirstOrDefault()?.ToLower() ?? string.Empty;
+
+        TenantConfigEntity? tenantConfig = await appDbContext
+                                        .TenantConfigs
+                                    .FirstOrDefaultAsync(x => x.TempUrlPrefix == tempprefix || x.Url == Request.Host.Host.ToLower());
+
+        if(tenantConfig == null)
+        {
+            ModelState.AddModelError(nameof(request.Email), "something went wrong!");
+            logger.LogError("Tenant configuration not found for prefix: {Prefix}", tempprefix);
+            return View(request);
+        }
+
         var userLoginRequest = new UserLoginRequest
         {
-            TenantId = Guid.NewGuid(),
+            TenantId = tenantConfig.TenantId,
             Email = request.Email,
             Password = request.Password
         };
@@ -57,8 +71,14 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Email),
             new Claim(ClaimTypes.Email, user.Email),
-            // i will add User permisstons here
+            new Claim(ClaimTypes.GroupSid, tenantConfig.TenantId.ToString()),           
+            new Claim("IsPrimaryTanent", user.IsPrimaryTanent.ToString()),           
         };
+
+        if (!user.IsPrimaryTanent)
+        {
+            //add user permisstons to claims
+        }
 
         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var authProperties = new AuthenticationProperties

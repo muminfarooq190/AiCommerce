@@ -1,8 +1,6 @@
 ﻿using Ecommerce.Entities;
 using Ecommerce.Services;
 using Ecommerce.Utilities;
-using EcommerceApi.Attributes;
-using EcommerceApi.Entities.DbContexts;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
@@ -11,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
 
@@ -69,12 +66,12 @@ public class AuthenticationController(
     [HttpPost(Endpoints.Authentication.Login)]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
-        
+
 
         var user = context.Users
                           .Include(u => u.Tenant)
                           .IgnoreQueryFilters()
-                          .FirstOrDefault(u => u.Email == userLoginRequest.Email  && 
+                          .FirstOrDefault(u => u.Email == userLoginRequest.Email &&
                                                u.TenantId == userLoginRequest.TenantId);
 
         if (user == null)
@@ -145,12 +142,13 @@ public class AuthenticationController(
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
-            Token = jwtTokenGenerator.GenerateToken(user.UserId,user.TenantId, user.FirstName + " " + user.LastName, user.Email,user.Tenant.CompanyName)
+            IsPrimaryTanent = user.IsTenantPrimary,
+            Token = jwtTokenGenerator.GenerateToken(user.UserId, user.TenantId, user.FirstName + " " + user.LastName, user.Email, user.Tenant.CompanyName)
         });
 
     }
 
-    
+
     /// <summary>
     /// Gets the tenant ID for a user if credentials are valid and user is primary tenant.
     /// </summary>
@@ -171,10 +169,10 @@ public class AuthenticationController(
     [HttpPost(Endpoints.Authentication.GetTenentId)]
     public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
-             
+
         var user = await context.Users
                                 .Include(u => u.Tenant)
-                                .FirstOrDefaultAsync(u => 
+                                .FirstOrDefaultAsync(u =>
                                     u.Email == userLoginRequest.Email);
 
         if (user == null)
@@ -291,7 +289,7 @@ public class AuthenticationController(
     {
         Guid? TenantId = userProvider.TenantId;
 
-        var user = await context.Users.Include(u=>u.Tenant).FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
+        var user = await context.Users.Include(u => u.Tenant).FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
         if (user == null)
         {
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid email or password");
@@ -324,7 +322,7 @@ public class AuthenticationController(
         if (TenantId == null)
         {
             if (!user.IsTenantPrimary)
-            { 
+            {
                 ModelState.AddModelError(nameof(userLoginRequest.Email), "TenantId header is missing");
 
                 return this.ApplicationProblem(

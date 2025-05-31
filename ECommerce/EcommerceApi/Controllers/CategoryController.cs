@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace EcommerceApi.Controllers;
 
 [ApiController]
-[Route("api/categories")]
 public sealed class CategoryController(
         AppDbContext db,
         IUserProvider userProvider,
@@ -34,7 +32,7 @@ public sealed class CategoryController(
 
 
     [HttpGet]
-    [Route("")]
+    [Route(Endpoints.Categories.GetAll)]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll(CancellationToken ct)
     {
         var list = await _db.Categories
@@ -46,7 +44,7 @@ public sealed class CategoryController(
     }
 
     [HttpGet]
-    [Route(Endpoints.Categories.ById)]
+    [Route(Endpoints.Categories.GetById)]
     public async Task<ActionResult<CategoryDto>> GetById(Guid id, CancellationToken ct)
     {
         var cat = await _db.Categories
