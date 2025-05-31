@@ -12,11 +12,10 @@ namespace EcommerceApi.Controllers;
 
 [ApiController]
 [Route(Endpoints.Discounts.Base)]
-public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
+public sealed class DiscountController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenant = tp.TenantId!.Value;
     private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     private static DiscountDto Map(Discount d) => new(
@@ -26,8 +25,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DiscountDto>>> All(CancellationToken ct)
-        => Ok((await _db.Discounts.Where(x => x.TenantId == _tenant)
-                                  .AsNoTracking()
+        => Ok((await _db.Discounts.AsNoTracking()
                                   .ToListAsync(ct)).Select(Map));
 
 
@@ -35,7 +33,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
     public async Task<ActionResult<DiscountDto>> Get(Guid id, CancellationToken ct)
     {
         var d = await _db.Discounts.FirstOrDefaultAsync(
-            x => x.DiscountId == id && x.TenantId == _tenant, ct);
+            x => x.DiscountId == id, ct);
         return d is null ? NotFound() : Ok(Map(d));
     }
 
@@ -44,13 +42,13 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
         [FromBody] UpsertDiscountRequest req, CancellationToken ct)
     {
         bool dupe = await _db.Discounts.AnyAsync(
-            x => x.Code == req.Code && x.TenantId == _tenant, ct);
+            x => x.Code == req.Code, ct);
         if (dupe) return Conflict("Duplicate code.");
 
         var d = new Discount
         {
             DiscountId = Guid.NewGuid(),
-            TenantId = _tenant,
+            TenantId = userProvider.TenantId,
             Code = req.Code.ToUpperInvariant(),
             Type = req.Type,
             Value = req.Value,
@@ -60,7 +58,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
             StartsAtUtc = req.StartsAtUtc,
             ExpiresAtUtc = req.ExpiresAtUtc,
             Description = req.Description,
-            CreatedBy = CurrentUser
+            CreatedBy = userProvider.UserId
         };
         _db.Discounts.Add(d);
         await _db.SaveChangesAsync(ct);
@@ -72,7 +70,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
         Guid id, [FromBody] UpsertDiscountRequest req, CancellationToken ct)
     {
         var d = await _db.Discounts.FirstOrDefaultAsync(
-            x => x.DiscountId == id && x.TenantId == _tenant, ct);
+            x => x.DiscountId == id, ct);
         if (d is null) return NotFound();
 
         d.Code = req.Code.ToUpperInvariant();
@@ -93,7 +91,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var d = await _db.Discounts.FirstOrDefaultAsync(
-            x => x.DiscountId == id && x.TenantId == _tenant, ct);
+            x => x.DiscountId == id, ct);
         if (d is null) return NotFound();
 
         _db.Discounts.Remove(d);
@@ -107,13 +105,11 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
         Guid orderId, [FromBody] string code, CancellationToken ct)
     {
         var order = await _db.Orders.Include(o => o.OrderDiscounts)
-                                    .FirstOrDefaultAsync(o => o.OrderId == orderId &&
-                                                              o.TenantId == _tenant, ct);
+                                    .FirstOrDefaultAsync(o => o.OrderId == orderId, ct);
         if (order is null) return NotFound("Order");
 
         var d = await _db.Discounts.FirstOrDefaultAsync(
-            x => x.Code == code.ToUpperInvariant() &&
-                 x.TenantId == _tenant &&
+            x => x.Code == code.ToUpperInvariant() &&                
                  x.IsActive &&
                  (x.StartsAtUtc == null || x.StartsAtUtc <= DateTime.UtcNow) &&
                  (x.ExpiresAtUtc == null || x.ExpiresAtUtc >= DateTime.UtcNow) &&
@@ -155,8 +151,7 @@ public sealed class DiscountController(AppDbContext db, ITenantProvider tp)
         var od = await _db.OrderDiscounts
                           .Include(x => x.Discount)
                           .FirstOrDefaultAsync(od => od.OrderId == orderId &&
-                                                     od.Discount.Code == code.ToUpperInvariant() &&
-                                                     od.Discount.TenantId == _tenant, ct);
+                                                     od.Discount.Code == code.ToUpperInvariant(), ct);
         if (od is null) return NotFound();
 
         var order = await _db.Orders.FirstAsync(o => o.OrderId == orderId, ct);

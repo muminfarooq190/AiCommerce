@@ -16,10 +16,9 @@ namespace EcommerceApi.Controllers;
 [Route("api/orders")]
 public sealed class OrderController(
         AppDbContext db,
-        ITenantProvider tenantProvider) : ControllerBase
+        IUserProvider userProvider) : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly ITenantProvider _tp = tenantProvider;
 
     private static string Slugify(string txt)
         => Regex.Replace(txt.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
@@ -60,7 +59,6 @@ public sealed class OrderController(
                               .Include(o => o.Payments)
                               .Include(o => o.Shipments)
                               .AsNoTracking()
-                              .Where(o => o.TenantId == _tp.TenantId)
                               .OrderByDescending(o => o.PlacedAtUtc)
                               .ToListAsync(ct);
 
@@ -75,7 +73,7 @@ public sealed class OrderController(
                          .Include(o => o.Items)
                          .Include(o => o.Payments)
                          .Include(o => o.Shipments)
-                         .FirstOrDefaultAsync(x => x.OrderId == id && x.TenantId == _tp.TenantId, ct);
+                         .FirstOrDefaultAsync(x => x.OrderId == id, ct);
 
         return o is null ? NotFound() : Ok(ToDto(o));
     }
@@ -90,8 +88,7 @@ public sealed class OrderController(
 
         var prodIds = req.Items.Select(i => i.ProductId).Distinct().ToList();
         var prods = await _db.Products
-                               .Where(p => prodIds.Contains(p.ProductId) &&
-                                           p.TenantId == _tp.TenantId)
+                               .Where(p => prodIds.Contains(p.ProductId))
                                .ToListAsync(ct);
 
         var missing = prodIds.Except(prods.Select(p => p.ProductId)).ToList();
@@ -117,7 +114,7 @@ public sealed class OrderController(
                 Tax = 0,
                 WeightKg = p.WeightKg,
                 SnapshotJson = null,
-                TenantId = _tp.TenantId!.Value
+                TenantId = userProvider.TenantId
             };
         }).ToList();
 
@@ -126,7 +123,7 @@ public sealed class OrderController(
         {
             OrderId = orderId,
             OrderNumber = number,
-            TenantId = _tp.TenantId!.Value,
+            TenantId = userProvider.TenantId,
             CustomerId = req.CustomerId,
             Status = OrderStatus.Pending,
             PlacedAtUtc = DateTime.UtcNow,
@@ -159,7 +156,7 @@ public sealed class OrderController(
         CancellationToken ct)
     {
         var o = await _db.Orders.FirstOrDefaultAsync(
-            x => x.OrderId == id && x.TenantId == _tp.TenantId, ct);
+            x => x.OrderId == id, ct);
         if (o is null) return NotFound();
 
         if (o.Status == req.NewStatus) return NoContent();
@@ -189,8 +186,7 @@ public sealed class OrderController(
         CancellationToken ct)
     {
         var o = await _db.Orders.Include(x => x.Payments)
-                                .FirstOrDefaultAsync(x => x.OrderId == id &&
-                                                           x.TenantId == _tp.TenantId, ct);
+                                .FirstOrDefaultAsync(x => x.OrderId == id, ct);
         if (o is null) return NotFound();
 
         var pay = new Payment
@@ -202,7 +198,7 @@ public sealed class OrderController(
             Method = req.Method,
             Status = PaymentStatus.Paid,
             PaidAtUtc = DateTime.UtcNow,
-            TenantId = _tp.TenantId!.Value
+            TenantId = userProvider.TenantId
         };
         _db.Payments.Add(pay);
 
@@ -230,8 +226,7 @@ public sealed class OrderController(
         CancellationToken ct)
     {
         var o = await _db.Orders.Include(x => x.Shipments)
-                                .FirstOrDefaultAsync(x => x.OrderId == id &&
-                                                           x.TenantId == _tp.TenantId, ct);
+                                .FirstOrDefaultAsync(x => x.OrderId == id , ct);
         if (o is null) return NotFound();
 
         var sh = new Shipment
@@ -244,7 +239,7 @@ public sealed class OrderController(
             Status = ShipmentStatus.Shipped,
             ShippedAtUtc = DateTime.UtcNow,
             ShippingCost = req.ShippingCost,
-            TenantId = _tp.TenantId!.Value
+            TenantId = userProvider.TenantId
         };
         _db.Shipments.Add(sh);
 
@@ -270,8 +265,7 @@ public sealed class OrderController(
         var sh = await _db.Shipments
                           .Include(s => s.Order)
                           .FirstOrDefaultAsync(s => s.ShipmentId == shipId &&
-                                                    s.OrderId == id &&
-                                                    s.TenantId == _tp.TenantId, ct);
+                                                    s.OrderId == id, ct);
         if (sh is null) return NotFound();
 
         sh.Status = newStatus;

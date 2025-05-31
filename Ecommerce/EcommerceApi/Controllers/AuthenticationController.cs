@@ -139,13 +139,13 @@ public class AuthenticationController(
 
         return Ok(new UserLoginResponse
         {
-            Id = user.Id,
+            Id = user.UserId,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
-            Token = jwtTokenGenerator.GenerateToken(user.Id,user.TenantId, user.FirstName + " " + user.LastName, user.Email,user.Tenant.CompanyName)
+            Token = jwtTokenGenerator.GenerateToken(user.UserId,user.TenantId, user.FirstName + " " + user.LastName, user.Email,user.Tenant.CompanyName)
         });
 
     }
@@ -379,7 +379,7 @@ public class AuthenticationController(
         }
 
         var token = jwtTokenGenerator.GenerateToken(
-             user.Id,
+             user.UserId,
              user.TenantId,
              user.FirstName + " " + user.LastName,
              user.Email,
@@ -453,7 +453,7 @@ public class AuthenticationController(
 
         }
 
-        UserEntity? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userIdValue);
+        User? user = await context.Users.FirstOrDefaultAsync(u => u.UserId == userIdValue);
 
         if (user == null)
         {

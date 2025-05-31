@@ -12,12 +12,11 @@ namespace EcommerceApi.Controllers;
 
 [ApiController]
 [Route("api/cart")]
-public sealed class CartController(AppDbContext db, ITenantProvider tp)
+public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     : ControllerBase
 {
 
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenantId = tp.TenantId!.Value;
     private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
 
@@ -36,7 +35,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
     {
         var cart = await _db.Carts.Include(c => c.Items).ThenInclude(i => i.Product)
                                   .FirstOrDefaultAsync(c => c.CustomerId == customerId &&
-                                                            c.TenantId == _tenantId &&
+                                                            
                                                             c.Status == CartStatus.Active, ct);
 
         if (cart != null) return cart;
@@ -44,7 +43,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
         cart = new Cart
         {
             CartId = Guid.NewGuid(),
-            TenantId = _tenantId,
+            TenantId = userProvider.TenantId,
             CustomerId = customerId,
             CreatedBy = customerId
         };
@@ -74,8 +73,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
         if (req.Qty <= 0) return BadRequest("Qty must be > 0");
 
         var product = await _db.Products
-                               .FirstOrDefaultAsync(p => p.ProductId == req.ProductId &&
-                                                         p.TenantId == _tenantId, ct);
+                               .FirstOrDefaultAsync(p => p.ProductId == req.ProductId,ct);
         if (product is null) return NotFound("Product");
 
         var cart = await GetOrCreateAsync(CurrentUser, ct);
@@ -90,7 +88,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
                 ProductId = product.ProductId,
                 Qty = req.Qty,
                 UnitPriceSnap = product.Price,
-                TenantId = _tenantId
+                TenantId = userProvider.TenantId
             };
             _db.CartItems.Add(item);
         }
@@ -112,8 +110,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
         var item = await _db.CartItems.Include(i => i.Cart)
                                       .ThenInclude(c => c.Items)
                                       .ThenInclude(i => i.Product)
-                                      .FirstOrDefaultAsync(i => i.CartItemId == itemId &&
-                                                                i.TenantId == _tenantId, ct);
+                                      .FirstOrDefaultAsync(i => i.CartItemId == itemId, ct);
         if (item is null) return NotFound();
 
         if (item.Cart.CustomerId != CurrentUser) return Forbid();
@@ -136,8 +133,7 @@ public sealed class CartController(AppDbContext db, ITenantProvider tp)
     [Route(Endpoints.Cart.Item)]
     public async Task<IActionResult> RemoveItem(Guid itemId, CancellationToken ct)
     {
-        var item = await _db.CartItems.FirstOrDefaultAsync(i => i.CartItemId == itemId &&
-                                                                i.TenantId == _tenantId, ct);
+        var item = await _db.CartItems.FirstOrDefaultAsync(i => i.CartItemId == itemId , ct);
         if (item is null) return NotFound();
         if (await _db.Carts.AnyAsync(c => c.CartId == item.CartId &&
                                           c.CustomerId == CurrentUser, ct) == false)

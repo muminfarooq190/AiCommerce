@@ -84,9 +84,9 @@ public class AuthenticationController(
 
         }
 
-        TenantEntity newtant = TenantEntity.Create(userRegisterRequest.CompanyName);
+        Ecommerce.Entities.Tenant newtant = Ecommerce.Entities.Tenant.Create(userRegisterRequest.CompanyName);
 
-        var newUser = UserEntity.Create(
+        var newUser = Ecommerce.Entities.User.Create(
             password: PasswordHasher.Hash(userRegisterRequest.Password),
             email: userRegisterRequest.Email,
             phoneNumber: userRegisterRequest.PhoneNumber,
@@ -101,15 +101,15 @@ public class AuthenticationController(
 
         foreach (var feature in features)
         {
-            newUser.AddPermission(PermissionsEntity.Create(feature, newUser));
+            newUser.AddPermission(Permission.Create(feature, newUser));
         }
 
         context.Users.Add(newUser);
         await context.SaveChangesAsync();
 
         var token = jwtTokenGenerator.GenerateToken(
-             newUser.Id,
-             newtant.Id,
+             newUser.UserId,
+             newtant.TenantId,
              newUser.FirstName + " " + newUser.LastName,
              newUser.Email,
              newtant.CompanyName,
@@ -129,7 +129,7 @@ public class AuthenticationController(
 
         return Created(Endpoints.Authentication.Login, value: new UserRegisterResponse
         {
-            Id = newUser.Id,
+            Id = newUser.UserId,
             Email = newUser.Email,
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,
@@ -138,7 +138,7 @@ public class AuthenticationController(
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = newtant.Id,
+            TenantId = newtant.TenantId,
             CompanyName = newtant.CompanyName
         });
     }

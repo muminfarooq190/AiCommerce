@@ -10,12 +10,10 @@ namespace EcommerceApi.Controllers;
 
 [ApiController]
 [Route(Endpoints.Reviews.ByProduct)]
-public sealed class ProductReviewController(AppDbContext db, ITenantProvider tp)
+public sealed class ProductReviewController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenantId = tp.TenantId!.Value;
-    private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     public sealed record ReviewDto(Guid ReviewId, Guid CustomerId, byte Rating,
                                    string? Title, string? Body,
@@ -29,8 +27,7 @@ public sealed class ProductReviewController(AppDbContext db, ITenantProvider tp)
     public async Task<ActionResult<IEnumerable<ReviewDto>>> List(Guid productId, CancellationToken ct)
     {
         var list = await _db.ProductReviews
-                            .Where(r => r.ProductId == productId &&
-                                        r.TenantId == _tenantId &&
+                            .Where(r => r.ProductId == productId&&
                                         r.IsApproved)
                             .AsNoTracking()
                             .OrderByDescending(r => r.CreatedAtUtc)
@@ -48,22 +45,22 @@ public sealed class ProductReviewController(AppDbContext db, ITenantProvider tp)
         if (req.Rating is < 1 or > 5) return BadRequest("Rating must be 1-5.");
 
         bool productExists = await _db.Products.AnyAsync(
-            p => p.ProductId == productId && p.TenantId == _tenantId, ct);
+            p => p.ProductId == productId, ct);
         if (!productExists) return NotFound("Product");
 
         var rv = new ProductReview
         {
             ReviewId = Guid.NewGuid(),
             ProductId = productId,
-            CustomerId = CurrentUser,
+            CustomerId = userProvider.UserId,
             Rating = req.Rating,
             Title = req.Title,
             Body = req.Body,
             VerifiedPurchase = await _db.Orders
-                .AnyAsync(o => o.CustomerId == CurrentUser &&
+                .AnyAsync(o => o.CustomerId == userProvider.UserId &&
                                o.Items.Any(i => i.ProductId == productId) &&
                                o.Status == OrderStatus.Delivered, ct),
-            TenantId = _tenantId
+            TenantId = userProvider.TenantId
         };
 
         _db.ProductReviews.Add(rv);

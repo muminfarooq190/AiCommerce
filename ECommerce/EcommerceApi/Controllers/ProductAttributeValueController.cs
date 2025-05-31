@@ -14,13 +14,10 @@ namespace EcommerceApi.Controllers;
 [Route("api/productattributevalue")]
 public sealed class ProductAttributeValueController(
         AppDbContext db,
-        ITenantProvider tp) : ControllerBase
+        IUserProvider userProvider) : ControllerBase
 {
-    /* ─ helpers ─ */
+
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenantId = tp.TenantId!.Value;
-    private Guid CurrentUser => Guid.Parse(
-        User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
 
     [HttpGet]
@@ -29,8 +26,7 @@ public sealed class ProductAttributeValueController(
     {
         var rows = await _db.ProductAttributeValues
                             .Include(v => v.Attribute)
-                            .Where(v => v.ProductId == productId &&
-                                        v.TenantId == _tenantId)
+                            .Where(v => v.ProductId == productId)
                             .AsNoTracking()
                             .ToListAsync(ct);
 
@@ -46,13 +42,11 @@ public sealed class ProductAttributeValueController(
         [FromBody] UpsertValueRequest req, CancellationToken ct)
     {
         bool foundProduct = await _db.Products
-                                     .AnyAsync(p => p.ProductId == productId &&
-                                                    p.TenantId == _tenantId, ct);
+                                     .AnyAsync(p => p.ProductId == productId, ct);
         if (!foundProduct) return NotFound("Product");
 
         var attr = await _db.ProductAttributes
-                            .FirstOrDefaultAsync(a => a.AttributeId == attributeId &&
-                                                      a.TenantId == _tenantId, ct);
+                            .FirstOrDefaultAsync(a => a.AttributeId == attributeId , ct);
         if (attr is null) return NotFound("Attribute");
 
         if (attr.DataType != req.DataType)
@@ -77,7 +71,7 @@ public sealed class ProductAttributeValueController(
             {
                 ProductId = productId,
                 AttributeId = attributeId,
-                TenantId = _tenantId
+                TenantId = userProvider.TenantId
             };
             _db.ProductAttributeValues.Add(row);
         }

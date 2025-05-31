@@ -1,32 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EcommerceApi.Entities;
 
 namespace Ecommerce.Entities;
 
-[Index(nameof(CompanyName), IsUnique = true)]
-public class TenantEntity
+public class Tenant : IBaseEntity
 {
-    private TenantEntity() { }
+    private Tenant() { }
 
-    public Guid Id { get; init; }
+    public required Guid TenantId { get; set; }
     public required string CompanyName { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime UpdatedAt { get; init; }
 
-    public static TenantEntity Create(string companyName)
+    public static Tenant Create(string companyName)
     {
-        return new TenantEntity
+        return new Tenant
         {
-            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
             CompanyName = companyName,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
     }
-    public static TenantEntity Set(Guid guid, string companyName, DateTime CreatedAt, DateTime updatedAt)
+    public static Tenant Set(Guid guid, string companyName, DateTime CreatedAt, DateTime updatedAt)
     {
-        return new TenantEntity
+        return new Tenant
         {
-            Id = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
             CompanyName = companyName,
             CreatedAt = CreatedAt,
             UpdatedAt = updatedAt

@@ -98,7 +98,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
 
         var excestinguser = await appDbContext.Users
                                               .Include(u => u.Permissions)
-                                              .FirstOrDefaultAsync(u => u.Id == request.UserId);
+                                              .FirstOrDefaultAsync(u => u.UserId == request.UserId);
 
         if (excestinguser == null)
         {
@@ -129,7 +129,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
             );
         }
 
-        await appDbContext.UserPermissions.AddAsync(PermissionsEntity.Create(request.Permission, request.UserId));
+        await appDbContext.UserPermissions.AddAsync(Permission.Create(request.Permission, request.UserId));
         await appDbContext.SaveChangesAsync();
         return Ok();
     }
@@ -172,7 +172,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
         }
 
         var tenantid = userProvider.TenantId;
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
+        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.UserId == request.UserId);
 
         if (excestinguser == null)
         {
@@ -247,7 +247,7 @@ public class PermisstionController(AppDbContext appDbContext, IUserProvider tena
         var excestinguser = await appDbContext
             .Users
             .Include(u => u.Permissions)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId);
+            .FirstOrDefaultAsync(u => u.UserId == request.UserId);
 
         if (excestinguser == null)
         {

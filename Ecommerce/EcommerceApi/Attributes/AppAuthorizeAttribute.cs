@@ -55,7 +55,7 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
 
         string cacheKey = $"permissions:{userProvider.UserId}:{userProvider.TenantId}";
-        UserEntity? userWithPermissions = null;
+        User? userWithPermissions = null;
         if (!memoryCache.TryGetValue(cacheKey, out List<string>? permissions))
         {
             userWithPermissions = await dbContext.Users
@@ -63,7 +63,7 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
                 .Include(u => u.Permissions)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u =>
-                                        u.Id == userProvider.UserId &&
+                                        u.UserId == userProvider.UserId &&
                                         u.TenantId == userProvider.TenantId);
 
             if (userWithPermissions == null)

@@ -49,7 +49,7 @@ public class UsersController(AppDbContext context,IUserProvider userProvider, Em
             );
         }
 
-        var newUser = UserEntity.Create(
+        var newUser = Ecommerce.Entities.User.Create(
             password: PasswordHasher.Hash(userRegisterRequest.Password),
             email: userRegisterRequest.Email,
             phoneNumber: userRegisterRequest.PhoneNumber,
@@ -64,10 +64,10 @@ public class UsersController(AppDbContext context,IUserProvider userProvider, Em
 
         var user = await context.Users
             .Include(u => u.Tenant)
-            .FirstOrDefaultAsync(u => u.Id == newUser.Id);
+            .FirstOrDefaultAsync(u => u.UserId == newUser.UserId);
 
         var token = jwtTokenGenerator.GenerateToken(
-            newUser.Id,
+            newUser.UserId,
             newUser.TenantId,
             newUser.FirstName + " " + newUser.LastName,
             newUser.Email,
@@ -90,7 +90,7 @@ public class UsersController(AppDbContext context,IUserProvider userProvider, Em
 
         return Created(Endpoints.Authentication.Login, new UserRegisterResponse
         {
-            Id = newUser.Id,
+            Id = newUser.UserId,
             Email = newUser.Email,
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,

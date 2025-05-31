@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
 
@@ -13,11 +12,9 @@ namespace EcommerceApi.Controllers;
 [Route(Endpoints.Collections.Base)]
 public sealed class CollectionController(
         AppDbContext db,
-        ITenantProvider tp) : ControllerBase
+        IUserProvider userProvider) : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenant = tp.TenantId!.Value;
-    private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     /* helpers */
     private static string Slugify(string s) =>
@@ -35,7 +32,6 @@ public sealed class CollectionController(
     {
         var list = await _db.Collections
                             .Include(c => c.Products)
-                            .Where(c => c.TenantId == _tenant)
                             .AsNoTracking()
                             .ToListAsync(ct);
 
@@ -48,8 +44,7 @@ public sealed class CollectionController(
     {
         var c = await _db.Collections.Include(x => x.Products)
                                      .AsNoTracking()
-                                     .FirstOrDefaultAsync(x => x.CollectionId == id &&
-                                                               x.TenantId == _tenant, ct);
+                                     .FirstOrDefaultAsync(x => x.CollectionId == id, ct);
         return c is null ? NotFound() : Ok(Map(c));
     }
 
@@ -59,13 +54,13 @@ public sealed class CollectionController(
     {
         var slug = Slugify(req.Name);
         bool dupe = await _db.Collections
-                             .AnyAsync(c => c.Slug == slug && c.TenantId == _tenant, ct);
+                             .AnyAsync(c => c.Slug == slug, ct);
         if (dupe) slug += "-" + Guid.NewGuid().ToString("N")[..5];
 
         var col = new Collection
         {
             CollectionId = Guid.NewGuid(),
-            TenantId = _tenant,
+            TenantId = userProvider.TenantId,
             Name = req.Name,
             Slug = slug,
             BadgeLabel = req.BadgeLabel,
@@ -83,7 +78,7 @@ public sealed class CollectionController(
         Guid id, [FromBody] CreateCollectionRequest req, CancellationToken ct)
     {
         var c = await _db.Collections.FirstOrDefaultAsync(
-            x => x.CollectionId == id && x.TenantId == _tenant, ct);
+            x => x.CollectionId == id, ct);
         if (c is null) return NotFound();
 
         c.Name = req.Name;
@@ -99,7 +94,7 @@ public sealed class CollectionController(
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var c = await _db.Collections.FirstOrDefaultAsync(
-            x => x.CollectionId == id && x.TenantId == _tenant, ct);
+            x => x.CollectionId == id, ct);
         if (c is null) return NotFound();
 
         _db.Collections.Remove(c);
@@ -114,7 +109,7 @@ public sealed class CollectionController(
         Guid id, CancellationToken ct)
     {
         var ids = await _db.CollectionProducts
-                           .Where(cp => cp.CollectionId == id && cp.TenantId == _tenant)
+                           .Where(cp => cp.CollectionId == id)
                            .OrderBy(cp => cp.SortOrder)
                            .Select(cp => cp.ProductId)
                            .ToListAsync(ct);
@@ -128,15 +123,13 @@ public sealed class CollectionController(
         Guid id, [FromBody] AddProductsRequest req, CancellationToken ct)
     {
         var colExists = await _db.Collections
-                                 .AnyAsync(c => c.CollectionId == id &&
-                                                c.TenantId == _tenant, ct);
+                                     .AnyAsync(c => c.CollectionId == id, ct);
         if (!colExists) return NotFound("Collection");
 
         var productIds = req.ProductIds.Distinct().ToList();
         if (!productIds.Any()) return BadRequest("No products supplied.");
 
-        var validProducts = await _db.Products.Where(p => productIds.Contains(p.ProductId) &&
-                                                          p.TenantId == _tenant)
+        var validProducts = await _db.Products.Where(p => productIds.Contains(p.ProductId))
                                               .Select(p => p.ProductId)
                                               .ToListAsync(ct);
         var invalid = productIds.Except(validProducts).ToList();
@@ -157,7 +150,7 @@ public sealed class CollectionController(
                     CollectionId = id,
                     ProductId = pid,
                     SortOrder = ++maxSort,
-                    TenantId = _tenant
+                    TenantId = userProvider.TenantId
                 });
             }
         }
@@ -172,8 +165,7 @@ public sealed class CollectionController(
         Guid id, Guid prodId, CancellationToken ct)
     {
         var link = await _db.CollectionProducts.FirstOrDefaultAsync(
-            cp => cp.CollectionId == id && cp.ProductId == prodId &&
-                  cp.TenantId == _tenant, ct);
+            cp => cp.CollectionId == id && cp.ProductId == prodId, ct);
         if (link is null) return NotFound();
 
         _db.CollectionProducts.Remove(link);

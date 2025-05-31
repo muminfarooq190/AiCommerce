@@ -15,20 +15,15 @@ namespace EcommerceApi.Controllers;
 [Route("api/products")]
 public sealed class ProductController(
         AppDbContext db,
-        ITenantProvider tenantProvider,
+        IUserProvider userProvider,
         IWebHostEnvironment env) : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly ITenantProvider _tp = tenantProvider;
     private readonly IWebHostEnvironment _env = env;
 
     private const string UploadDir = "uploads/products";
     private static string Slugify(string name) =>
         Regex.Replace(name.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-
-    private Guid CurrentUserId =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new InvalidOperationException("NameIdentifier claim missing"));
 
 
     private static ProductDto ToDto(Product p) => new(
@@ -63,7 +58,6 @@ public sealed class ProductController(
                             .Include(p => p.ProductCategories)
                             .Include(p => p.ProductImages)
                                 .ThenInclude(pi => pi.MediaFile)
-                            .Where(p => p.TenantId == _tp.TenantId)
                             .OrderBy(p => p.Name)
                             .AsNoTracking()
                             .ToListAsync(ct);
@@ -80,8 +74,7 @@ public sealed class ProductController(
                                .Include(p => p.ProductCategories)
                                .Include(p => p.ProductImages).ThenInclude(pi => pi.MediaFile)
                                .AsNoTracking()
-                               .FirstOrDefaultAsync(p => p.ProductId == id &&
-                                                         p.TenantId == _tp.TenantId, ct);
+                               .FirstOrDefaultAsync(p => p.ProductId == id , ct);
         return product is null ? NotFound() : Ok(ToDto(product));
     }
 
@@ -91,22 +84,19 @@ public sealed class ProductController(
         [FromBody] CreateProductRequest req, CancellationToken ct)
     {
 
-        if (await _db.Products.AnyAsync(p => p.SKU == req.SKU &&
-                                             p.TenantId == _tp.TenantId, ct))
+        if (await _db.Products.AnyAsync(p => p.SKU == req.SKU , ct))
             return Conflict($"SKU '{req.SKU}' already exists.");
 
 
         if (req.BrandId is not null &&
-            !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId &&
-                                            b.TenantId == _tp.TenantId, ct))
+            !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId , ct))
             return BadRequest("Brand not found.");
 
         var catIds = req.CategoryIds?.Distinct().ToList() ?? [];
         if (catIds.Any())
         {
             var missing = catIds.Except(
-                await _db.Categories.Where(c => catIds.Contains(c.CategoryId) &&
-                                                c.TenantId == _tp.TenantId)
+                await _db.Categories.Where(c => catIds.Contains(c.CategoryId) )
                                     .Select(c => c.CategoryId).ToListAsync(ct));
             if (missing.Any())
                 return BadRequest($"Categories not found: {string.Join(',', missing)}");
@@ -114,14 +104,13 @@ public sealed class ProductController(
 
 
         string slug = Slugify(req.Name);
-        if (await _db.Products.AnyAsync(p => p.Slug == slug &&
-                                             p.TenantId == _tp.TenantId, ct))
+        if (await _db.Products.AnyAsync(p => p.Slug == slug, ct))
             slug = $"{slug}-{Guid.NewGuid():N[..5]}";   
 
         var p = new Product
         {
             ProductId = Guid.NewGuid(),
-            TenantId = _tp.TenantId!.Value,
+            TenantId = userProvider.TenantId,
             Name = req.Name,
             SKU = req.SKU,
             Slug = slug,
@@ -140,8 +129,8 @@ public sealed class ProductController(
             TrackInventory = req.TrackInventory,
             MetaTitle = req.MetaTitle,
             MetaDescription = req.MetaDescription,
-            CreatedBy = CurrentUserId,
-            UpdatedBy = CurrentUserId
+            CreatedBy = userProvider.UserId,
+            UpdatedBy = userProvider.UserId
         };
 
         _db.Products.Add(p);
@@ -169,21 +158,18 @@ public sealed class ProductController(
     {
         var p = await _db.Products
                          .Include(p => p.ProductCategories)
-                         .FirstOrDefaultAsync(p => p.ProductId == id &&
-                                                   p.TenantId == _tp.TenantId, ct);
+                         .FirstOrDefaultAsync(p => p.ProductId == id, ct);
         if (p is null) return NotFound();
 
 
         if (req.SKU != p.SKU &&
-            await _db.Products.AnyAsync(x => x.SKU == req.SKU &&
-                                             x.TenantId == _tp.TenantId && x.ProductId != id, ct))
+            await _db.Products.AnyAsync(x => x.SKU == req.SKU && x.ProductId != id, ct))
             return Conflict($"SKU '{req.SKU}' already exists.");
 
         if (req.BrandId != p.BrandId)
         {
             if (req.BrandId is not null &&
-                !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId &&
-                                                b.TenantId == _tp.TenantId, ct))
+                !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId, ct))
                 return BadRequest("Brand not found.");
             p.BrandId = req.BrandId;
         }
@@ -212,8 +198,7 @@ public sealed class ProductController(
 
         string newSlug = Slugify(req.Name);
         if (newSlug != p.Slug &&
-            await _db.Products.AnyAsync(x => x.Slug == newSlug &&
-                                             x.TenantId == _tp.TenantId && x.ProductId != id, ct))
+            await _db.Products.AnyAsync(x => x.Slug == newSlug && x.ProductId != id, ct))
             newSlug = $"{newSlug}-{Guid.NewGuid():N[..5]}";
 
         p.Name = req.Name;
@@ -235,7 +220,7 @@ public sealed class ProductController(
         p.MetaDescription = req.MetaDescription;
         p.Slug = newSlug;
         p.UpdatedAtUtc = DateTime.UtcNow;
-        p.UpdatedBy = CurrentUserId;
+        p.UpdatedBy = userProvider.UserId;
 
         await _db.SaveChangesAsync(ct);
         return NoContent();
@@ -248,8 +233,7 @@ public sealed class ProductController(
     {
         var p = await _db.Products
                          .Include(p => p.ProductImages)
-                         .FirstOrDefaultAsync(p => p.ProductId == id &&
-                                                   p.TenantId == _tp.TenantId, ct);
+                         .FirstOrDefaultAsync(p => p.ProductId == id, ct);
         if (p is null) return NotFound();
 
 
@@ -287,7 +271,7 @@ public sealed class ProductController(
             return BadRequest("No file provided.");
 
         var p = await _db.Products.FirstOrDefaultAsync(
-            p => p.ProductId == id && p.TenantId == _tp.TenantId, ct);
+            p => p.ProductId == id, ct);
         if (p is null) return NotFound();
 
         Directory.CreateDirectory(Path.Combine(_env.WebRootPath, UploadDir));
@@ -307,7 +291,7 @@ public sealed class ProductController(
             FileName = file.FileName,
             MimeType = file.ContentType,
             Uri = $"/{UploadDir}/{newName}",
-            TenantId = _tp.TenantId!.Value
+            TenantId = userProvider.TenantId
         };
         _db.MediaFiles.Add(media);
 
@@ -339,8 +323,7 @@ public sealed class ProductController(
         var link = await _db.ProductImages
                             .Include(pi => pi.MediaFile)
                             .FirstOrDefaultAsync(pi => pi.ProductId == id &&
-                                                        pi.MediaFileId == mediaId &&
-                                                        pi.TenantId == _tp.TenantId, ct);
+                                                        pi.MediaFileId == mediaId, ct);
         if (link is null) return NotFound();
 
         _db.ProductImages.Remove(link);

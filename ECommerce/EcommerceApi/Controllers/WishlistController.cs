@@ -8,12 +8,10 @@ namespace EcommerceApi.Controllers;
 
 [ApiController]
 [Route("api/wishlist")]
-public sealed class WishlistController(AppDbContext db, ITenantProvider tp)
+public sealed class WishlistController(AppDbContext db, IUserProvider userProvider)
     : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly Guid _tenantId = tp.TenantId!.Value;
-    private Guid CurrentUser => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     public sealed record WishlistItemDto(Guid ProductId, string Name, string SKU, decimal Price);
 
@@ -22,7 +20,7 @@ public sealed class WishlistController(AppDbContext db, ITenantProvider tp)
     {
         var list = await _db.WishlistItems
                             .Include(w => w.Product)
-                            .Where(w => w.CustomerId == CurrentUser && w.TenantId == _tenantId)
+                            .Where(w => w.CustomerId == userProvider.UserId)
                             .AsNoTracking()
                             .ToListAsync(ct);
 
@@ -34,22 +32,20 @@ public sealed class WishlistController(AppDbContext db, ITenantProvider tp)
     public async Task<IActionResult> Add(Guid productId, CancellationToken ct)
     {
         bool exists = await _db.WishlistItems
-                               .AnyAsync(w => w.CustomerId == CurrentUser &&
-                                              w.ProductId == productId &&
-                                              w.TenantId == _tenantId, ct);
+                               .AnyAsync(w => w.CustomerId == userProvider.UserId &&
+                                              w.ProductId == productId , ct);
         if (exists) return NoContent();
 
         var productExists = await _db.Products
-                                     .AnyAsync(p => p.ProductId == productId &&
-                                                    p.TenantId == _tenantId, ct);
+                                     .AnyAsync(p => p.ProductId == productId, ct);
         if (!productExists) return NotFound("Product");
 
         _db.WishlistItems.Add(new WishlistItem
         {
             WishlistItemId = Guid.NewGuid(),
-            CustomerId = CurrentUser,
+            CustomerId = userProvider.UserId,
             ProductId = productId,
-            TenantId = _tenantId
+            TenantId = userProvider.TenantId
         });
         await _db.SaveChangesAsync(ct);
         return NoContent();
@@ -59,9 +55,8 @@ public sealed class WishlistController(AppDbContext db, ITenantProvider tp)
     public async Task<IActionResult> Remove(Guid productId, CancellationToken ct)
     {
         var row = await _db.WishlistItems.FirstOrDefaultAsync(
-            w => w.CustomerId == CurrentUser &&
-                 w.ProductId == productId &&
-                 w.TenantId == _tenantId, ct);
+            w => w.CustomerId == userProvider.UserId &&
+                 w.ProductId == productId, ct);
 
         if (row is null) return NoContent();
 
