@@ -9,7 +9,7 @@
         public long UploadedBy { get; set; }
         public DateTime UploadedAtUtc { get; set; } = DateTime.UtcNow;
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
         public ICollection<Category> Categories { get; set; } = new List<Category>();
     }
 }

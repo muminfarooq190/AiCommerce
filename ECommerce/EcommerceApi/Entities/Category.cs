@@ -37,7 +37,7 @@ namespace EcommerceApi.Entities
 
         public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
     }
 
 }

@@ -60,6 +60,6 @@ namespace EcommerceApi.Entities
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
     }
 }

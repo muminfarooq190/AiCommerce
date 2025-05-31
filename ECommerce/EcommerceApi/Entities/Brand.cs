@@ -15,6 +15,6 @@ namespace EcommerceApi.Entities
 
         public ICollection<Product> Products { get; set; } = new List<Product>();
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
     }
 }

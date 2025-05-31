@@ -10,6 +10,6 @@
 
         public int SortOrder { get; set; } = 0;
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
     }
 }

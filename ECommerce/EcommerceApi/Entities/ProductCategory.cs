@@ -8,6 +8,6 @@
         public Guid CategoryId { get; set; }
         public Category Category { get; set; } = default!;
 
-        public Guid TenantId { get; set; }
+        public required Guid TenantId { get; set; }
     }
 }
