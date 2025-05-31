@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sheared;
 using Sheared.Enums;
-using Sheared.Models;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
 using System.Security.Claims;
@@ -22,10 +21,6 @@ public sealed class OrderController(
 
     private static string Slugify(string txt)
         => Regex.Replace(txt.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-
-    private Guid CurrentUser =>
-        Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                   throw new InvalidOperationException("NameIdentifier claim missing"));
 
    
     private static OrderDto ToDto(Order o) => new(
@@ -138,7 +133,7 @@ public sealed class OrderController(
             BillingAddress = req.Billing,
 
             Items = items,
-            CreatedBy = CurrentUser
+            CreatedBy = userProvider.UserId
         };
 
         _db.Orders.Add(order);
@@ -166,12 +161,13 @@ public sealed class OrderController(
             OrderId = id,
             FromStatus = o.Status,
             ToStatus = req.NewStatus,
-            ChangedBy = CurrentUser
+            ChangedBy = userProvider.UserId,
+            TenantId= userProvider.TenantId,
         });
 
         o.Status = req.NewStatus;
         o.UpdatedAtUtc = DateTime.UtcNow;
-        o.UpdatedBy = CurrentUser;
+        o.UpdatedBy = userProvider.UserId;
 
         await _db.SaveChangesAsync(ct);
         return NoContent();
@@ -226,7 +222,7 @@ public sealed class OrderController(
         CancellationToken ct)
     {
         var o = await _db.Orders.Include(x => x.Shipments)
-                                .FirstOrDefaultAsync(x => x.OrderId == id , ct);
+                                .FirstOrDefaultAsync(x => x.OrderId == id, ct);
         if (o is null) return NotFound();
 
         var sh = new Shipment

@@ -37,7 +37,7 @@ public class AppAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
                 Instance = context.HttpContext.Request.Path
             };
 
-            problem.Extensions["errorCode"] = ErrorCodes.TanentIdMissing;
+            problem.Extensions["errorCode"] = ErrorCodes.Unauthenticated;
 
             context.Result = new ObjectResult(problem)
             {

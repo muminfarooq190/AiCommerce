@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 public sealed class AppDbContext : DbContext
 {
-    private readonly Guid? _tenantId;
+    private Guid? TenantId { get; set; }
     private bool ApplyTenantFilter { get; set; } = true;
     public AppDbContext IgnoreTenantFilter()
     {
@@ -19,7 +19,7 @@ public sealed class AppDbContext : DbContext
     {
         if (tenantProvider.IsAuthenticated)
         {
-            _tenantId = tenantProvider.TenantId;
+            TenantId = tenantProvider.TenantId;
         }
     }
 
@@ -35,7 +35,7 @@ public sealed class AppDbContext : DbContext
 
                 // this._tenantId == null || e.TenantId == this._tenantId
                 var applyTenantFilter = Expression.Property(dbContext, nameof(ApplyTenantFilter));
-                var tenantIdValue = Expression.Property(dbContext, "_tenantId");
+                var tenantIdValue = Expression.Property(dbContext, nameof(TenantId));
 
                 var tenantIdProperty = Expression.Property(parameter, nameof(IBaseEntity.TenantId));
                 var tenantCompare = Expression.Equal(

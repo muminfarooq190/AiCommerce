@@ -13,12 +13,13 @@ public class Permission : IBaseEntity
     public Guid UserId { get; private set; }
     public required Guid TenantId { get; set; }
  
-    public static Permission Create(string name)
+    public static Permission Create(string name,Guid tenantid)
     {
         return new Permission
         {
             PermissionId = Guid.NewGuid(),
             Name = name,
+            TenantId = tenantid,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -32,10 +33,11 @@ public class Permission : IBaseEntity
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             User = user,
-            UserId = user.UserId
+            UserId = user.UserId,
+            TenantId = user.TenantId
         };
     }
-    public static Permission Create(string name,  Guid userid)
+    public static Permission Create(string name,  Guid userid,Guid tenantid)
     {
         return new Permission
         {
@@ -43,7 +45,8 @@ public class Permission : IBaseEntity
             Name = name,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            UserId = userid
+            UserId = userid,
+            TenantId = tenantid
         };
     }
     public void Update(string name)

@@ -136,7 +136,8 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         {
             OrderId = orderId,
             DiscountId = d.DiscountId,
-            AmountApplied = amt
+            AmountApplied = amt,
+            TenantId = userProvider.TenantId
         });
 
         await _db.SaveChangesAsync(ct);

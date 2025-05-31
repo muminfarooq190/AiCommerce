@@ -14,22 +14,16 @@ namespace EcommerceApi.Controllers;
 [Route("api/categories")]
 public sealed class CategoryController(
         AppDbContext db,
-        ITenantProvider tenantProvider,
+        IUserProvider userProvider,
         IWebHostEnvironment env) : ControllerBase
 {
     private readonly AppDbContext _db = db;
-    private readonly ITenantProvider _tp = tenantProvider;
     private readonly IWebHostEnvironment _env = env;
 
     private const string UploadDir = "uploads";
-    private const string ClaimNameId = ClaimTypes.NameIdentifier;
 
     private static string Slugify(string name) =>
         Regex.Replace(name.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
-
-    private Guid CurrentUserId =>
-        Guid.Parse(User.FindFirstValue(ClaimNameId) ??
-                   throw new InvalidOperationException($"{ClaimNameId} claim missing"));
 
 
     private static CategoryDto ToDto(Category c) => new(
@@ -45,7 +39,6 @@ public sealed class CategoryController(
     {
         var list = await _db.Categories
                             .Include(c => c.FeaturedImage)
-                            .Where(c => c.TenantId == _tp.TenantId)
                             .OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name)
                             .AsNoTracking().ToListAsync(ct);
 
@@ -59,8 +52,7 @@ public sealed class CategoryController(
         var cat = await _db.Categories
                            .Include(c => c.FeaturedImage)
                            .AsNoTracking()
-                           .FirstOrDefaultAsync(c => c.CategoryId == id &&
-                                                      c.TenantId == _tp.TenantId, ct);
+                           .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
 
         return cat is null ? NotFound() : Ok(ToDto(cat));
     }
@@ -73,21 +65,19 @@ public sealed class CategoryController(
     {
 
         if (req.ParentId is not null &&
-            !await _db.Categories.AnyAsync(c => c.CategoryId == req.ParentId &&
-                                                c.TenantId == _tp.TenantId, ct))
+            !await _db.Categories.AnyAsync(c => c.CategoryId == req.ParentId, ct))
             return BadRequest($"Parent category {req.ParentId} does not exist.");
 
 
         string slug = Slugify(req.Name);
-        if (await _db.Categories.AnyAsync(c => c.Slug == slug && c.TenantId == _tp.TenantId, ct))
+        if (await _db.Categories.AnyAsync(c => c.Slug == slug, ct))
             return Conflict($"Slug '{slug}' already in use.");
 
 
         Guid? featuredId = null;
         if (req.FeaturedImageId is not null)
         {
-            bool ok = await _db.MediaFiles.AnyAsync(m => m.MediaFileId == req.FeaturedImageId &&
-                                                         m.TenantId == _tp.TenantId, ct);
+            bool ok = await _db.MediaFiles.AnyAsync(m => m.MediaFileId == req.FeaturedImageId, ct);
             if (!ok) return BadRequest("FeaturedImageId not found.");
             featuredId = req.FeaturedImageId;
         }
@@ -95,7 +85,7 @@ public sealed class CategoryController(
         var cat = new Category
         {
             CategoryId = Guid.NewGuid(),
-            TenantId = _tp.TenantId!.Value,
+            TenantId = userProvider.TenantId,
             ParentId = req.ParentId,
             Name = req.Name,
             Description = req.Description,
@@ -107,8 +97,8 @@ public sealed class CategoryController(
             MetaTitle = req.MetaTitle,
             MetaDescription = req.MetaDescription,
             FeaturedImageId = featuredId,
-            CreatedBy = CurrentUserId,
-            UpdatedBy = CurrentUserId
+            CreatedBy = userProvider.UserId,
+            UpdatedBy = userProvider.UserId
         };
 
         _db.Categories.Add(cat);
@@ -126,29 +116,26 @@ public sealed class CategoryController(
         CancellationToken ct)
     {
         var cat = await _db.Categories.FirstOrDefaultAsync(
-            c => c.CategoryId == id && c.TenantId == _tp.TenantId, ct);
+            c => c.CategoryId == id, ct);
         if (cat is null) return NotFound();
 
 
         if (req.ParentId == id)
             return BadRequest("Category cannot be its own parent.");
         if (req.ParentId is not null &&
-            !await _db.Categories.AnyAsync(c => c.CategoryId == req.ParentId &&
-                                                c.TenantId == _tp.TenantId, ct))
+            !await _db.Categories.AnyAsync(c => c.CategoryId == req.ParentId, ct))
             return BadRequest("Parent category not found.");
 
         string newSlug = Slugify(req.Name);
         if (newSlug != cat.Slug &&
             await _db.Categories.AnyAsync(c => c.Slug == newSlug &&
-                                               c.TenantId == _tp.TenantId &&
                                                c.CategoryId != id, ct))
             return Conflict($"Slug '{newSlug}' already in use.");
 
         if (req.FeaturedImageId != cat.FeaturedImageId)
         {
             if (req.FeaturedImageId is not null &&
-                !await _db.MediaFiles.AnyAsync(m => m.MediaFileId == req.FeaturedImageId &&
-                                                    m.TenantId == _tp.TenantId, ct))
+                !await _db.MediaFiles.AnyAsync(m => m.MediaFileId == req.FeaturedImageId, ct))
                 return BadRequest("FeaturedImageId not found.");
             cat.FeaturedImageId = req.FeaturedImageId;
         }
@@ -165,7 +152,7 @@ public sealed class CategoryController(
         cat.MetaDescription = req.MetaDescription;
         cat.Status = req.Status;
         cat.UpdatedAtUtc = DateTime.UtcNow;
-        cat.UpdatedBy = CurrentUserId;
+        cat.UpdatedBy = userProvider.UserId;
 
         await _db.SaveChangesAsync(ct);
         return NoContent();
@@ -178,8 +165,7 @@ public sealed class CategoryController(
         var cat = await _db.Categories
                            .Include(c => c.Children)
                            .Include(c => c.FeaturedImage)
-                           .FirstOrDefaultAsync(c => c.CategoryId == id &&
-                                                      c.TenantId == _tp.TenantId, ct);
+                           .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
         if (cat is null) return NotFound();
 
         if (cat.Children.Any())
@@ -221,7 +207,7 @@ public sealed class CategoryController(
             return BadRequest("No file provided.");
 
         var cat = await _db.Categories.FirstOrDefaultAsync(
-            c => c.CategoryId == id && c.TenantId == _tp.TenantId, ct);
+            c => c.CategoryId == id, ct);
         if (cat is null) return NotFound();
         Directory.CreateDirectory(Path.Combine(_env.WebRootPath, UploadDir));
         var ext = Path.GetExtension(file.FileName);
@@ -240,14 +226,14 @@ public sealed class CategoryController(
             MimeType = file.ContentType,
             Uri = $"/{UploadDir}/{newName}",
 
-            TenantId = _tp.TenantId!.Value
+            TenantId = userProvider.TenantId
         };
         _db.MediaFiles.Add(media);
 
         /* attach to category */
         cat.FeaturedImageId = mediaId;
         cat.UpdatedAtUtc = DateTime.UtcNow;
-        cat.UpdatedBy = CurrentUserId;
+        cat.UpdatedBy = userProvider.UserId;
 
         await _db.SaveChangesAsync(ct);
         return Ok(ToDto(cat));
@@ -259,15 +245,14 @@ public sealed class CategoryController(
     {
         var cat = await _db.Categories
                            .Include(c => c.FeaturedImage)
-                           .FirstOrDefaultAsync(c => c.CategoryId == id &&
-                                                      c.TenantId == _tp.TenantId, ct);
+                           .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
         if (cat is null) return NotFound();
         if (cat.FeaturedImage is null) return NoContent();
 
         var img = cat.FeaturedImage;
         cat.FeaturedImageId = null;
         cat.UpdatedAtUtc = DateTime.UtcNow;
-        cat.UpdatedBy = CurrentUserId;
+        cat.UpdatedBy = userProvider.UserId;
 
         await _db.SaveChangesAsync(ct);
 

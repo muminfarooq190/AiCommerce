@@ -2,6 +2,7 @@
 
 public class ErrorCodes
 {
+    public const string Unauthenticated = "UN_AUTHENTICATED";
     public const string TanentIdMissing = "TANENT_ID_MISSING";
     public const string TenantIdMissingOrInvalid = "TANENT_ID_MISSING_OR_INVALID";
     public const string InvalidEmailOrPassword = "INVAID_EMAIL_OR_PASSWORD";
