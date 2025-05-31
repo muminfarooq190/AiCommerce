@@ -1,24 +1,21 @@
 ﻿using System.Reflection;
-using System.Text.Json;
 
 namespace EcommerceApi.Models;
 
 public static class FeatureFactory
 {
-    public static class Authentication
-    {
-        public const string CanCreateUser = $"{nameof(Authentication)}.{nameof(CanCreateUser)}";
-    }
+
     public static class Permission
     {
-        public const string CanGivePermisston = $"{nameof(Authentication)}.{nameof(CanGivePermisston)}";
-        public const string CanRemovePermisston = $"{nameof(Authentication)}.{nameof(CanRemovePermisston)}";
+        public const string CanGivePermisston = $"{nameof(Permission)}.{nameof(CanGivePermisston)}";
+        public const string CanRemovePermisston = $"{nameof(Permission)}.{nameof(CanRemovePermisston)}";
     }
 
     public static class User
     {
         public const string CanGetUsers = $"{nameof(User)}.{nameof(CanGetUsers)}";
         public const string CanGetUserById = $"{nameof(User)}.{nameof(CanGetUserById)}";
+        public const string CanCreateUser = $"{nameof(User)}.{nameof(CanCreateUser)}";
         public const string CanUpdateUser = $"{nameof(User)}.{nameof(CanUpdateUser)}";
         public const string CanDeleteUser = $"{nameof(User)}.{nameof(CanDeleteUser)}";
     }
@@ -65,5 +62,5 @@ public static class FeatureFactory
 
         return flatList;
     }
-    
+
 }

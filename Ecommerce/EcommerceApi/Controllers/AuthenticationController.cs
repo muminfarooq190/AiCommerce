@@ -47,7 +47,7 @@ public class AuthenticationController(
     AppDbContext context,
     JwtTokenGenerator jwtTokenGenerator,
     EmailSender emailSender,
-    ITenantProvider tenantProvider) : ControllerBase
+    IUserProvider userProvider) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns a JWT token if successful.
@@ -66,26 +66,16 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (email not verified or account locked)</response>
     [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.Login)]
+    [HttpPost(Endpoints.Authentication.Login)]
     public async Task<ActionResult<UserLoginResponse>> UserLogin(UserLoginRequest userLoginRequest)
     {
-        Guid? TenantId = tenantProvider.TenantId;
+        
 
-        if (TenantId == null)
-        {
-            ModelState.AddModelError("TenantId", "TenantId header is missing or invalid.");
-            return this.ApplicationProblem(
-                detail: "TenantId header is missing or invalid.",
-                title: "Login Failed",
-                statusCode: StatusCodes.Status400BadRequest,
-                instance: HttpContext.Request.Path,
-                modelState: ModelState,
-                errorCode: ErrorCodes.TenantIdMissingOrInvalid
-            );
-
-        }
-
-        var user = context.Users.FirstOrDefault(u => u.Email == userLoginRequest.Email);
+        var user = context.Users
+                          .Include(u => u.Tenant)
+                          .IgnoreQueryFilters()
+                          .FirstOrDefault(u => u.Email == userLoginRequest.Email  && 
+                                               u.TenantId == userLoginRequest.TenentId);
 
         if (user == null)
         {
@@ -155,97 +145,12 @@ public class AuthenticationController(
             LastName = user.LastName,
             CreatedAt = user.CreatedAt,
             UpdatedAt = user.UpdatedAt,
-            Token = jwtTokenGenerator.GenerateToken(user.Id, user.FirstName + " " + user.LastName, user.Email)
+            Token = jwtTokenGenerator.GenerateToken(user.Id,user.TenantId, user.FirstName + " " + user.LastName, user.Email,user.Tenant.CompanyName)
         });
 
     }
 
-    /// <summary>
-    /// Registers a new user for an existing tenant.
-    /// </summary>
-    /// <remarks>
-    /// <b>Error Messages:</b><br></br>
-    /// <list type="bullet">
-    ///   <item>User already exists.</item><br></br>
-    ///   <item>TenantId cant be null</item><br></br>
-    /// </list>
-    /// <b>Returns:</b> 201 Created with <see cref="UserRegisterResponse"/> on success; 401 with problem details on failure.
-    /// </remarks>
-    /// <response code="201">User created</response>
-    /// <response code="401">User already exists or tenant ID missing</response>
-    [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.CreateUser)]
-    [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
-    public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
-    {
-       // TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
-
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email);
-
-        if (user != null)
-        {
-            ModelState.AddModelError(nameof(userRegisterRequest.Email), "User already exists.");
-
-            return this.ApplicationProblem(
-                detail: "User already exists.",
-                title: "Registration Failed",
-                statusCode: StatusCodes.Status401Unauthorized,
-                modelState: ModelState,
-                errorCode: ErrorCodes.EmailAlreadyExist,
-                instance: HttpContext.Request.Path
-            );
-        }
-
-        var newUser = UserEntity.Create(
-            password: PasswordHasher.Hash(userRegisterRequest.Password),
-            email: userRegisterRequest.Email,
-            phoneNumber: userRegisterRequest.PhoneNumber,
-            firstName: userRegisterRequest.FirstName,
-            lastName: userRegisterRequest.LastName,
-            address: userRegisterRequest.Address,
-            TenantId: (Guid)tenantProvider.TenantId!
-        );
-
-        await context.Users.AddAsync(newUser);
-        await context.SaveChangesAsync();
-
-        var token = jwtTokenGenerator.GenerateToken(
-            newUser.Id,
-            newUser.FirstName + " " + newUser.LastName,
-            newUser.Email,
-            DateTime.UtcNow.AddMinutes(10)
-        );
-
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token=n={token}";
-
-        await emailSender.SendEmailAsync(
-            toEmail: newUser.Email,
-            subject: "Verify Your Email Address",
-            body: $@"
-                    <p>Dear {newUser.FirstName} {newUser.LastName},</p>
-                    <p>Please click the link below to verify your email address:</p>
-                    <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
-                    <p>This link is valid for the next 10 minutes.</p>
-                    <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>tenant.CompanyName</p>");
-
-
-        return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
-        {
-            Id = newUser.Id,
-            Email = newUser.Email,
-            FirstName = newUser.FirstName,
-            LastName = newUser.LastName,
-            CreatedAt = newUser.CreatedAt,
-            UpdatedAt = newUser.UpdatedAt,
-            Address = newUser.Address,
-            LastLogin = newUser.LastLogin,
-            PhoneNumber = newUser.PhoneNumber,
-            TenantId = (Guid)tenantProvider.TenantId,
-            CompanyName = "tenant.CompanyName"
-        });
-    }
-
+    
     /// <summary>
     /// Gets the tenant ID for a user if credentials are valid and user is primary tenant.
     /// </summary>
@@ -263,7 +168,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid credentials</response>
     /// <response code="401">Unauthorized (account locked, email not verified, or not primary tenant)</response>
     [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.GetTenentId)]
+    [HttpPost(Endpoints.Authentication.GetTenentId)]
     public async Task<ActionResult<Guid>> GetTenantId(GetTenantRequest userLoginRequest)
     {
              
@@ -381,12 +286,12 @@ public class AuthenticationController(
     /// <response code="400">Bad request or invalid credentials</response>
     /// <response code="401">Unauthorized (account locked or already verified)</response>
     [Produces("application/json")]
-    [HttpPost(Endpoints.AuthenticationEndpoints.ResendLink)]
+    [HttpPost(Endpoints.Authentication.ResendLink)]
     public async Task<ActionResult> ResendLink(UserLoginRequest userLoginRequest)
     {
-        Guid? TenantId = tenantProvider.TenantId;
+        Guid? TenantId = userProvider.TenantId;
 
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
+        var user = await context.Users.Include(u=>u.Tenant).FirstOrDefaultAsync(u => u.Email == userLoginRequest.Email);
         if (user == null)
         {
             ModelState.AddModelError(nameof(userLoginRequest.Email), "Invalid email or password");
@@ -475,12 +380,14 @@ public class AuthenticationController(
 
         var token = jwtTokenGenerator.GenerateToken(
              user.Id,
+             user.TenantId,
              user.FirstName + " " + user.LastName,
              user.Email,
+             user.Tenant.CompanyName,
              DateTime.UtcNow.AddMinutes(10)
          );
 
-        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Verify}?token={token}";
+        string verificationUrl = $"{Request.Scheme}://{Request.Host}/{Endpoints.Authentication.Verify}?token={token}";
 
         await emailSender.SendEmailAsync(
             toEmail: user.Email,
@@ -512,7 +419,7 @@ public class AuthenticationController(
     /// <response code="400">Invalid or expired link</response>
     /// <response code="401">Email already verified</response>
     [Produces("application/json")]
-    [HttpGet(Endpoints.AuthenticationEndpoints.Verify)]
+    [HttpGet(Endpoints.Authentication.Verify)]
     public async Task<ActionResult> Verify(string token)
     {
         var clams = jwtTokenGenerator.ValidateToken(token);
@@ -530,7 +437,7 @@ public class AuthenticationController(
                );
         }
 
-        var UserId = clams.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var UserId = clams.Claims.FirstOrDefault(c => c.Type == AppClaims.UserId)?.Value;
 
         if (string.IsNullOrEmpty(UserId) || !Guid.TryParse(UserId, out Guid userIdValue))
         {
@@ -576,7 +483,7 @@ public class AuthenticationController(
 
         user.VerifyEmail();
 
-        string url = $"{Request.Scheme}://{Request.Host}/{Endpoints.AuthenticationEndpoints.Login}?email={user.Email}";
+        string url = $"{Request.Scheme}://{Request.Host}/{Endpoints.Authentication.Login}?email={user.Email}";
 
         await emailSender.SendEmailAsync(
          toEmail: user.Email,

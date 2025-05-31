@@ -1,5 +1,4 @@
-﻿using Azure;
-using EcommerceWeb.Entities;
+﻿using EcommerceWeb.Entities;
 using EcommerceWeb.Extensions;
 using EcommerceWeb.Models;
 using EcommerceWeb.Services.Contarcts;
@@ -33,12 +32,13 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
 
         var userLoginRequest = new UserLoginRequest
         {
+            TenentId = Guid.NewGuid(),
             Email = request.Email,
             Password = request.Password
         };
 
         var apiResponce = await apiClient.PostAsync<UserLoginRequest, UserLoginResponse>(
-            Endpoints.AuthenticationEndpoints.Login,
+            Endpoints.Authentication.Login,
             userLoginRequest
         );
 
@@ -102,7 +102,7 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
             CompanyName = model.CompanyName
         };
 
-        ApiResult<UserRegisterResponse> response = await apiClient.PostAsync<UserRegisterRequest, UserRegisterResponse>(Endpoints.AuthenticationEndpoints.RegisterTenant, modelReqister);
+        ApiResult<UserRegisterResponse> response = await apiClient.PostAsync<UserRegisterRequest, UserRegisterResponse>(Endpoints.Authentication.RegisterTenant, modelReqister);
         ModelState.AddApiResult(response);
 
         if (response.ResultType != ResultType.Success)

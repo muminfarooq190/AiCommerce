@@ -1,4 +1,5 @@
 ﻿using Ecommerce.Configurations;
+using EcommerceApi.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,22 +12,22 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options)
 {
     private readonly JwtSettings _jwtSettings = options.Value;
 
-    public string GenerateToken(Guid userId,string name, string email)
+    public string GenerateToken(Guid userId, Guid tenatid,string name, string email, string CompanyName)
     {
-        return GenerateToken(userId, name, email, DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes));
+        return GenerateToken(userId, tenatid, name, email,CompanyName, DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes));
     }
-    public string GenerateToken(Guid userId, string name, string email, DateTime expiryInMinutes)
+    public string GenerateToken(Guid userId,Guid tenatid, string name, string email, string CompanyName, DateTime expiryInMinutes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-                new Claim(JwtRegisteredClaimNames.Name, name),
-                new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(AppClaims.UserId, userId.ToString()),
+                new Claim(AppClaims.TenantId, tenatid.ToString()),
+                new Claim(AppClaims.Name, name),
+                new Claim(AppClaims.CompanyName, CompanyName),
+                new Claim(AppClaims.Email, email),
             };
 
         var token = new JwtSecurityToken(

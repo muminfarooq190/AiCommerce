@@ -34,10 +34,10 @@ namespace EcommerceApi.Controllers;
 [Produces("application/json")]
 [Route("api/[controller]/[action]")]
 [ApiController]
-public class PermisstionController(AppDbContext appDbContext, ITenantProvider tenantProvider) : ControllerBase
+public class PermisstionController(AppDbContext appDbContext, IUserProvider tenantProvider) : ControllerBase
 {
     private readonly AppDbContext appDbContext = appDbContext ?? throw new ArgumentNullException(nameof(appDbContext));
-    private readonly ITenantProvider tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
+    private readonly IUserProvider userProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
 
     /// <summary>
     /// Gets all permissions as a JSON object.
@@ -171,7 +171,7 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
             );
         }
 
-        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
+        var tenantid = userProvider.TenantId;
         var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
@@ -243,8 +243,11 @@ public class PermisstionController(AppDbContext appDbContext, ITenantProvider te
     [AppAuthorize(FeatureFactory.Permission.CanRemovePermisston)]
     public async Task<IActionResult> RemovePermission(RemovePermisstionRequest request)
     {
-        var tenantid = tenantProvider.TenantId ?? throw new ArgumentNullException("TenantId is missing");
-        var excestinguser = await appDbContext.Users.Include(u => u.Permissions).FirstOrDefaultAsync(u => u.Id == request.UserId);
+        var tenantid = userProvider.TenantId;
+        var excestinguser = await appDbContext
+            .Users
+            .Include(u => u.Permissions)
+            .FirstOrDefaultAsync(u => u.Id == request.UserId);
 
         if (excestinguser == null)
         {

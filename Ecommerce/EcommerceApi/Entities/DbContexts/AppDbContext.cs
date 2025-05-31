@@ -3,15 +3,16 @@ using EcommerceApi.Entities;
 using EcommerceApi.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Options;
-
 
 public class AppDbContext : DbContext
 {
     private readonly Guid? _tenantId;
-    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider tenantProvider) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options, IUserProvider tenantProvider) : base(options)
     {
-        _tenantId = tenantProvider.TenantId;
+        if(tenantProvider.IsAuthenticated)
+        {
+            _tenantId = tenantProvider.TenantId;
+        }     
 
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,7 +65,7 @@ public class AppDbContext : DbContext
         e.Property(c => c.UpdatedAtUtc)
          .HasDefaultValueSql("CURRENT_TIMESTAMP")
          .ValueGeneratedOnAddOrUpdate();
-       
+
     }
 
     /* ─────────────────────────────────────────── */
@@ -154,7 +155,7 @@ public class AppDbContext : DbContext
     }
     public DbSet<UserEntity> Users { get; set; }
     public DbSet<PermissionsEntity> UserPermissions { get; set; }
-    
+
     public DbSet<TenantEntity> Tenants { get; set; }
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
