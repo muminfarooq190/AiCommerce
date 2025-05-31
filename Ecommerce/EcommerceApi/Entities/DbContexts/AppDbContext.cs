@@ -71,6 +71,66 @@ public class AppDbContext : DbContext
 
 
         modelBuilder.Entity<OrderStatusHistory>().ToTable("OrderStatusHistory");
+
+        var cart = modelBuilder.Entity<Cart>();
+        cart.HasKey(c => c.CartId);
+        cart.Property(c => c.Status).HasConversion<int>();
+        cart.HasIndex(c => c.CustomerId);
+
+        var ci = modelBuilder.Entity<CartItem>();
+        ci.HasKey(i => i.CartItemId);
+        ci.HasIndex(i => new { i.CartId, i.ProductId }).IsUnique();
+        ci.HasOne(i => i.Cart).WithMany(c => c.Items)
+            .HasForeignKey(i => i.CartId).OnDelete(DeleteBehavior.Cascade);
+
+        var wl = modelBuilder.Entity<WishlistItem>();
+        wl.HasKey(w => w.WishlistItemId);
+        wl.HasIndex(w => new { w.CustomerId, w.ProductId }).IsUnique();
+
+        var pr = modelBuilder.Entity<ProductReview>();
+        pr.HasKey(r => r.ReviewId);
+        pr.Property(r => r.Rating).IsRequired();
+        pr.HasIndex(r => new { r.ProductId, r.IsApproved });
+
+        var pa = modelBuilder.Entity<ProductAttribute>();
+        pa.HasKey(a => a.AttributeId);
+        pa.Property(a => a.DataType).HasConversion<int>();
+        pa.HasIndex(a => new { a.TenantId, a.Slug }).IsUnique();
+
+        var pav = modelBuilder.Entity<ProductAttributeValue>();
+        pav.HasKey(v => new { v.ProductId, v.AttributeId });
+        pav.HasOne(v => v.Product).WithMany(p => p.AttributeValues)
+           .HasForeignKey(v => v.ProductId);
+        pav.HasOne(v => v.Attribute).WithMany(a => a.Values)
+           .HasForeignKey(v => v.AttributeId);
+
+        var coll = modelBuilder.Entity<Collection>();
+        coll.HasKey(c => c.CollectionId);
+        coll.HasIndex(c => new { c.TenantId, c.Slug }).IsUnique();
+        coll.HasOne(c => c.HeroImage)
+            .WithMany()
+            .HasForeignKey(c => c.HeroImageId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        var cp = modelBuilder.Entity<CollectionProduct>();
+        cp.HasKey(cp => new { cp.CollectionId, cp.ProductId });
+        cp.HasOne(cp => cp.Collection).WithMany(c => c.Products)
+           .HasForeignKey(cp => cp.CollectionId);
+        cp.HasOne(cp => cp.Product).WithMany(p => p.CollectionProducts)
+           .HasForeignKey(cp => cp.ProductId);
+
+        var d = modelBuilder.Entity<Discount>();
+        d.HasKey(x => x.DiscountId);
+        d.Property(x => x.Type).HasConversion<int>();
+        d.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+
+        var od = modelBuilder.Entity<OrderDiscount>();
+        od.HasKey(od => new { od.OrderId, od.DiscountId });
+        od.HasOne(od => od.Order).WithMany(o => o.OrderDiscounts)
+           .HasForeignKey(od => od.OrderId);
+        od.HasOne(od => od.Discount).WithMany(d => d.Orders)
+           .HasForeignKey(od => od.DiscountId);
+
     }
     private static void ConfigureCategory(EntityTypeBuilder<Category> e)
     {
@@ -214,5 +274,19 @@ public class AppDbContext : DbContext
     public DbSet<Payment> Payments => Set<Payment>();
     public DbSet<Shipment> Shipments => Set<Shipment>();
     public DbSet<OrderStatusHistory> OrderStatusHistory => Set<OrderStatusHistory>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+    public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
+
+    public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
+    public DbSet<ProductAttributeValue> ProductAttributeValues => Set<ProductAttributeValue>();
+
+    public DbSet<Collection> Collections => Set<Collection>();
+    public DbSet<CollectionProduct> CollectionProducts => Set<CollectionProduct>();
+
+    public DbSet<Discount> Discounts => Set<Discount>();
+    public DbSet<OrderDiscount> OrderDiscounts => Set<OrderDiscount>();
+
 
 }

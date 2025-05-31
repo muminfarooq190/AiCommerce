@@ -61,5 +61,12 @@ namespace EcommerceApi.Entities
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
         public required Guid TenantId { get; set; }
+
+        public ICollection<ProductAttributeValue> AttributeValues { get; set; }
+       = new List<ProductAttributeValue>();
+
+
+        public ICollection<CollectionProduct> CollectionProducts { get; set; }
+       = new List<CollectionProduct>();
     }
 }

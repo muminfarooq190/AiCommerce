@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sheared.Enums
+namespace Sheared.Models.RequestModels
 {
-    public enum PaymentMethod { Card = 1, PayPal, BankTransfer, GiftCard = 4, Crypto = 5 }
+    //update cart request
+    public sealed record UpdateQtyRequest(int Qty);
 }

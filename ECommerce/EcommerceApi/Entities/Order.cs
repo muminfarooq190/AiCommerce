@@ -35,5 +35,8 @@ namespace EcommerceApi.Entities
         public Guid? UpdatedBy { get; set; }
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
+
+        public ICollection<OrderDiscount> OrderDiscounts { get; set; }
+     = new List<OrderDiscount>();
     }
 }
