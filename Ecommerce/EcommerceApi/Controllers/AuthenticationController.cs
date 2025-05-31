@@ -178,7 +178,7 @@ public class AuthenticationController(
     [AppAuthorize(FeatureFactory.Authentication.CanCreateUser)]
     public async Task<ActionResult<UserRegisterRequest>> CreateUser(UserRegisterRequest userRegisterRequest)
     {
-        TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
+       // TenantEntity? tenant = await tenantProvider.GetCurrentTenantAsync() ?? throw new ArgumentNullException("TenantId cant be null");
 
         var user = await context.Users.FirstOrDefaultAsync(u => u.Email == userRegisterRequest.Email);
 
@@ -203,7 +203,7 @@ public class AuthenticationController(
             firstName: userRegisterRequest.FirstName,
             lastName: userRegisterRequest.LastName,
             address: userRegisterRequest.Address,
-            TenantId: tenant.Id
+            TenantId: (Guid)tenantProvider.TenantId!
         );
 
         await context.Users.AddAsync(newUser);
@@ -227,7 +227,7 @@ public class AuthenticationController(
                     <p><a href='{verificationUrl}' style='color:#2e6c80; font-weight:bold;'>Verify Email</a></p>
                     <p>This link is valid for the next 10 minutes.</p>
                     <p>If you did not request this, please ignore this message.</p>
-                    <p>Best regards,<br/>{tenant.CompanyName}</p>");
+                    <p>Best regards,<br/>tenant.CompanyName</p>");
 
 
         return CreatedAtAction(nameof(UserLogin), new UserRegisterResponse
@@ -241,8 +241,8 @@ public class AuthenticationController(
             Address = newUser.Address,
             LastLogin = newUser.LastLogin,
             PhoneNumber = newUser.PhoneNumber,
-            TenantId = tenant.Id,
-            CompanyName = tenant.CompanyName
+            TenantId = (Guid)tenantProvider.TenantId,
+            CompanyName = "tenant.CompanyName"
         });
     }
 

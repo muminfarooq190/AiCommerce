@@ -11,5 +11,11 @@ public static class Endpoints
         public const string Verify = "api/verify";
         public const string Login = "api/login";
     }
-
+    public static class UserEndpoints
+    {
+        public const string GetUsers = "api/users";
+        public const string GetUserById = "api/users/{id}";
+        public const string UpdateUser = "api/users/{id}";
+        public const string DeleteUser = "api/users/{id}";
+    }
 }

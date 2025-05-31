@@ -1,11 +1,16 @@
 ﻿using Ecommerce.Entities;
-using EcommerceApi.Entities.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EcommerceApi.Providers;
-public class TenantProvider(IMemoryCache memoryCache, AppDbContext context) : ITenantProvider
+public class TenantProvider : ITenantProvider
 {
+    private readonly IMemoryCache memoryCache;
+    private readonly AppDbContext? context;
+    public TenantProvider(IMemoryCache memoryCache)
+    {
+        this.memoryCache = memoryCache;
+    }
 
     public TenantEntity? GetCurrentTenant()
     {
@@ -17,9 +22,13 @@ public class TenantProvider(IMemoryCache memoryCache, AppDbContext context) : IT
         string cacheKey = $"Tenants:{TenantId}";
         if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
         {
-            Tenant = context.Tenants
-            .AsNoTracking()
-            .FirstOrDefault(t => t.Id == TenantId);
+            if (context != null)
+            {
+                Tenant = context.Tenants
+                    .AsNoTracking()
+                    .FirstOrDefault(t => t.Id == TenantId);
+            }
+
         }
 
         return Tenant;
@@ -49,9 +58,12 @@ public class TenantProvider(IMemoryCache memoryCache, AppDbContext context) : IT
         string cacheKey = $"Tenants:{TenantId}";
         if (!memoryCache.TryGetValue(cacheKey, out TenantEntity? Tenant))
         {
-            Tenant = await context.Tenants
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == TenantId);
+            if (context != null)
+            {
+                Tenant = await context.Tenants
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == TenantId);
+            }
         }
 
         return Tenant;
