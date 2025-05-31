@@ -18,4 +18,39 @@ public static class Endpoints
         public const string UpdateUser = "api/users/{id}";
         public const string DeleteUser = "api/users/{id}";
     }
+
+    public static class Categories
+    {
+        private const string Base = "api/categories";
+        public const string ById = Base + "/{id:guid}";
+        public const string Create = Base;                   
+        public const string Update = ById;                  
+        public const string Delete = ById;                  
+        public const string FeaturedImageUpload = ById + "/featured-image";  
+        public const string FeaturedImageRemove = ById + "/featured-image";   
+    }
+
+    public static class Products
+    {
+        private const string Base = "api/products";
+        public const string ById = Base + "/{id:guid}";
+        public const string Create = Base;
+        public const string Update = ById;
+        public const string Delete = ById;
+
+        public const string ImageUpload = ById + "/images";         
+        public const string ImageRemove = ById + "/images/{mediaId:guid}";
+    }
+
+    public static class Orders
+    {
+        private const string Base = "api/orders";
+        public const string ById = Base + "/{id:guid}";
+        public const string Create = Base;
+
+        public const string UpdateStatus = ById + "/status";        // POST
+        public const string AddPayment = ById + "/payments";      // POST
+        public const string AddShipment = ById + "/shipments";     // POST
+        public const string ShipUpdate = ById + "/shipments/{shipId:guid}"; // PUT
+    }
 }

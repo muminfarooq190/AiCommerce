@@ -1,4 +1,4 @@
-﻿namespace EcommerceApi.Enums
+﻿namespace Sheared.Enums
 {
     public enum ProductStatus
     {
