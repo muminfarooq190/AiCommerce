@@ -27,7 +27,7 @@ public sealed class ProductController(
     private static string Slugify(string name) =>
         Regex.Replace(name.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
-
+    /* ───── mapping helper ───── */
     private static ProductDto ToDto(Product p) => new(
         p.ProductId,
         p.Name,
@@ -43,13 +43,14 @@ public sealed class ProductController(
         p.Brand?.Name,
         p.Description,
         p.ProductCategories.Select(pc => pc.CategoryId),
-        p.ProductImages
-         .OrderBy(i => i.SortOrder)
-         .Select(i => new ProductImageDto(i.MediaFileId, i.MediaFile.Uri, i.SortOrder)),
+        p.ProductImages.OrderBy(i => i.SortOrder)
+                       .Select(i => new ProductImageDto(i.MediaFileId, i.MediaFile.Uri, i.SortOrder)),
         p.Slug!,
         p.TenantId,
         p.CreatedAtUtc,
         p.UpdatedAtUtc);
+
+    /* ──────────────── READ: Paged list ──────────────── */
 
     [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
     [HttpGet]
@@ -67,26 +68,23 @@ public sealed class ProductController(
                 statusCode: StatusCodes.Status400BadRequest,
                 modelState: ModelState,
                 errorCode: ErrorCodes.InvalidPaginationParameters,
-                instance: HttpContext.Request.Path
-            );
+                instance: HttpContext.Request.Path);
         }
-        
+
         var query = _db.Products
                        .Include(p => p.Brand)
                        .Include(p => p.ProductCategories)
-                       .Include(p => p.ProductImages)
-                           .ThenInclude(pi => pi.MediaFile)
+                       .Include(p => p.ProductImages).ThenInclude(pi => pi.MediaFile)
                        .OrderBy(p => p.Name)
                        .AsNoTracking();
 
         var totalCount = await query.CountAsync(ct);
-        var activeListings = await query.Where(_=>_.Status == ProductStatus.Active).CountAsync();
-        var lowStock = await query.Where(_=>_.StockQuantity < 5 && _.StockQuantity > 0).CountAsync();
-        var outOfStock = await query.Where(_=>_.StockQuantity <= 0).CountAsync();
-        var pagedList = await query
-                            .Skip((pageNumber - 1) * pageSize)
-                            .Take(pageSize)
-                            .ToListAsync(ct);
+        var activeListings = await query.CountAsync(p => p.Status == ProductStatus.Active, ct);
+        var lowStock = await query.CountAsync(p => p.StockQuantity < 5 && p.StockQuantity > 0, ct);
+        var outOfStock = await query.CountAsync(p => p.StockQuantity <= 0, ct);
+        var pagedList = await query.Skip((pageNumber - 1) * pageSize)
+                                        .Take(pageSize)
+                                        .ToListAsync(ct);
 
         return Ok(new PagedProductResponse
         {
@@ -100,6 +98,8 @@ public sealed class ProductController(
         });
     }
 
+    /* ──────────────── READ: By Id ──────────────── */
+
     [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
     [HttpGet]
     [Route(Endpoints.Products.GetById)]
@@ -110,40 +110,79 @@ public sealed class ProductController(
                                .Include(p => p.ProductCategories)
                                .Include(p => p.ProductImages).ThenInclude(pi => pi.MediaFile)
                                .AsNoTracking()
-                               .FirstOrDefaultAsync(p => p.ProductId == id , ct);
-        return product is null ? NotFound() : Ok(ToDto(product));
+                               .FirstOrDefaultAsync(p => p.ProductId == id, ct);
+        if (product is null)
+        {
+            ModelState.AddModelError(nameof(id), "Product not found.");
+            return this.ApplicationProblem(
+                detail: $"Product '{id}' not found.",
+                title: "Resource Not Found",
+                statusCode: StatusCodes.Status404NotFound,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ResourceNotFound,
+                instance: HttpContext.Request.Path);
+        }
+        return Ok(ToDto(product));
     }
+
+    /* ──────────────── CREATE ──────────────── */
 
     [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPost]
     [Route(Endpoints.Products.Create)]
-    public async Task<ActionResult<ProductDto>> Create(
-        [FromBody] CreateProductRequest req, CancellationToken ct)
+    public async Task<ActionResult<ProductDto>> Create([FromBody] CreateProductRequest req, CancellationToken ct)
     {
-
-        if (await _db.Products.AnyAsync(p => p.SKU == req.SKU , ct))
-            return Conflict($"SKU '{req.SKU}' already exists.");
-
-
-        if (req.BrandId is not null &&
-            !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId , ct))
-            return BadRequest("Brand not found.");
-
-        var catIds = req.CategoryIds?.Distinct().ToList() ?? [];
-        if (catIds.Any())
+        /* duplicate SKU */
+        if (await _db.Products.AnyAsync(p => p.SKU == req.SKU, ct))
         {
-            var missing = catIds.Except(
-                await _db.Categories.Where(c => catIds.Contains(c.CategoryId) )
-                                    .Select(c => c.CategoryId).ToListAsync(ct));
-            if (missing.Any())
-                return BadRequest($"Categories not found: {string.Join(',', missing)}");
+            ModelState.AddModelError(nameof(req.SKU), $"SKU '{req.SKU}' already exists.");
+            return this.ApplicationProblem(
+                detail: $"SKU '{req.SKU}' already exists.",
+                title: "Duplicate SKU",
+                statusCode: StatusCodes.Status409Conflict,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ValidationFailed,
+                instance: HttpContext.Request.Path);
         }
 
+        /* brand check */
+        if (req.BrandId is not null && !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId, ct))
+        {
+            ModelState.AddModelError(nameof(req.BrandId), "Brand not found.");
+            return this.ApplicationProblem(
+                detail: "Brand not found.",
+                title: "Validation Error",
+                statusCode: StatusCodes.Status400BadRequest,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ValidationFailed,
+                instance: HttpContext.Request.Path);
+        }
 
+        /* category check */
+        var catIds = req.CategoryIds?.Distinct().ToList() ?? [];
+        if (catIds.Count != 0)
+        {
+            var missing = catIds.Except(await _db.Categories.Where(c => catIds.Contains(c.CategoryId))
+                                                             .Select(c => c.CategoryId).ToListAsync(ct));
+            if (missing.Any())
+            {
+                ModelState.AddModelError(nameof(req.CategoryIds), $"Categories not found: {string.Join(',', missing)}");
+                return this.ApplicationProblem(
+                    detail: $"Categories not found: {string.Join(',', missing)}",
+                    title: "Validation Error",
+                    statusCode: StatusCodes.Status400BadRequest,
+                    modelState: ModelState,
+                    errorCode: ErrorCodes.ValidationFailed,
+                    instance: HttpContext.Request.Path);
+            }
+        }
+
+        /* slug */
         string slug = Slugify(req.Name);
         if (await _db.Products.AnyAsync(p => p.Slug == slug, ct))
-            slug = $"{slug}-{Guid.NewGuid():N[..5]}";   
+            slug = $"{slug}-{Guid.NewGuid():N[..5]}";
 
+        /* create entity */
         var p = new Product
         {
             ProductId = Guid.NewGuid(),
@@ -169,76 +208,86 @@ public sealed class ProductController(
             CreatedBy = userProvider.UserId,
             UpdatedBy = userProvider.UserId
         };
-
         _db.Products.Add(p);
 
-
         foreach (var cid in catIds)
-            _db.ProductCategories.Add(new ProductCategory
-            {
-                ProductId = p.ProductId,
-                CategoryId = cid,
-                TenantId = p.TenantId
-            });
+            _db.ProductCategories.Add(new ProductCategory { ProductId = p.ProductId, CategoryId = cid, TenantId = p.TenantId });
 
         await _db.SaveChangesAsync(ct);
         return CreatedAtAction(nameof(GetById), new { id = p.ProductId }, ToDto(p));
     }
 
+    /* ──────────────── UPDATE ──────────────── */
 
     [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPut]
     [Route(Endpoints.Products.Update)]
-    public async Task<IActionResult> Update(
-        Guid id,
-        [FromBody] UpdateProductRequest req,
-        CancellationToken ct)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest req, CancellationToken ct)
     {
-        var p = await _db.Products
-                         .Include(p => p.ProductCategories)
-                         .FirstOrDefaultAsync(p => p.ProductId == id, ct);
-        if (p is null) return NotFound();
+        var p = await _db.Products.Include(x => x.ProductCategories).FirstOrDefaultAsync(x => x.ProductId == id, ct);
+        if (p is null)
+        {
+            ModelState.AddModelError(nameof(id), "Product not found.");
+            return this.ApplicationProblem(
+                detail: $"Product '{id}' not found.",
+                title: "Resource Not Found",
+                statusCode: StatusCodes.Status404NotFound,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ResourceNotFound,
+                instance: HttpContext.Request.Path);
+        }
 
+        /* SKU duplication */
+        if (req.SKU != p.SKU && await _db.Products.AnyAsync(x => x.SKU == req.SKU && x.ProductId != id, ct))
+        {
+            ModelState.AddModelError(nameof(req.SKU), $"SKU '{req.SKU}' already exists.");
+            return this.ApplicationProblem(
+                detail: $"SKU '{req.SKU}' already exists.",
+                title: "Duplicate SKU",
+                statusCode: StatusCodes.Status409Conflict,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ValidationFailed,
+                instance: HttpContext.Request.Path);
+        }
 
-        if (req.SKU != p.SKU &&
-            await _db.Products.AnyAsync(x => x.SKU == req.SKU && x.ProductId != id, ct))
-            return Conflict($"SKU '{req.SKU}' already exists.");
-
+        /* brand*/
         if (req.BrandId != p.BrandId)
         {
-            if (req.BrandId is not null &&
-                !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId, ct))
-                return BadRequest("Brand not found.");
+            if (req.BrandId is not null && !await _db.Brands.AnyAsync(b => b.BrandId == req.BrandId, ct))
+            {
+                ModelState.AddModelError(nameof(req.BrandId), "Brand not found.");
+                return this.ApplicationProblem(
+                    detail: "Brand not found.",
+                    title: "Validation Error",
+                    statusCode: StatusCodes.Status400BadRequest,
+                    modelState: ModelState,
+                    errorCode: ErrorCodes.ValidationFailed,
+                    instance: HttpContext.Request.Path);
+            }
             p.BrandId = req.BrandId;
         }
 
+        /* categories */
         var incoming = req.CategoryIds?.Distinct().ToList() ?? [];
         var current = p.ProductCategories.Select(pc => pc.CategoryId).ToList();
         var toAdd = incoming.Except(current);
         var toRemove = current.Except(incoming);
 
-        if (toAdd.Any())
-            foreach (var cid in toAdd)
-                _db.ProductCategories.Add(new ProductCategory
-                {
-                    ProductId = id,
-                    CategoryId = cid,
-                    TenantId = p.TenantId
-                });
+        foreach (var cid in toAdd)
+            _db.ProductCategories.Add(new ProductCategory { ProductId = id, CategoryId = cid, TenantId = p.TenantId });
 
         if (toRemove.Any())
         {
-            var rows = _db.ProductCategories.Where(pc => pc.ProductId == id &&
-                                                         toRemove.Contains(pc.CategoryId));
+            var rows = _db.ProductCategories.Where(pc => pc.ProductId == id && toRemove.Contains(pc.CategoryId));
             _db.ProductCategories.RemoveRange(rows);
         }
 
-
+        /* slug */
         string newSlug = Slugify(req.Name);
-        if (newSlug != p.Slug &&
-            await _db.Products.AnyAsync(x => x.Slug == newSlug && x.ProductId != id, ct))
+        if (newSlug != p.Slug && await _db.Products.AnyAsync(x => x.Slug == newSlug && x.ProductId != id, ct))
             newSlug = $"{newSlug}-{Guid.NewGuid():N[..5]}";
 
+        /* apply updates */
         p.Name = req.Name;
         p.SKU = req.SKU;
         p.Status = req.Status;
@@ -264,19 +313,27 @@ public sealed class ProductController(
         return NoContent();
     }
 
+    /* ──────────────── DELETE ──────────────── */
+
     [AppAuthorize(FeatureFactory.Product.CanRemoveProduct)]
     [HttpDelete]
     [Route(Endpoints.Products.Delete)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var p = await _db.Products
-                         .Include(p => p.ProductImages)
-                         .FirstOrDefaultAsync(p => p.ProductId == id, ct);
-        if (p is null) return NotFound();
+        var p = await _db.Products.Include(x => x.ProductImages).FirstOrDefaultAsync(x => x.ProductId == id, ct);
+        if (p is null)
+        {
+            ModelState.AddModelError(nameof(id), "Product not found.");
+            return this.ApplicationProblem(
+                detail: $"Product '{id}' not found.",
+                title: "Resource Not Found",
+                statusCode: StatusCodes.Status404NotFound,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ResourceNotFound,
+                instance: HttpContext.Request.Path);
+        }
 
-
-        var images = p.ProductImages.Select(pi => pi.MediaFileId).ToList();
-
+        var images = p.ProductImages.Select(i => i.MediaFileId).ToList();
         _db.Products.Remove(p);
         await _db.SaveChangesAsync(ct);
 
@@ -289,29 +346,44 @@ public sealed class ProductController(
                 _db.MediaFiles.Remove(mf);
                 await _db.SaveChangesAsync(ct);
 
-                var path = Path.Combine(_env.WebRootPath, UploadDir,
-                                        Path.GetFileName(mf.Uri));
+                var path = Path.Combine(_env.WebRootPath, UploadDir, Path.GetFileName(mf.Uri));
                 if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
             }
         }
         return NoContent();
     }
 
+    /* ──────────────── IMAGE UPLOAD ──────────────── */
 
     [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPost]
     [Route(Endpoints.Products.ImageUpload)]
-    public async Task<ActionResult<ProductDto>> UploadImage(
-        Guid id,
-        IFormFile file,
-        CancellationToken ct)
+    public async Task<ActionResult<ProductDto>> UploadImage(Guid id, IFormFile file, CancellationToken ct)
     {
         if (file is null || file.Length == 0)
-            return BadRequest("No file provided.");
+        {
+            ModelState.AddModelError("file", "No file provided.");
+            return this.ApplicationProblem(
+                detail: "No file provided.",
+                title: "File Upload Error",
+                statusCode: StatusCodes.Status400BadRequest,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ValidationFailed,
+                instance: HttpContext.Request.Path);
+        }
 
-        var p = await _db.Products.FirstOrDefaultAsync(
-            p => p.ProductId == id, ct);
-        if (p is null) return NotFound();
+        var p = await _db.Products.FirstOrDefaultAsync(x => x.ProductId == id, ct);
+        if (p is null)
+        {
+            ModelState.AddModelError(nameof(id), "Product not found.");
+            return this.ApplicationProblem(
+                detail: $"Product '{id}' not found.",
+                title: "Resource Not Found",
+                statusCode: StatusCodes.Status404NotFound,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ResourceNotFound,
+                instance: HttpContext.Request.Path);
+        }
 
         Directory.CreateDirectory(Path.Combine(_env.WebRootPath, UploadDir));
         var ext = Path.GetExtension(file.FileName);
@@ -322,7 +394,6 @@ public sealed class ProductController(
         {
             await file.CopyToAsync(fs, ct);
         }
-
 
         var media = new MediaFile
         {
@@ -344,26 +415,33 @@ public sealed class ProductController(
         });
 
         await _db.SaveChangesAsync(ct);
-        return Ok(ToDto(await _db.Products
-                                 .Include(x => x.Brand)
-                                 .Include(x => x.ProductCategories)
-                                 .Include(x => x.ProductImages).ThenInclude(pi => pi.MediaFile)
-                                 .FirstAsync(x => x.ProductId == id, ct)));
+        var refreshed = await _db.Products.Include(x => x.Brand)
+                                          .Include(x => x.ProductCategories)
+                                          .Include(x => x.ProductImages).ThenInclude(pi => pi.MediaFile)
+                                          .FirstAsync(x => x.ProductId == id, ct);
+        return Ok(ToDto(refreshed));
     }
+
+    /* ──────────────── IMAGE DELETE ──────────────── */
 
     [AppAuthorize(FeatureFactory.Product.CanRemoveProduct)]
     [HttpDelete]
     [Route(Endpoints.Products.ImageRemove)]
-    public async Task<IActionResult> RemoveImage(
-        Guid id,
-        Guid mediaId,
-        CancellationToken ct)
+    public async Task<IActionResult> RemoveImage(Guid id, Guid mediaId, CancellationToken ct)
     {
-        var link = await _db.ProductImages
-                            .Include(pi => pi.MediaFile)
-                            .FirstOrDefaultAsync(pi => pi.ProductId == id &&
-                                                        pi.MediaFileId == mediaId, ct);
-        if (link is null) return NotFound();
+        var link = await _db.ProductImages.Include(pi => pi.MediaFile)
+                                          .FirstOrDefaultAsync(pi => pi.ProductId == id && pi.MediaFileId == mediaId, ct);
+        if (link is null)
+        {
+            ModelState.AddModelError("link", "Image not linked to this product.");
+            return this.ApplicationProblem(
+                detail: "Image not linked to this product.",
+                title: "Resource Not Found",
+                statusCode: StatusCodes.Status404NotFound,
+                modelState: ModelState,
+                errorCode: ErrorCodes.ResourceNotFound,
+                instance: HttpContext.Request.Path);
+        }
 
         _db.ProductImages.Remove(link);
         await _db.SaveChangesAsync(ct);
@@ -375,11 +453,9 @@ public sealed class ProductController(
             _db.MediaFiles.Remove(mf);
             await _db.SaveChangesAsync(ct);
 
-            var path = Path.Combine(_env.WebRootPath, UploadDir,
-                                    Path.GetFileName(mf.Uri));
+            var path = Path.Combine(_env.WebRootPath, UploadDir, Path.GetFileName(mf.Uri));
             if (System.IO.File.Exists(path)) System.IO.File.Delete(path);
         }
-
         return NoContent();
     }
 }
