@@ -234,25 +234,57 @@
     </div>
 </body>
 </html>
+
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
 
+        function initSidebar() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
-    document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
+            sidebar.classList.remove('-translate-x-full', 'hidden', 'opacity-0');
 
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-
-                // Store state in localStorage
-                const isCollapsed = sidebar.classList.contains('collapsed');
-                localStorage.setItem('sidebarCollapsed', isCollapsed);
-            });
-
-            // Check localStorage for saved state
-            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            if (isCollapsed) {
                 sidebar.classList.add('collapsed');
+            } else {
+                sidebar.classList.remove('collapsed');
             }
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.remove('-translate-x-full', 'hidden', 'opacity-0');
+
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        }
+
+        function setActiveMenuItem() {
+            const currentPath = window.location.pathname;
+            const links = document.querySelectorAll('.sidebar-link');
+
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        initSidebar();
+        setActiveMenuItem();
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         });
 
+        window.addEventListener('load', function() {
+            sidebar.classList.remove('-translate-x-full', 'hidden', 'opacity-0');
+            
+        });
+    });
 </script>
