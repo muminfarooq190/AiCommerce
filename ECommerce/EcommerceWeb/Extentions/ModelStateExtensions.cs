@@ -2,7 +2,7 @@
 using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace EcommerceWeb.Extensions;
+namespace EcommerceWeb.Extentions;
 
 public static class ModelStateExtensions
 {

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace EcommerceApi.Models;
+namespace Sheared;
 
 public static class FeatureFactory
 {

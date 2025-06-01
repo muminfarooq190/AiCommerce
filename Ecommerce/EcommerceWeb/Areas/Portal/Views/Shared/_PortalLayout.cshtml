@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -162,13 +163,16 @@
                 <div class="mb-8">
                     <h3 class="text-xs uppercase text-gray-400 font-bold mb-2 sidebar-section-title">Management</h3>
                     <ul>
-                        <li>
-                            <a href="/portal/category" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
-                                <i class="fas fa-tags text-gray-300 mr-3"></i>
-                                <span class="sidebar-text">Categories</span>
-                                <span class="sidebar-tooltip">Categories</span>
-                            </a>
-                        </li>
+                        @if (User.HasAnyPermission(FeatureFactory.Category.CanGetCategory,FeatureFactory.Category.CanAddCategory,FeatureFactory.Category.CanRemoveCategory))
+                        {
+                            <li>
+                                <a href="/portal/category" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
+                                    <i class="fas fa-tags text-gray-300 mr-3"></i>
+                                    <span class="sidebar-text">Categories</span>
+                                    <span class="sidebar-tooltip">Categories</span>
+                                </a>
+                            </li>
+                        }
                         <li>
                             <a href="/portal/product" class="sidebar-link flex items-center py-2 px-3 rounded-lg mb-1 sidebar-item">
                                 <i class="fas fa-box-open text-gray-300 mr-3"></i>
@@ -208,6 +212,7 @@
                 </div>
 
                 <!-- Settings -->
+                
                 <div>
                     <h3 class="text-xs uppercase text-gray-400 font-bold mb-2 sidebar-section-title">Settings</h3>
                     <ul>
