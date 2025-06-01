@@ -1,4 +1,6 @@
-﻿  <script>
+﻿@using EcommerceWeb.Areas.Portal.Models.Categories
+@model CategoryPageViewModel;
+<script>
         tailwind.config = {
             theme: {
                 extend: {
@@ -198,240 +200,60 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <!-- Category 1 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                            <i class="fas fa-microchip"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Electronics</div>
-                                            <div class="text-sm text-gray-500">Main Category</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">428</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                        Yes
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    2 days ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Category 2 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                            <i class="fas fa-tshirt"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Apparel</div>
-                                            <div class="text-sm text-gray-500">Main Category</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">312</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                        Yes
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    1 week ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Category 3 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                                            <i class="fas fa-home"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Home Goods</div>
-                                            <div class="text-sm text-gray-500">Main Category</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">198</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        No
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    3 days ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Category 4 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                                            <i class="fas fa-car"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Automotive</div>
-                                            <div class="text-sm text-gray-500">Main Category</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">87</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        No
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    2 weeks ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Category 5 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                                            <i class="fas fa-robot"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">AI & Smart Devices</div>
-                                            <div class="text-sm text-gray-500">Subcategory of Electronics</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">128</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                        Yes
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    1 day ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <!-- Category 6 -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
-                                            <i class="fas fa-laptop"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">Computer Components</div>
-                                            <div class="text-sm text-gray-500">Subcategory of Electronics</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">76</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Active
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        No
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    5 days ago
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-ai-blue hover:text-ai-dark mr-3">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            @if (Model.Categories != null && Model.Categories.Any())
+                            {
+                                foreach (var category in Model.Categories)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                                    <i class="fas fa-tag"></i>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">@category.name</div>
+                                                    <div class="text-sm text-gray-500">
+                                                        @(category.parentId == Guid.Empty ? "Main Category" : "Subcategory")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">-</div> <!-- Replace with product count if available -->
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
+                                                @category.status
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.isFeatured ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800")">
+                                                @(category.isFeatured ? "Yes" : "No")
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <!-- You can add last updated info if available -->
+                                            N/A
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-500 hover:text-red-700">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-gray-500">No categories found.</td>
+                                </tr>
+                            }
                         </tbody>
+
                     </table>
                 </div>
             </div>
@@ -561,29 +383,31 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form id="categoryForm">
-                        <input type="hidden" id="categoryId">
+                    <form id="categoryForm" asp-action="AddCategory" asp-controller="Category" asp-area="Portal" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="categoryId" name="categoryId" />
                         <div class="grid grid-cols-1 gap-6">
                             <!-- Basic Information -->
                             <div>
                                 <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Basic Information</h4>
                                 <div class="mb-4">
                                     <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name*</label>
-                                    <input type="text" id="categoryName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                    <input type="text" id="categoryName" name="name" asp-for="Category.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" >
                                 </div>
                                 <div class="mb-4">
-                                    <label for="categoryParent" class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
-                                    <select id="categoryParent" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <label for="categoryParent"  class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
+                                    <select id="categoryParent" name="parentId" asp-for="Category.parentId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         <option value="">None (Top Level Category)</option>
                                         <option value="1">Electronics</option>
                                         <option value="2">Apparel</option>
-                                        <option value="3">Home Goods</option>
-                                        <option value="4">Automotive</option>
+                                        @foreach(var x in Model.Categories)
+                                        {
+                                            <option value="@x.categoryId">@x.name</option>
+                                        }
                                     </select>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                    <textarea id="categoryDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <textarea id="categoryDescription" name="description" asp-for="Category.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
                                 </div>
                             </div>
 
@@ -598,7 +422,7 @@
                                                 <i class="fas fa-tag"></i>
                                             </div>
                                         </div>
-                                        <select id="categoryIcon" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <select id="categoryIcon" name="IconClass" asp-for="Category.IconClass" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                             <option value="fa-tag">Default (fa-tag)</option>
                                             <option value="fa-microchip">Electronics (fa-microchip)</option>
                                             <option value="fa-tshirt">Apparel (fa-tshirt)</option>
@@ -612,7 +436,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryColor" class="block text-sm font-medium text-gray-700 mb-1">Color Theme</label>
-                                    <select id="categoryColor" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <select id="categoryColor" name="ColorTheme" asp-for="Category.ColorTheme" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         <option value="blue">Blue</option>
                                         <option value="green">Green</option>
                                         <option value="yellow">Yellow</option>
@@ -631,7 +455,7 @@
                                             <p class="text-xs text-gray-400">Recommended size: 800x800px</p>
                                         </div>
                                         <input type="file" id="categoryImage" class="hidden" accept="image/*">
-                                        <button type="button" id="uploadCategoryImageBtn" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
+                                        <button type="button" id="uploadCategoryImageBtn"  class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
                                             Upload Image
                                         </button>
                                     </div>
@@ -647,31 +471,29 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
                                         <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                                        <select id="categoryStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                            <option value="draft">Draft</option>
+                                        <select id="categoryStatus" name="status" asp-for="Category.status" asp-items="Html.GetEnumSelectList<CategoryStatus>()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" >
+                                            <option value="">-- Select Status --</option>
                                         </select>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="categoryFeatured" class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
-                                        <select id="categoryFeatured" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <option value="0">No</option>
-                                            <option value="1">Yes</option>
+                                        <label for="categoryFeatured"  class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
+                                        <select id="categoryFeatured" name="isFeatured" asp-for="Category.isFeatured" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="false">No</option>
+                                            <option value="true">Yes</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryMetaTitle" class="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
-                                    <input type="text" id="categoryMetaTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <input type="text" id="categoryMetaTitle" name="MetaTitle" asp-for="Category.MetaTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryMetaDescription" class="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
-                                    <textarea id="categoryMetaDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <textarea id="categoryMetaDescription" name="MetaDescription" asp-for="Category.MetaDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categorySlug" class="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
-                                    <input type="text" id="categorySlug" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <input type="text" id="categorySlug" name="slug" asp-for="Category.slug" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                 </div>
                             </div>
                         </div>
@@ -687,99 +509,7 @@
 </div>
 
 <script>
-    // Sample data for categories
-    const categories = [
-        {
-            id: 1,
-            name: "Electronics",
-            parent: null,
-            description: "All electronic devices and components",
-            icon: "fa-microchip",
-            color: "blue",
-            image: null,
-            status: "active",
-            featured: true,
-            metaTitle: "Electronics - Best Deals on Gadgets",
-            metaDescription: "Shop the latest electronics and gadgets at the best prices",
-            slug: "electronics",
-            products: 428
-        },
-        {
-            id: 2,
-            name: "Apparel",
-            parent: null,
-            description: "Clothing and fashion accessories",
-            icon: "fa-tshirt",
-            color: "green",
-            image: null,
-            status: "active",
-            featured: true,
-            metaTitle: "Fashion & Apparel - Trendy Clothing",
-            metaDescription: "Discover the latest fashion trends and styles",
-            slug: "apparel",
-            products: 312
-        },
-        {
-            id: 3,
-            name: "Home Goods",
-            parent: null,
-            description: "Furniture and home decor items",
-            icon: "fa-home",
-            color: "yellow",
-            image: null,
-            status: "active",
-            featured: false,
-            metaTitle: "Home Goods & Furniture",
-            metaDescription: "Everything you need to furnish your home",
-            slug: "home-goods",
-            products: 198
-        },
-        {
-            id: 4,
-            name: "Automotive",
-            parent: null,
-            description: "Car parts and accessories",
-            icon: "fa-car",
-            color: "red",
-            image: null,
-            status: "active",
-            featured: false,
-            metaTitle: "Automotive Parts & Accessories",
-            metaDescription: "Quality parts for your vehicle",
-            slug: "automotive",
-            products: 87
-        },
-        {
-            id: 5,
-            name: "AI & Smart Devices",
-            parent: 1,
-            description: "Artificial intelligence powered devices",
-            icon: "fa-robot",
-            color: "purple",
-            image: null,
-            status: "active",
-            featured: true,
-            metaTitle: "AI & Smart Devices - Future Tech",
-            metaDescription: "Cutting-edge AI technology for your home and office",
-            slug: "ai-smart-devices",
-            products: 128
-        },
-        {
-            id: 6,
-            name: "Computer Components",
-            parent: 1,
-            description: "PC parts and accessories",
-            icon: "fa-laptop",
-            color: "blue",
-            image: null,
-            status: "active",
-            featured: false,
-            metaTitle: "Computer Parts & Components",
-            metaDescription: "Upgrade your PC with quality components",
-            slug: "computer-components",
-            products: 76
-        }
-    ];
+
 
     // DOM Elements
     const sidebarToggle = document.getElementById('sidebarToggle');
@@ -797,9 +527,7 @@
     const categoryColor = document.getElementById('categoryColor');
 
     // Sidebar toggle for mobile
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-    });
+  
 
     // Open category modal for adding new category
     addCategoryBtn.addEventListener('click', () => {
@@ -872,17 +600,7 @@
     });
 
     // Handle category form submission
-    categoryForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // In a real application, you would save the category data here
-        // For this demo, we'll just close the modal
-        categoryModal.classList.add('hidden');
-
-        // Show success message
-        alert('Category saved successfully!');
-    });
-
+    
     // Sample function to edit a category
     function editCategory(id) {
         const category = categories.find(c => c.id === id);
