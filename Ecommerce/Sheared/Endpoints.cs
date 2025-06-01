@@ -42,8 +42,7 @@
             public const string Create = Base;
             public const string Update = Base + "/{id:guid}";
             public const string Delete = Base + "/{id:guid}";
-            public const string FeaturedImageUpload = Base + "/{id:guid}/featured-image";
-            public const string FeaturedImageRemove = Base + "/{id:guid}/featured-image";
+           
         }
 
         /* ──────────── Products ──────────── */
@@ -134,6 +133,13 @@
             public const string Update = Base + "/{id:guid}";
             public const string ApplyToOrder = "api/orders/{orderId:guid}/discounts";
             public const string RemoveFromOrder = ApplyToOrder + "/{code}";
+        }
+
+        public static class Media
+        {
+            private const string Base = "api/media";
+            public const string Upload = Base + "/uplaod";
+            public const string Get = Base + "/{id:guid}";
         }
     }
 }

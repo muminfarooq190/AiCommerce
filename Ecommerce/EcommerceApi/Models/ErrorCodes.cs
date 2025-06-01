@@ -22,4 +22,8 @@ public class ErrorCodes
     public const string InsufficientPermissions = "Insufficient_Permissions";
     public const string CantRemoveAccessToPrimary = "CANT_REMOVE_ACCESS_TO_PRIMARY";
     public const string InvalidPaginationParameters = "INVALID_PAGINATION_PARAMETERS";
+    public const string ResourceNotFound = "RESOURCE_NOT_FOUND";
+    public const string ValidationFailed = "VALIDATION_FAILED";
+    public const string InvalidState = "INVALID_STATE";
+    public const string Forbidden = "Forbidden";
 }

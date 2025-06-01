@@ -82,6 +82,13 @@ public static class FeatureFactory
         public const string CanRemoveWishlist = $"{nameof(Wishlist)}.{nameof(CanRemoveWishlist)}";
         public const string CanAddWishlist = $"{nameof(Wishlist)}.{nameof(CanAddWishlist)}";
     }
+
+    public static class Media
+    {
+        public const string CanAddMedia = $"{nameof(Media)}.{nameof(CanAddMedia)}";
+        public const string CanGetMedia = $"{nameof(Media)}.{nameof(CanGetMedia)}";
+       
+    }
     public static Dictionary<string, Dictionary<string, string>> GetJsonRepresentation()
     {
         var result = new Dictionary<string, Dictionary<string, string>>();
