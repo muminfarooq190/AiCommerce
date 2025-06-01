@@ -1,19 +1,23 @@
-﻿@using EcommerceWeb.Areas.Portal.Models.Categories
+﻿@using EcommerceApi.Enums
+@using EcommerceWeb.Areas.Portal.Models.Categories
 @model CategoryPageViewModel;
+@{
+    ViewData["Title"] = "Category Page";
+}
 <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'ai-blue': '#10a37f',
-                        'ai-dark': '#202123',
-                        'ai-light': '#f7f7f8',
-                        'ai-gray': '#343541',
-                    }
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'ai-blue': '#10a37f',
+                    'ai-dark': '#202123',
+                    'ai-light': '#f7f7f8',
+                    'ai-gray': '#343541',
                 }
             }
         }
-    </script>
+    }
+</script>
 
 <style>
     .gradient-bg {
@@ -44,7 +48,7 @@
     .pulse-animation {
         animation: pulse 2s infinite;
     }
-    
+
 
     .drag-handle {
         cursor: move;
@@ -56,7 +60,7 @@
     <header class="bg-white shadow-sm">
         <div class="flex items-center justify-between px-6 py-3">
             <div class="flex items-center">
-               
+
                 <h2 class="text-xl font-semibold text-gray-800">Category Management</h2>
             </div>
 
@@ -383,23 +387,24 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form id="categoryForm" asp-action="AddCategory" asp-controller="Category" asp-area="Portal" method="post" enctype="multipart/form-data">
+                    <form id="categoryForm" asp-action="AddCategory" asp-controller="Category" asp-area="Portal">
                         <input type="hidden" id="categoryId" name="categoryId" />
                         <div class="grid grid-cols-1 gap-6">
                             <!-- Basic Information -->
                             <div>
                                 <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Basic Information</h4>
                                 <div class="mb-4">
+
                                     <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name*</label>
-                                    <input type="text" id="categoryName" name="name" asp-for="Category.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" >
+                                    <input type="text" id="categoryName" name="name" asp-for="Category.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="categoryParent"  class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
+                                    <label for="categoryParent" class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
                                     <select id="categoryParent" name="parentId" asp-for="Category.parentId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         <option value="">None (Top Level Category)</option>
                                         <option value="1">Electronics</option>
                                         <option value="2">Apparel</option>
-                                        @foreach(var x in Model.Categories)
+                                        @foreach (var x in Model.Categories)
                                         {
                                             <option value="@x.categoryId">@x.name</option>
                                         }
@@ -455,7 +460,7 @@
                                             <p class="text-xs text-gray-400">Recommended size: 800x800px</p>
                                         </div>
                                         <input type="file" id="categoryImage" class="hidden" accept="image/*">
-                                        <button type="button" id="uploadCategoryImageBtn"  class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
+                                        <button type="button" id="uploadCategoryImageBtn" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
                                             Upload Image
                                         </button>
                                     </div>
@@ -471,12 +476,12 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
                                         <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                                        <select id="categoryStatus" name="status" asp-for="Category.status" asp-items="Html.GetEnumSelectList<CategoryStatus>()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" >
+                                        <select id="categoryStatus" name="status" asp-for="Category.status" asp-items="Html.GetEnumSelectList<CategoryStatus>()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                             <option value="">-- Select Status --</option>
                                         </select>
                                     </div>
                                     <div class="mb-4">
-                                        <label for="categoryFeatured"  class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
+                                        <label for="categoryFeatured" class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
                                         <select id="categoryFeatured" name="isFeatured" asp-for="Category.isFeatured" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                             <option value="false">No</option>
                                             <option value="true">Yes</option>
@@ -527,7 +532,7 @@
     const categoryColor = document.getElementById('categoryColor');
 
     // Sidebar toggle for mobile
-  
+
 
     // Open category modal for adding new category
     addCategoryBtn.addEventListener('click', () => {
@@ -600,7 +605,7 @@
     });
 
     // Handle category form submission
-    
+
     // Sample function to edit a category
     function editCategory(id) {
         const category = categories.find(c => c.id === id);
