@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
+using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
@@ -53,18 +54,45 @@ public sealed class ProductController(
     [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
     [HttpGet]
     [Route(Endpoints.Products.GetAll)]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll(CancellationToken ct)
+    [HttpGet]
+    public async Task<ActionResult> GetAll(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
     {
-        var list = await _db.Products
-                            .Include(p => p.Brand)
-                            .Include(p => p.ProductCategories)
-                            .Include(p => p.ProductImages)
-                                .ThenInclude(pi => pi.MediaFile)
-                            .OrderBy(p => p.Name)
-                            .AsNoTracking()
+        if (pageNumber <= 0 || pageSize <= 0)
+        {
+            ModelState.AddModelError(nameof(pageNumber), "PageNumber must be greater than zero.");
+            ModelState.AddModelError(nameof(pageSize), "PageSize must be greater than zero.");
+            return this.ApplicationProblem(
+                detail: "Page and PageSize must be greater than zero.",
+                title: "Invalid Pagination Parameters",
+                statusCode: StatusCodes.Status400BadRequest,
+                modelState: ModelState,
+                errorCode: ErrorCodes.InvalidPaginationParameters,
+                instance: HttpContext.Request.Path
+            );
+        }
+
+        var query = _db.Products
+                       .Include(p => p.Brand)
+                       .Include(p => p.ProductCategories)
+                       .Include(p => p.ProductImages)
+                           .ThenInclude(pi => pi.MediaFile)
+                       .OrderBy(p => p.Name)
+                       .AsNoTracking();
+
+        var totalCount = await query.CountAsync(ct);
+
+        var pagedList = await query
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
                             .ToListAsync(ct);
 
-        return Ok(list.Select(ToDto));
+        return Ok(new
+        {
+            Products = pagedList.Select(ToDto),
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        });
     }
 
     [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
