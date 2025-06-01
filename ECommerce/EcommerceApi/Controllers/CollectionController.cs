@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,7 @@ public sealed class CollectionController(
         c.IsFeatured, c.HeroImageId,
         c.Products.OrderBy(cp => cp.SortOrder).Select(cp => cp.ProductId));
 
+    [AppAuthorize(FeatureFactory.Collection.CanGetCollection)]
     [HttpGet(Endpoints.Collections.GetAllCollection)]
     public async Task<ActionResult<IEnumerable<CollectionDto>>> GetAll(CancellationToken ct)
     {
@@ -37,7 +40,7 @@ public sealed class CollectionController(
         return Ok(list.Select(Map));
     }
 
-
+    [AppAuthorize(FeatureFactory.Collection.CanGetCollection)]
     [HttpGet(Endpoints.Collections.GetCollectionById)]
     public async Task<ActionResult<CollectionDto>> Get(Guid id, CancellationToken ct)
     {
@@ -47,6 +50,7 @@ public sealed class CollectionController(
         return c is null ? NotFound() : Ok(Map(c));
     }
 
+    [AppAuthorize(FeatureFactory.Collection.CanAddCollection)]
     [HttpPost(Endpoints.Collections.AddCollection)]
     public async Task<ActionResult<CollectionDto>> Create(
         [FromBody] CreateCollectionRequest req, CancellationToken ct)
@@ -72,6 +76,7 @@ public sealed class CollectionController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Collection.CanAddCollection)]
     [HttpPut(Endpoints.Collections.UpdateCollection)]
     public async Task<IActionResult> Update(
         Guid id, [FromBody] CreateCollectionRequest req, CancellationToken ct)
@@ -89,6 +94,7 @@ public sealed class CollectionController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Collection.CanRemoveCollection)]
     [HttpDelete(Endpoints.Collections.DeleteCollection)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
@@ -102,6 +108,7 @@ public sealed class CollectionController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Collection.CanGetCollection)]
     [HttpGet]
     [Route(Endpoints.Collections.GetCollectionIds)]
     public async Task<ActionResult<IEnumerable<Guid>>> ListProducts(
@@ -116,6 +123,7 @@ public sealed class CollectionController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Collection.CanAddCollection)]
     [HttpPost]
     [Route(Endpoints.Collections.AddProduct)]
     public async Task<IActionResult> AddProducts(
@@ -158,6 +166,8 @@ public sealed class CollectionController(
         return NoContent();
     }
 
+
+    [AppAuthorize(FeatureFactory.Collection.CanRemoveCollection)]
     [HttpDelete]
     [Route(Endpoints.Collections.RemoveProduct)]
     public async Task<IActionResult> RemoveProduct(

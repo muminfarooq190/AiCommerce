@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
 
     public sealed record WishlistItemDto(Guid ProductId, string Name, string SKU, decimal Price);
 
+    [AppAuthorize(FeatureFactory.Wishlist.CanGetWishlist)]
     [HttpGet(Endpoints.Wishlist.GetList)]
     public async Task<ActionResult<IEnumerable<WishlistItemDto>>> Get(CancellationToken ct)
     {
@@ -27,6 +30,7 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
             w.ProductId, w.Product.Name, w.Product.SKU, w.Product.Price)));
     }
 
+    [AppAuthorize(FeatureFactory.Wishlist.CanAddWishlist)]
     [HttpPost(Endpoints.Wishlist.AddItem)]
     public async Task<IActionResult> Add(Guid productId, CancellationToken ct)
     {
@@ -50,6 +54,7 @@ public sealed class WishlistController(AppDbContext db, IUserProvider userProvid
         return NoContent();
     }
 
+    [AppAuthorize(FeatureFactory.Wishlist.CanRemoveWishlist)]
     [HttpDelete(Endpoints.Wishlist.RemoveItem)]
     public async Task<IActionResult> Remove(Guid productId, CancellationToken ct)
     {

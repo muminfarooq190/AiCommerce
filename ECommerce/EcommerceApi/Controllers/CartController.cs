@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +51,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     }
 
 
+    [AppAuthorize(FeatureFactory.Cart.CanGetCart)]
     [HttpGet(Endpoints.Cart.GetItem)]
     public async Task<ActionResult<CartDto>> Get(CancellationToken ct)
     {
@@ -61,6 +64,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     }
 
 
+    [AppAuthorize(FeatureFactory.Cart.CanAddCart)]
     [HttpPost]
     [Route(Endpoints.Cart.AddItem)]
     public async Task<ActionResult<CartDto>> AddItem(
@@ -98,6 +102,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     }
 
 
+    [AppAuthorize(FeatureFactory.Cart.CanAddCart)]
     [HttpPut]
     [Route(Endpoints.Cart.UpdateItemQty)]
     public async Task<ActionResult<CartDto>> UpdateQty(
@@ -125,6 +130,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
     }
 
 
+    [AppAuthorize(FeatureFactory.Cart.CanRemoveCart)]
     [HttpDelete]
     [Route(Endpoints.Cart.RemoveItem)]
     public async Task<IActionResult> RemoveItem(Guid itemId, CancellationToken ct)
@@ -140,6 +146,7 @@ public sealed class CartController(AppDbContext db , IUserProvider userProvider)
         return NoContent();
     }
 
+    [AppAuthorize(FeatureFactory.Cart.CanRemoveCart)]
     [HttpDelete]
     [Route(Endpoints.Cart.Clear)]
     public async Task<IActionResult> Clear(CancellationToken ct)

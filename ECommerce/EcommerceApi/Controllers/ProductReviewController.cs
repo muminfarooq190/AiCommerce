@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,7 @@ public sealed class ProductReviewController(AppDbContext db, IUserProvider userP
                                              string? Title,
                                              string? Body);
 
+    [AppAuthorize(FeatureFactory.ProductReview.CanGetProductReview)]
     [HttpGet(Endpoints.Reviews.GetReviews)]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> List(Guid productId, CancellationToken ct)
     {
@@ -35,6 +38,7 @@ public sealed class ProductReviewController(AppDbContext db, IUserProvider userP
         return Ok(list.Select(Map));
     }
 
+    [AppAuthorize(FeatureFactory.ProductReview.CanAddProductReview)]
     [HttpPost(Endpoints.Reviews.AddReview)]
     public async Task<ActionResult<ReviewDto>> Create(
         Guid productId,

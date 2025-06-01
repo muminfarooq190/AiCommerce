@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +21,14 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         d.UsesSoFar, d.MaxUses, d.StartsAtUtc, d.ExpiresAtUtc);
 
 
+    [AppAuthorize(FeatureFactory.Discount.CanGetDiscount)]
     [HttpGet(Endpoints.Discounts.GetAll)]
     public async Task<ActionResult<IEnumerable<DiscountDto>>> All(CancellationToken ct)
         => Ok((await _db.Discounts.AsNoTracking()
                                   .ToListAsync(ct)).Select(Map));
 
 
+    [AppAuthorize(FeatureFactory.Discount.CanGetDiscount)]
     [HttpGet(Endpoints.Discounts.GetById)]
     public async Task<ActionResult<DiscountDto>> Get(Guid id, CancellationToken ct)
     {
@@ -33,6 +37,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return d is null ? NotFound() : Ok(Map(d));
     }
 
+    [AppAuthorize(FeatureFactory.Discount.CanAddDiscount)]
     [HttpPost(Endpoints.Discounts.Add)]
     public async Task<ActionResult<DiscountDto>> Create(
         [FromBody] UpsertDiscountRequest req, CancellationToken ct)
@@ -61,6 +66,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return CreatedAtAction(nameof(Get), new { id = d.DiscountId }, Map(d));
     }
 
+    [AppAuthorize(FeatureFactory.Discount.CanAddDiscount)]
     [HttpPut(Endpoints.Discounts.Update)]
     public async Task<IActionResult> Update(
         Guid id, [FromBody] UpsertDiscountRequest req, CancellationToken ct)
@@ -83,6 +89,7 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return NoContent();
     }
 
+    [AppAuthorize(FeatureFactory.Discount.CanRemoveDiscount)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
@@ -95,6 +102,8 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return NoContent();
     }
 
+
+    [AppAuthorize(FeatureFactory.Discount.CanAddDiscount)]
     [HttpPost]
     [Route(Endpoints.Discounts.ApplyToOrder)]
     public async Task<IActionResult> ApplyToOrder(
@@ -140,6 +149,8 @@ public sealed class DiscountController(AppDbContext db, IUserProvider userProvid
         return Ok(new { AmountApplied = amt, NewDiscountTotal = order.DiscountTotal });
     }
 
+
+    [AppAuthorize(FeatureFactory.Discount.CanRemoveDiscount)]
     [HttpDelete]
     [Route(Endpoints.Discounts.RemoveFromOrder)]
     public async Task<IActionResult> RemoveFromOrder(

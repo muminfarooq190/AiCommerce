@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +50,7 @@ public sealed class ProductController(
         p.CreatedAtUtc,
         p.UpdatedAtUtc);
 
+    [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
     [HttpGet]
     [Route(Endpoints.Products.GetAll)]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetAll(CancellationToken ct)
@@ -64,6 +67,7 @@ public sealed class ProductController(
         return Ok(list.Select(ToDto));
     }
 
+    [AppAuthorize(FeatureFactory.Product.CanGetProduct)]
     [HttpGet]
     [Route(Endpoints.Products.GetById)]
     public async Task<ActionResult<ProductDto>> GetById(Guid id, CancellationToken ct)
@@ -77,6 +81,7 @@ public sealed class ProductController(
         return product is null ? NotFound() : Ok(ToDto(product));
     }
 
+    [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPost]
     [Route(Endpoints.Products.Create)]
     public async Task<ActionResult<ProductDto>> Create(
@@ -148,6 +153,7 @@ public sealed class ProductController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPut]
     [Route(Endpoints.Products.Update)]
     public async Task<IActionResult> Update(
@@ -225,7 +231,7 @@ public sealed class ProductController(
         return NoContent();
     }
 
-
+    [AppAuthorize(FeatureFactory.Product.CanRemoveProduct)]
     [HttpDelete]
     [Route(Endpoints.Products.Delete)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
@@ -259,6 +265,7 @@ public sealed class ProductController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Product.CanAddProduct)]
     [HttpPost]
     [Route(Endpoints.Products.ImageUpload)]
     public async Task<ActionResult<ProductDto>> UploadImage(
@@ -311,7 +318,7 @@ public sealed class ProductController(
                                  .FirstAsync(x => x.ProductId == id, ct)));
     }
 
-
+    [AppAuthorize(FeatureFactory.Product.CanRemoveProduct)]
     [HttpDelete]
     [Route(Endpoints.Products.ImageRemove)]
     public async Task<IActionResult> RemoveImage(

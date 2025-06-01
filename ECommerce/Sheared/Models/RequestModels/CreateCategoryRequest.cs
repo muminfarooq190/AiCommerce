@@ -1,15 +1,9 @@
 ﻿using EcommerceApi.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sheared.Models.RequestModels
 {
     public sealed record CreateCategoryRequest
      (
-         Guid TenantId,
          string Name,
          string Slug,
          Guid? ParentId,
@@ -20,7 +14,7 @@ namespace Sheared.Models.RequestModels
          bool IsFeatured,
          int DisplayOrder,
          string? MetaTitle,
-        string? MetaDescription,
+         string? MetaDescription,
          CategoryStatus Status = CategoryStatus.Active
      );
 }

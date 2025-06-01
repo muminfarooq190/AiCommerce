@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,7 @@ public sealed class ProductAttributeValueController(
     private readonly AppDbContext _db = db;
 
 
+    [AppAuthorize(FeatureFactory.ProductAttributeValue.CanGetProductAttributeValue)]
     [HttpGet(Endpoints.ProductAttributes.GetList)]
     public async Task<ActionResult<IEnumerable<AttributeValueDto>>> List(
         Guid productId, CancellationToken ct)
@@ -34,6 +37,7 @@ public sealed class ProductAttributeValueController(
             v.Attribute.DataType, v.ValueString, v.ValueNumber, v.ValueBool)));
     }
 
+    [AppAuthorize(FeatureFactory.ProductAttributeValue.CanAddroductAttributeValue)]
     [HttpPut]
     [Route(Endpoints.ProductAttributes.ByAttr)]
     public async Task<IActionResult> Upsert(

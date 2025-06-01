@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,7 @@ public sealed class CategoryController(
         c.FeaturedImage?.Uri);
 
 
+    [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
     [HttpGet]
     [Route(Endpoints.Categories.GetAll)]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll(CancellationToken ct)
@@ -43,6 +46,7 @@ public sealed class CategoryController(
         return Ok(list.Select(ToDto));
     }
 
+    [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
     [HttpGet]
     [Route(Endpoints.Categories.GetById)]
     public async Task<ActionResult<CategoryDto>> GetById(Guid id, CancellationToken ct)
@@ -55,6 +59,7 @@ public sealed class CategoryController(
         return cat is null ? NotFound() : Ok(ToDto(cat));
     }
 
+    [AppAuthorize(FeatureFactory.Category.CanAddCategory)]
     [HttpPost]
     [Route(Endpoints.Categories.Create)]
     public async Task<ActionResult<CategoryDto>> Create(
@@ -107,6 +112,7 @@ public sealed class CategoryController(
                                ToDto(cat));
     }
 
+    [AppAuthorize(FeatureFactory.Category.CanAddCategory)]
     [HttpPut]
     [Route(Endpoints.Categories.Update)]
     public async Task<IActionResult> Update(Guid id,
@@ -156,6 +162,7 @@ public sealed class CategoryController(
         return NoContent();
     }
 
+    [AppAuthorize(FeatureFactory.Category.CanRemoveCategory)]
     [HttpDelete]
     [Route(Endpoints.Categories.Delete)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
@@ -194,6 +201,8 @@ public sealed class CategoryController(
     }
 
 
+
+    [AppAuthorize(FeatureFactory.Category.CanAddCategory)]
     [HttpPost]
     [Route(Endpoints.Categories.FeaturedImageUpload)]
     public async Task<ActionResult<CategoryDto>> UploadFeaturedImage(
@@ -237,6 +246,8 @@ public sealed class CategoryController(
         return Ok(ToDto(cat));
     }
 
+
+    [AppAuthorize(FeatureFactory.Category.CanRemoveCategory)]
     [HttpDelete]
     [Route(Endpoints.Categories.FeaturedImageRemove)]
     public async Task<IActionResult> RemoveFeaturedImage(Guid id, CancellationToken ct)

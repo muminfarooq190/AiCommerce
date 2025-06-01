@@ -1,4 +1,6 @@
-﻿using EcommerceApi.Entities;
+﻿using EcommerceApi.Attributes;
+using EcommerceApi.Entities;
+using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +46,7 @@ public sealed class OrderController(
             s.Status, s.ShippedAtUtc, s.DeliveredAtUtc, s.ShippingCost)));
 
 
+    [AppAuthorize(FeatureFactory.Order.CanGetOrder)]
     [HttpGet]
     [Route(Endpoints.Orders.GetAll)]
     public async Task<ActionResult<IEnumerable<OrderDto>>> List(CancellationToken ct)
@@ -59,6 +62,7 @@ public sealed class OrderController(
         return Ok(orders.Select(ToDto));
     }
 
+    [AppAuthorize(FeatureFactory.Order.CanGetOrder)]
     [HttpGet]
     [Route(Endpoints.Orders.GetById)]
     public async Task<ActionResult<OrderDto>> Get(Guid id, CancellationToken ct)
@@ -72,6 +76,7 @@ public sealed class OrderController(
         return o is null ? NotFound() : Ok(ToDto(o));
     }
 
+    [AppAuthorize(FeatureFactory.Order.CanAddOrder)]
     [HttpPost]
     [Route(Endpoints.Orders.Create)]
     public async Task<ActionResult<OrderDto>> Create(
@@ -142,6 +147,7 @@ public sealed class OrderController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Order.CanAddOrder)]
     [HttpPost]
     [Route(Endpoints.Orders.UpdateStatus)]
     public async Task<IActionResult> ChangeStatus(
@@ -173,6 +179,7 @@ public sealed class OrderController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Order.CanAddOrder)]
     [HttpPost]
     [Route(Endpoints.Orders.AddPayment)]
     public async Task<ActionResult<OrderDto>> AddPayment(
@@ -213,6 +220,7 @@ public sealed class OrderController(
     }
 
 
+    [AppAuthorize(FeatureFactory.Order.CanAddOrder)]
     [HttpPost]
     [Route(Endpoints.Orders.AddShipment)]
     public async Task<ActionResult<OrderDto>> AddShipment(
@@ -249,6 +257,7 @@ public sealed class OrderController(
                                  .FirstAsync(x => x.OrderId == id, ct)));
     }
 
+    [AppAuthorize(FeatureFactory.Order.CanAddOrder)]
     [HttpPut]
     [Route(Endpoints.Orders.ShipUpdate)]
     public async Task<IActionResult> UpdateShipment(
