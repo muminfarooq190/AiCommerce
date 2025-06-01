@@ -1,5 +1,6 @@
 ﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
+using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
@@ -36,14 +37,43 @@ public sealed class CategoryController(
     [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
     [HttpGet]
     [Route(Endpoints.Categories.GetAll)]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll(CancellationToken ct)
+    [HttpGet]
+    public async Task<ActionResult> GetAll(int pageNumber = 1, int pageSize = 10, CancellationToken ct = default)
     {
-        var list = await _db.Categories
-                            .Include(c => c.FeaturedImage)
-                            .OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name)
-                            .AsNoTracking().ToListAsync(ct);
+        if (pageNumber <= 0 || pageSize <= 0)
+        {
+            ModelState.AddModelError(nameof(pageNumber), "PageNumber must be greater than zero.");
+            ModelState.AddModelError(nameof(pageSize), "PageSize must be greater than zero.");
+            return this.ApplicationProblem(
+                detail: "Page and PageSize must be greater than zero.",
+                title: "Invalid Pagination Parameters",
+                statusCode: StatusCodes.Status400BadRequest,
+                modelState: ModelState,
+                errorCode: ErrorCodes.InvalidPaginationParameters,
+                instance: HttpContext.Request.Path
+            );
+        }
 
-        return Ok(list.Select(ToDto));
+        var query = _db.Categories
+                       .Include(c => c.FeaturedImage)
+                       .OrderBy(c => c.DisplayOrder)
+                       .ThenBy(c => c.Name)
+                       .AsNoTracking();
+
+        var totalCount = await query.CountAsync(ct);
+
+        var pagedList = await query
+                            .Skip((pageNumber - 1) * pageSize)
+                            .Take(pageSize)
+                            .ToListAsync(ct);
+
+        return Ok(new
+        {
+            Categories = pagedList.Select(ToDto),
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        });
     }
 
     [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
