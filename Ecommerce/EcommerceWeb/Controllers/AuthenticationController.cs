@@ -6,6 +6,7 @@ using EcommerceWeb.Utilities.ApiResult;
 using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sheared;
@@ -15,6 +16,7 @@ using System.Security.Claims;
 
 namespace EcommerceWeb.Controllers;
 
+[Authorize]
 public class AuthenticationController(IApiClient apiClient, ILogger<AuthenticationController> logger, AppDbContext appDbContext) : Controller
 {
 	[HttpGet]
@@ -24,6 +26,7 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
 	}
 
 	[HttpPost]
+
 	public async Task<IActionResult> Index(LoginViewModel request)
 	{
 		if (!ModelState.IsValid)
@@ -73,6 +76,7 @@ public class AuthenticationController(IApiClient apiClient, ILogger<Authenticati
 			new Claim(ClaimTypes.Email, user.Email),
 			new Claim(ClaimTypes.GroupSid, tenantConfig.TenantId.ToString()),
 			new Claim("IsPrimaryTanent", user.IsPrimaryTanent.ToString()),
+			new Claim("Token", user.Token.ToString()),
 		};
 
 		if (!user.IsPrimaryTanent)

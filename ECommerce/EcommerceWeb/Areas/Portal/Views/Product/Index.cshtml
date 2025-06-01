@@ -1,4 +1,6 @@
-﻿<script>
+﻿@using EcommerceWeb.Areas.Portal.Models.Product
+@model ProductPageViewModel
+<script>
     tailwind.config = {
         theme: {
             extend: {
@@ -192,189 +194,54 @@
 
             <!-- Product Grid View -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Product 1 -->
-                <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
-                    <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <img src="https://via.placeholder.com/300x300?text=AI+Processor" alt="AI Processor" class="w-full h-full object-cover">
-                        <div class="discount-badge">-15%</div>
-                        <div class="absolute top-3 left-3 flex space-x-1">
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-edit text-gray-600"></i>
-                            </button>
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-trash text-red-500"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-semibold text-ai-dark">Neural AI Processor Chip</h3>
-                                <p class="text-gray-500 text-sm mt-1">High-performance AI accelerator</p>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="rating-stars text-xs">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <span class="text-gray-500 text-xs ml-1">(142)</span>
+                @foreach (var product in Model.Products)
+                {
+                    <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
+                        <div class="relative h-48 bg-gray-100 overflow-hidden">
+                            <img src="@product.Images.First()" alt="AI Processor" class="w-full h-full object-cover">
+                            <div class="discount-badge">-15%</div>
+                            <div class="absolute top-3 left-3 flex space-x-1">
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                    <i class="fas fa-edit text-gray-600"></i>
+                                </button>
+                                <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
+                                    <i class="fas fa-trash text-red-500"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="mt-4">
-                            <div class="flex justify-between items-center">
+                        <div class="p-4">
+                            <div class="flex justify-between items-start">
                                 <div>
-                                    <span class="text-ai-blue font-bold text-lg">$249.99</span>
-                                    <span class="text-gray-400 text-sm line-through ml-2">$299.99</span>
+                                    <h3 class="font-semibold text-ai-dark">@product.Name</h3>
+                                    <p class="text-gray-500 text-sm mt-1">@product.Description</p>
                                 </div>
-                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">In Stock</span>
+                                <div class="flex items-center">
+                                    <div class="rating-stars text-xs">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <span class="text-gray-500 text-xs ml-1">(142)</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
-                            <span>SKU: AI-PROC-001</span>
-                            <span>Qty: 42</span>
+                            <div class="mt-4">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <span class="text-ai-blue font-bold text-lg">@product.Price</span>
+                                        <span class="text-gray-400 text-sm line-through ml-2">$299.99</span>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">@product.StockStatus</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
+                                <span>SKU: AI-PROC-001</span>
+                                <span>Qty: @product.Qty</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Product 2 -->
-                <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
-                    <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <img src="https://via.placeholder.com/300x300?text=Smart+Drone" alt="Smart Drone" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 flex space-x-1">
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-edit text-gray-600"></i>
-                            </button>
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-trash text-red-500"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-semibold text-ai-dark">AI-Powered Surveillance Drone</h3>
-                                <p class="text-gray-500 text-sm mt-1">4K camera with object tracking</p>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="rating-stars text-xs">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
-                                </div>
-                                <span class="text-gray-500 text-xs ml-1">(89)</span>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="text-ai-blue font-bold text-lg">$599.00</span>
-                                </div>
-                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Low Stock</span>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
-                            <span>SKU: DRONE-004</span>
-                            <span>Qty: 5</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
-                    <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <img src="https://via.placeholder.com/300x300?text=Smart+Watch" alt="Smart Watch" class="w-full h-full object-cover">
-                        <div class="discount-badge">-20%</div>
-                        <div class="absolute top-3 left-3 flex space-x-1">
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-edit text-gray-600"></i>
-                            </button>
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-trash text-red-500"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-semibold text-ai-dark">Health Monitoring Smartwatch</h3>
-                                <p class="text-gray-500 text-sm mt-1">AI-powered health insights</p>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="rating-stars text-xs">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="text-gray-500 text-xs ml-1">(256)</span>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="text-ai-blue font-bold text-lg">$179.99</span>
-                                    <span class="text-gray-400 text-sm line-through ml-2">$224.99</span>
-                                </div>
-                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">In Stock</span>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
-                            <span>SKU: WATCH-007</span>
-                            <span>Qty: 128</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="product-card bg-white rounded-xl shadow-sm overflow-hidden transition duration-300">
-                    <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <img src="https://via.placeholder.com/300x300?text=VR+Headset" alt="VR Headset" class="w-full h-full object-cover">
-                        <div class="absolute top-3 left-3 flex space-x-1">
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-edit text-gray-600"></i>
-                            </button>
-                            <button class="bg-white p-2 rounded-full shadow-md hover:bg-gray-100">
-                                <i class="fas fa-trash text-red-500"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-semibold text-ai-dark">AI-Enhanced VR Headset</h3>
-                                <p class="text-gray-500 text-sm mt-1">Immersive virtual reality</p>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="rating-stars text-xs">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <span class="text-gray-500 text-xs ml-1">(112)</span>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <span class="text-ai-blue font-bold text-lg">$349.99</span>
-                                </div>
-                                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Out of Stock</span>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
-                            <span>SKU: VR-009</span>
-                            <span>Qty: 0</span>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
 
             <!-- Pagination -->
