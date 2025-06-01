@@ -214,7 +214,7 @@ public sealed class OrderController(
 
 
     [HttpPost]
-    [Route(Endpoints.Orders.AddPayment)]
+    [Route(Endpoints.Orders.AddShipment)]
     public async Task<ActionResult<OrderDto>> AddShipment(
         Guid id,
         [FromBody] AddShipmentRequest req,
