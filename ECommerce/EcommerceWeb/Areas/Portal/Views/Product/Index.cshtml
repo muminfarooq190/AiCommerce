@@ -123,7 +123,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Total Products</p>
-                            <h3 class="text-xl font-bold">1,248</h3>
+                            <h3 class="text-xl font-bold">@Model.TotalProducts</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                             <i class="fas fa-boxes"></i>
@@ -134,7 +134,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Active Listings</p>
-                            <h3 class="text-xl font-bold">1,042</h3>
+                            <h3 class="text-xl font-bold">@Model.ActiveListings</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                             <i class="fas fa-check-circle"></i>
@@ -145,7 +145,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Low Stock</p>
-                            <h3 class="text-xl font-bold">86</h3>
+                            <h3 class="text-xl font-bold">@Model.LowStock</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
                             <i class="fas fa-exclamation-triangle"></i>
@@ -156,7 +156,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Out of Stock</p>
-                            <h3 class="text-xl font-bold">32</h3>
+                            <h3 class="text-xl font-bold">@Model.OutOfStock</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
                             <i class="fas fa-times-circle"></i>
@@ -223,7 +223,7 @@
                                         <i class="fas fa-star"></i>
                                         <i class="fas fa-star-half-alt"></i>
                                     </div>
-                                    <span class="text-gray-500 text-xs ml-1">(142)</span>
+                                    <span class="text-gray-500 text-xs ml-1">(142)</span>                                    
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -237,7 +237,7 @@
                             </div>
                             <div class="mt-3 flex items-center justify-between text-sm text-gray-500">
                                 <span>SKU: AI-PROC-001</span>
-                                <span>Qty: @product.Qty</span>
+                                <span>Qty: @product.StockQuantity</span>
                             </div>
                         </div>
                     </div>

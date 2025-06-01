@@ -70,7 +70,7 @@ public sealed class ProductController(
                 instance: HttpContext.Request.Path
             );
         }
-
+        
         var query = _db.Products
                        .Include(p => p.Brand)
                        .Include(p => p.ProductCategories)
@@ -80,18 +80,23 @@ public sealed class ProductController(
                        .AsNoTracking();
 
         var totalCount = await query.CountAsync(ct);
-
+        var activeListings = await query.Where(_=>_.Status == ProductStatus.Active).CountAsync();
+        var lowStock = await query.Where(_=>_.StockQuantity < 5 && _.StockQuantity > 0).CountAsync();
+        var outOfStock = await query.Where(_=>_.StockQuantity <= 0).CountAsync();
         var pagedList = await query
                             .Skip((pageNumber - 1) * pageSize)
                             .Take(pageSize)
                             .ToListAsync(ct);
 
-        return Ok(new
+        return Ok(new PagedProductResponse
         {
             Products = pagedList.Select(ToDto),
             TotalCount = totalCount,
             PageNumber = pageNumber,
-            PageSize = pageSize
+            PageSize = pageSize,
+            ActiveListings = activeListings,
+            LowStock = lowStock,
+            OutOfStock = outOfStock
         });
     }
 

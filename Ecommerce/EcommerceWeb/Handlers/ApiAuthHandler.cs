@@ -10,7 +10,7 @@ public class ApiAuthHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = _httpContextAccessor.HttpContext?.Session?.GetString("AuthToken");
+        var token = _httpContextAccessor.HttpContext?.Session?.GetString("Token");
         if (!string.IsNullOrEmpty(token))
         {
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);

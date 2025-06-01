@@ -1,7 +1,10 @@
 ﻿using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace EcommerceWeb.Services;
@@ -12,7 +15,7 @@ public class ApiClient : IApiClient
     private readonly ILogger<ApiClient> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ApiClient(HttpContextAccessor httpContextAccessor, HttpClient httpClient, ILogger<ApiClient> logger)
+    public ApiClient(IHttpContextAccessor httpContextAccessor, HttpClient httpClient, ILogger<ApiClient> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _httpClient = httpClient;        
@@ -21,14 +24,12 @@ public class ApiClient : IApiClient
 
     public async Task<ApiResult<T>> GetAsync<T>(string endpoint)
     {
-        SetAuthorizationHeader();
         HttpResponseMessage response = await _httpClient.GetAsync(endpoint);
         return await HandleResponse<T>(response);
     }
 
     public async Task<ApiResult<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest payload)
     {
-        SetAuthorizationHeader();
         HttpResponseMessage response = await _httpClient.PostAsJsonAsync(endpoint, payload);
         return await HandleResponse<TResponse>(response);
     }
@@ -37,8 +38,14 @@ public class ApiClient : IApiClient
     {
         try
         {
+            
             if (response.IsSuccessStatusCode)
             {
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    _httpContextAccessor.HttpContext?.Session?.Clear();
+                    _httpContextAccessor.HttpContext?.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                }
                 var data = await response.Content.ReadFromJsonAsync<T>();
                 if (data == null)
                 {
@@ -96,16 +103,5 @@ public class ApiClient : IApiClient
 
         }
     }
-    private void SetAuthorizationHeader()
-    {
-        var user = _httpContextAccessor.HttpContext?.User;
-        if (user?.Identity?.IsAuthenticated == true)
-        {
-            var token = user.FindFirst("Token")?.Value;
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-        }
-    }
+    
 }
