@@ -6,6 +6,7 @@ using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
@@ -134,7 +135,10 @@ public class AuthenticationController(
         user.UpdateLastLogin();
         await context.SaveChangesAsync();
 
-        return Ok(new UserLoginResponse
+        var abc = jwtTokenGenerator.GenerateToken(user.UserId, user.TenantId, user.FirstName + " " + user.LastName, user.Email, user.Tenant.CompanyName);
+
+
+		return Ok(new UserLoginResponse
         {
             Id = user.UserId,
             Email = user.Email,
@@ -145,6 +149,7 @@ public class AuthenticationController(
             IsPrimaryTanent = user.IsTenantPrimary,
             Token = jwtTokenGenerator.GenerateToken(user.UserId, user.TenantId, user.FirstName + " " + user.LastName, user.Email, user.Tenant.CompanyName)
         });
+
 
     }
 

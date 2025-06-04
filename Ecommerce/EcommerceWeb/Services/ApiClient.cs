@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 
 namespace EcommerceWeb.Services;
 
@@ -34,7 +35,36 @@ public class ApiClient : IApiClient
         return await HandleResponse<TResponse>(response);
     }
 
-    private async Task<ApiResult<T>> HandleResponse<T>(HttpResponseMessage response)
+	public async Task<ApiResult<TResponse>> PostMultipartAsync<TResponse>(string endpoint, IFormFile file)
+	{
+		using var formData = new MultipartFormDataContent();
+		using var fileStream = file.OpenReadStream();
+
+		var fileContent = new StreamContent(fileStream);
+		fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+
+		formData.Add(fileContent, "file", file.FileName);
+
+		var response = await _httpClient.PostAsync(endpoint, formData);
+		return await HandleResponse<TResponse>(response);
+	}
+
+	public async Task<ApiResult<T>> DeleteAsync<T>(string endpoint)
+	{
+		var response = await _httpClient.DeleteAsync(endpoint);
+		return await HandleResponse<T>(response);
+	}
+
+	public async Task<ApiResult<TResponse>> PutAsync<TRequest, TResponse>(string endpoint, TRequest payload)
+	{
+		var json = JsonConvert.SerializeObject(payload);
+		var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+		var response = await _httpClient.PutAsync(endpoint, content);
+		return await HandleResponse<TResponse>(response);
+	}
+
+	private async Task<ApiResult<T>> HandleResponse<T>(HttpResponseMessage response)
     {
         try
         {

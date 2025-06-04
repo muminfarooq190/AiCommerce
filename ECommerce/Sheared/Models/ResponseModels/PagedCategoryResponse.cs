@@ -17,6 +17,7 @@ namespace Sheared.Models.ResponseModels
         public required int ActiveCategories { get; init; }
         public required int FeaturedCategories { get; init; }
         public required int ProductsInCategories { get; init; }
+        public required int TotalCategories { get; init; }
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     }
 

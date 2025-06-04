@@ -3,6 +3,7 @@ using EcommerceApi.Entities;
 using EcommerceApi.Extensions;
 using EcommerceApi.Models;
 using EcommerceApi.Providers;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sheared;
@@ -40,14 +41,17 @@ public sealed class MediaController(
                 errorCode: ErrorCodes.ValidationFailed,
                 instance: HttpContext.Request.Path);
         }
-
-        Directory.CreateDirectory(Path.Combine(_env.WebRootPath, UploadDir));
+		//handling if WebRootPath is null 
+		var uploadPath = Path.Combine(_env.ContentRootPath, "wwwroot", UploadDir);
+		Directory.CreateDirectory(uploadPath);
+		//Directory.CreateDirectory(Path.Combine(_env.WebRootPath, UploadDir));
         var ext = Path.GetExtension(file.FileName);
         var mediaId = Guid.NewGuid();
         var newName = $"{mediaId}{ext}";
-        var fullPath = Path.Combine(_env.WebRootPath, UploadDir, newName);
+		//var fullPath = Path.Combine(_env.WebRootPath, UploadDir, newName);
+		var fullPath = Path.Combine(uploadPath, newName);
 
-        await using (var fs = System.IO.File.Create(fullPath))
+		await using (var fs = System.IO.File.Create(fullPath))
         {
             await file.CopyToAsync(fs, ct);
         }

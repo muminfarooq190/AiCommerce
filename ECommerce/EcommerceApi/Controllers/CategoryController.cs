@@ -33,7 +33,7 @@ public sealed class CategoryController(
         c.CategoryId, c.ParentId, c.Name, c.Description,
         c.Slug, c.Status, c.IsFeatured, c.DisplayOrder,
         c.TenantId, c.FeaturedImageId,
-        c.FeaturedImage?.Uri);
+        c.FeaturedImage?.Uri,c.ColorTheme,c.IconClass,c.MetaDescription,c.MetaTitle);
 
 
     /* ──────────────── READ ──────────────── */
@@ -91,12 +91,13 @@ public sealed class CategoryController(
             PageSize = pageSize,
             ActiveCategories = activeCategories,
             FeaturedCategories = featuredCategories,
-            ProductsInCategories = productsInCategories
-        });
-    }
+            ProductsInCategories = productsInCategories,
+            TotalCategories = totalCategories
+		});
+	}
 
 
-    [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
+	[AppAuthorize(FeatureFactory.Category.CanGetCategory)]
     [HttpGet]
     [Route(Endpoints.Categories.GetById)]
     public async Task<ActionResult<CategoryDto>> GetById(Guid id, CancellationToken ct)

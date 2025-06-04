@@ -11,7 +11,7 @@ namespace Sheared.Models.RequestModels
          string? IconClass,
          string? ColorTheme,
          Guid? FeaturedImageId,
-         bool IsFeatured,
+		 bool IsFeatured,
          int DisplayOrder,
          string? MetaTitle,
          string? MetaDescription,

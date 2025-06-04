@@ -13,6 +13,11 @@ namespace Sheared.Models.ResponseModels
          int DisplayOrder,
          Guid TenantId,
          Guid? FeaturedImageId,
-         string? FeaturedImageUri);
+		 string? FeaturedImageUri,
+		 string IconClass,
+         string ColorTheme,
+         string MetaTitle,
+	     string MetaDescription
+	);
 
 }

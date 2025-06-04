@@ -3,6 +3,19 @@
 @model CategoryPageViewModel;
 @{
     ViewData["Title"] = "Category Page";
+    var isUpdate = Model.Category != null && Model.Category.categoryId != Guid.Empty;
+    var showModal = isUpdate;
+    if (ViewBag.Errors == true)    
+    {
+        showModal = true;
+    }
+    else
+    {
+        showModal = false;
+    }
+
+    if (Model.Category == null)
+        Model.Category = new CategoryViewModel();
 }
 <script>
     tailwind.config = {
@@ -73,7 +86,7 @@
                 </div>
                 <div class="flex items-center">
                     <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
-                        <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
+                        <img src="" alt="Admin" class="w-full h-full object-cover">
                     </div>
                     <span class="text-sm font-medium">Admin</span>
                 </div>
@@ -109,7 +122,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Total Categories</p>
-                            <h3 class="text-xl font-bold">24</h3>
+                            <h3 class="text-xl font-bold">@Model.TotalCategories</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                             <i class="fas fa-tags"></i>
@@ -120,7 +133,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Active Categories</p>
-                            <h3 class="text-xl font-bold">22</h3>
+                            <h3 class="text-xl font-bold">@Model.ActiveCategories</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                             <i class="fas fa-check-circle"></i>
@@ -131,7 +144,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Featured Categories</p>
-                            <h3 class="text-xl font-bold">8</h3>
+                            <h3 class="text-xl font-bold">@Model.FeaturedCategories</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
                             <i class="fas fa-star"></i>
@@ -142,7 +155,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-500 text-sm">Products in Categories</p>
-                            <h3 class="text-xl font-bold">1,248</h3>
+                            <h3 class="text-xl font-bold">@Model.ProductsInCategories</h3>
                         </div>
                         <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
                             <i class="fas fa-boxes"></i>
@@ -204,10 +217,11 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+
                             @if (Model.Categories != null && Model.Categories.Any())
                             {
                                 foreach (var category in Model.Categories)
-                                {
+                                {                                    
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -215,39 +229,52 @@
                                                     <i class="fas fa-tag"></i>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">@category.name</div>
+                                                    <div class="text-sm font-medium text-gray-900">@(category?.name ?? "No Name")</div>
                                                     <div class="text-sm text-gray-500">
-                                                        @(category.parentId == Guid.Empty ? "Main Category" : "Subcategory")
+                                                        @(category?.parentId == null || category.parentId == Guid.Empty ? "Main Category" : "Subcategory")
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">-</div> <!-- Replace with product count if available -->
+                                            <div class="text-sm text-gray-900">N/A</div> <!-- Replace with product count if available -->
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
-                                                @category.status
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category?.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
+                                                @(category?.status.ToString() ?? "N/A")
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.isFeatured ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800")">
-                                                @(category.isFeatured ? "Yes" : "No")
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category?.isFeatured == true ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800")">
+                                                @(category?.isFeatured == true ? "Yes" : "No")
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <!-- You can add last updated info if available -->
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">                                            
                                             N/A
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button class="text-ai-blue hover:text-ai-dark mr-3">
+                                        <!-- ... other columns ... -->
+                                        <td class="px-4 py-3 flex items-center justify-end">
+                                            <a asp-area="Portal"
+                                               asp-controller="Category"
+                                               asp-action="Update"
+                                               asp-route-id="@(category?.categoryId ?? Guid.Empty)"
+                                               class="text-ai-blue hover:text-ai-dark mr-3">
                                                 <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="text-red-500 hover:text-red-700">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            </a>
+                                            <form asp-area="Portal"
+                                                  asp-controller="Category"
+                                                  asp-action="Delete"
+                                                  asp-route-id="@(category?.categoryId ?? Guid.Empty)"
+                                                  method="post"
+                                                  onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="text-red-500 hover:text-red-700">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
-                                    </tr>
+                                    </tr>                                            
                                 }
                             }
                             else
@@ -256,8 +283,8 @@
                                     <td colspan="6" class="text-center py-4 text-gray-500">No categories found.</td>
                                 </tr>
                             }
-                        </tbody>
 
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -376,9 +403,8 @@
                 </nav>
             </div>
         </div>
-
         <!-- Add/Edit Category Modal -->
-        <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 @(showModal ? "" : "hidden")">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-lg font-semibold" id="categoryModalTitle">Add New Category</h3>
@@ -387,8 +413,18 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form id="categoryForm" asp-action="AddCategory" asp-controller="Category" asp-area="Portal">
-                        <input type="hidden" id="categoryId" name="categoryId" />
+                    <form asp-area="Portal"
+                          asp-controller="Category"
+                          asp-action="Index"
+                          asp-route-id="@(isUpdate ? Model.Category?.categoryId : null)"
+                          method="@(isUpdate ? "put" : "post")"
+                          id="categoryForm"
+                          enctype="multipart/form-data">
+
+
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Category.categoryId" id="categoryId" name="Category.categoryId" />
+
                         <div class="grid grid-cols-1 gap-6">
                             <!-- Basic Information -->
                             <div>
@@ -396,23 +432,32 @@
                                 <div class="mb-4">
 
                                     <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name*</label>
-                                    <input type="text" id="categoryName" name="name" asp-for="Category.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <input type="text" id="categoryName" name="Category.name" asp-for="Category.name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <span asp-validation-for="Category.name" class="text-red-500 text-sm"></span>
+
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryParent" class="block text-sm font-medium text-gray-700 mb-1">Parent Category</label>
-                                    <select id="categoryParent" name="parentId" asp-for="Category.parentId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <select id="categoryParent" name="Category.parentId" asp-for="Category.parentId" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         <option value="">None (Top Level Category)</option>
-                                        <option value="1">Electronics</option>
-                                        <option value="2">Apparel</option>
-                                        @foreach (var x in Model.Categories)
+                                        
+                                        @foreach (var category in Model.Categories)
                                         {
-                                            <option value="@x.categoryId">@x.name</option>
+                                            if (category.categoryId == Model.Category?.categoryId)
+                                            {
+                                                <option value="@category.categoryId" selected >@category.name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@category.categoryId">@category.name</option>
+                                            }
                                         }
                                     </select>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                    <textarea id="categoryDescription" name="description" asp-for="Category.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <textarea id="categoryDescription" name="Category.description" asp-for="Category.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <span asp-validation-for="Category.description" class="text-red-500 text-sm"></span>
                                 </div>
                             </div>
 
@@ -420,28 +465,30 @@
                             <div>
                                 <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Display Settings</h4>
                                 <div class="mb-4">
-                                    <label for="categoryIcon" class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
+                                    <label asp-for="Category.IconClass" name="Category.IconClass" class="block text-sm font-medium text-gray-700 mb-1">Icon</label>
                                     <div class="flex items-center">
                                         <div class="mr-4">
                                             <div id="categoryIconPreview" class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                                <i class="fas fa-tag"></i>
+                                                <i class="@Model.Category?.IconClass"></i>
                                             </div>
                                         </div>
-                                        <select id="categoryIcon" name="IconClass" asp-for="Category.IconClass" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <option value="fa-tag">Default (fa-tag)</option>
-                                            <option value="fa-microchip">Electronics (fa-microchip)</option>
-                                            <option value="fa-tshirt">Apparel (fa-tshirt)</option>
-                                            <option value="fa-home">Home (fa-home)</option>
-                                            <option value="fa-car">Automotive (fa-car)</option>
-                                            <option value="fa-robot">AI (fa-robot)</option>
-                                            <option value="fa-laptop">Computer (fa-laptop)</option>
-                                            <option value="fa-mobile">Mobile (fa-mobile)</option>
+                                        
+                                        <select id="categoryIcon" name="Category.IconClass" asp-for="Category.IconClass" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <option value="fa fa-tag">Default (fa-tag)</option>
+                                            <option value="fa fa-microchip">Electronics (fa-microchip)</option>
+                                            <option value="fa fa-tshirt">Apparel (fa-tshirt)</option>
+                                            <option value="fa fa-home">Home (fa-home)</option>
+                                            <option value="fa fa-car">Automotive (fa-car)</option>
+                                            <option value="fa fa-robot">AI (fa-robot)</option>
+                                            <option value="fa fa-laptop">Computer (fa-laptop)</option>
+                                            <option value="fa fa-mobile">Mobile (fa-mobile)</option>
                                         </select>
+                                        <span asp-validation-for="Category.IconClass" class="text-red-500 text-sm"></span>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryColor" class="block text-sm font-medium text-gray-700 mb-1">Color Theme</label>
-                                    <select id="categoryColor" name="ColorTheme" asp-for="Category.ColorTheme" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <select id="categoryColor" name="Category.ColorTheme" asp-for="Category.ColorTheme" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         <option value="blue">Blue</option>
                                         <option value="green">Green</option>
                                         <option value="yellow">Yellow</option>
@@ -450,61 +497,78 @@
                                         <option value="pink">Pink</option>
                                         <option value="indigo">Indigo</option>
                                     </select>
+                                    <span asp-validation-for="Category.ColorTheme" class="text-red-500 text-sm"></span>
                                 </div>
                                 <div class="mb-4">
-                                    <label for="categoryImage" class="block text-sm font-medium text-gray-700 mb-1">Featured Image</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Featured Image</label>
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                                         <div class="flex flex-col items-center justify-center py-4">
                                             <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
                                             <p class="text-sm text-gray-500 mb-1">Drag & drop image here or click to browse</p>
                                             <p class="text-xs text-gray-400">Recommended size: 800x800px</p>
                                         </div>
-                                        <input type="file" id="categoryImage" class="hidden" accept="image/*">
+                                        <input type="file" asp-for="Category.ImageFile" id="categoryImageInput" class="hidden" accept="image/*" />
                                         <button type="button" id="uploadCategoryImageBtn" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
                                             Upload Image
                                         </button>
+                                        <span asp-validation-for="Category.ImageFile" class="text-red-500 text-sm"></span>
                                     </div>
                                     <div class="mt-2" id="categoryImagePreview">
-                                        <!-- Image preview will be added here -->
+                                       @if (Model.Category != null && Model.Category.FeaturedImageUri != null)
+                                        {
+                                            <img src="@Model.Category.FeaturedImageUri" class="w-32 h-32 object-cover rounded-md" />
+                                        }  
                                     </div>
+                                    <input type="hidden" asp-for="Category.FeaturedImageId" />
                                 </div>
                             </div>
-
                             <!-- Status & SEO -->
                             <div>
                                 <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Status & SEO</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="mb-4">
                                         <label for="categoryStatus" class="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                                        <select id="categoryStatus" name="status" asp-for="Category.status" asp-items="Html.GetEnumSelectList<CategoryStatus>()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <option value="">-- Select Status --</option>
+                                        <select id="categoryStatus" name="Category.status" asp-for="Category.status" asp-items="Html.GetEnumSelectList<EcommerceApi.Enums.CategoryStatus>()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
                                         </select>
+                                        <span asp-validation-for="Category.status" class="text-red-500 text-sm"></span>
                                     </div>
                                     <div class="mb-4">
                                         <label for="categoryFeatured" class="block text-sm font-medium text-gray-700 mb-1">Featured</label>
-                                        <select id="categoryFeatured" name="isFeatured" asp-for="Category.isFeatured" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <option value="false">No</option>
-                                            <option value="true">Yes</option>
+                                        <select id="categoryFeatured"
+                                                name="Category.isFeatured"
+                                                asp-for="Category.isFeatured"
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                                <option value="false" selected="@(Model.Category.isFeatured == false ? "selected" : null)">No</option>
+                                                <option value="true" selected="@(Model.Category.isFeatured == true ? "selected" : null)">Yes</option>
                                         </select>
+                                        <span asp-validation-for="Category.isFeatured" class="text-red-500 text-sm"></span>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryMetaTitle" class="block text-sm font-medium text-gray-700 mb-1">Meta Title</label>
-                                    <input type="text" id="categoryMetaTitle" name="MetaTitle" asp-for="Category.MetaTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <input type="text" id="categoryMetaTitle" name="Category.MetaTitle" asp-for="Category.MetaTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <span asp-validation-for="Category.MetaTitle" class="text-red-500 text-sm"></span>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categoryMetaDescription" class="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
-                                    <textarea id="categoryMetaDescription" name="MetaDescription" asp-for="Category.MetaDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <textarea id="categoryMetaDescription" name="Category.MetaDescription" asp-for="Category.MetaDescription" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
+                                    <span asp-validation-for="Category.MetaDescription" class="text-red-500 text-sm"></span>
                                 </div>
                                 <div class="mb-4">
                                     <label for="categorySlug" class="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
-                                    <input type="text" id="categorySlug" name="slug" asp-for="Category.slug" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <input type="text" id="categorySlug" name="Category.slug" asp-for="Category.slug" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                    <span asp-validation-for="Category.slug" class="text-red-500 text-sm"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="flex justify-end space-x-3 mt-6">
-                            <button type="button" id="cancelCategoryBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
-                            <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">Save Category</button>
+                            <a asp-area="Portal" asp-controller="Category" asp-action="Index"
+                               class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </a>
+                            <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">
+                                @(isUpdate ? "Update Category" : "Save Category")
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -512,121 +576,94 @@
         </div>
     </main>
 </div>
-
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM Elements
+        debugger;
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const categoryModal = document.getElementById('categoryModal');
+        const closeCategoryModal = document.getElementById('closeCategoryModal');
+        const uploadCategoryImageBtn = document.getElementById('uploadCategoryImageBtn');
+        const categoryImageInput = document.getElementById('categoryImageInput');
+        const categoryImagePreview = document.getElementById('categoryImagePreview');
+        const categoryIcon = document.getElementById('categoryIcon');
+        const categoryIconPreview = document.getElementById('categoryIconPreview')?.querySelector('i');
+        const categoryColor = document.getElementById('categoryColor');
+        const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
 
-
-    // DOM Elements
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.querySelector('.sidebar');
-    const addCategoryBtn = document.getElementById('addCategoryBtn');
-    const categoryModal = document.getElementById('categoryModal');
-    const closeCategoryModal = document.getElementById('closeCategoryModal');
-    const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
-    const categoryForm = document.getElementById('categoryForm');
-    const uploadCategoryImageBtn = document.getElementById('uploadCategoryImageBtn');
-    const categoryImage = document.getElementById('categoryImage');
-    const categoryImagePreview = document.getElementById('categoryImagePreview');
-    const categoryIcon = document.getElementById('categoryIcon');
-    const categoryIconPreview = document.getElementById('categoryIconPreview');
-    const categoryColor = document.getElementById('categoryColor');
-
-    // Sidebar toggle for mobile
-
-
-    // Open category modal for adding new category
-    addCategoryBtn.addEventListener('click', () => {
-        document.getElementById('categoryModalTitle').textContent = 'Add New Category';
-        document.getElementById('categoryId').value = '';
-        categoryForm.reset();
-        categoryImagePreview.innerHTML = '';
-        categoryModal.classList.remove('hidden');
-    });
-
-    // Close category modal
-    closeCategoryModal.addEventListener('click', () => {
-        categoryModal.classList.add('hidden');
-    });
-
-    cancelCategoryBtn.addEventListener('click', () => {
-        categoryModal.classList.add('hidden');
-    });
-
-    // Handle image upload
-    uploadCategoryImageBtn.addEventListener('click', () => {
-        categoryImage.click();
-    });
-
-    categoryImage.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                categoryImagePreview.innerHTML = `
-                    <div class="relative">
-                        <img src="${event.target.result}" alt="Preview" class="w-full h-32 object-cover rounded">
-                        <button class="absolute top-1 right-1 bg-white p-1 rounded-full shadow-sm hover:bg-gray-100">
-                            <i class="fas fa-times text-red-500 text-xs"></i>
-                        </button>
-                    </div>
-                `;
-            };
-            reader.readAsDataURL(file);
+        // Open modal when "Add Category" is clicked
+        if (addCategoryBtn) {
+            addCategoryBtn.addEventListener('click', () => {
+                categoryModal.classList.remove('hidden');
+                document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+                resetFormPreviews();
+            });
         }
-    });
 
-    // Handle icon change
-    categoryIcon.addEventListener('change', (e) => {
-        const iconClass = e.target.value;
-        categoryIconPreview.innerHTML = `<i class="fas ${iconClass}"></i>`;
-    });
+        // Close modal
+        if (closeCategoryModal) {
+            closeCategoryModal.addEventListener('click', () => {
+                categoryModal.classList.add('hidden');
+                
+                
+            });
+        }
 
-    // Handle color change
-    categoryColor.addEventListener('change', (e) => {
-        const color = e.target.value;
-        const colorClasses = {
-            blue: 'bg-blue-100 text-blue-600',
-            green: 'bg-green-100 text-green-600',
-            yellow: 'bg-yellow-100 text-yellow-600',
-            red: 'bg-red-100 text-red-600',
-            purple: 'bg-purple-100 text-purple-600',
-            pink: 'bg-pink-100 text-pink-600',
-            indigo: 'bg-indigo-100 text-indigo-600'
-        };
+        if (cancelCategoryBtn) {
+            cancelCategoryBtn.addEventListener('click', () => categoryModal.classList.add('hidden'));
+        }
 
-        // Remove all color classes
-        Object.keys(colorClasses).forEach(c => {
-            categoryIconPreview.classList.remove(`bg-${c}-100`, `text-${c}-600`);
-        });
+        // Image upload handling
+        if (uploadCategoryImageBtn && categoryImageInput) {
+            debugger;
+            uploadCategoryImageBtn.addEventListener('click', () => {
+                categoryImageInput.click();
+            });
 
-        // Add selected color classes
-        const classes = colorClasses[color].split(' ');
-        classes.forEach(c => categoryIconPreview.classList.add(c));
-    });
+            categoryImageInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        categoryImagePreview.innerHTML = `
+                            <img src="${event.target.result}"
+                                 class="w-32 h-32 object-cover rounded-md" />`;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
 
-    // Handle category form submission
+        // Icon change handling
+        if (categoryIcon && categoryIconPreview) {
+            categoryIcon.addEventListener('change', function() {
+                categoryIconPreview.className = this.value;
+            });
+        }
 
-    // Sample function to edit a category
-    function editCategory(id) {
-        const category = categories.find(c => c.id === id);
-        if (category) {
-            document.getElementById('categoryModalTitle').textContent = 'Edit Category';
-            document.getElementById('categoryId').value = category.id;
-            document.getElementById('categoryName').value = category.name;
-            document.getElementById('categoryParent').value = category.parent || '';
-            document.getElementById('categoryDescription').value = category.description;
-            document.getElementById('categoryIcon').value = category.icon;
-            document.getElementById('categoryColor').value = category.color;
-            document.getElementById('categoryStatus').value = category.status;
-            document.getElementById('categoryFeatured').value = category.featured ? '1' : '0';
-            document.getElementById('categoryMetaTitle').value = category.metaTitle;
-            document.getElementById('categoryMetaDescription').value = category.metaDescription;
-            document.getElementById('categorySlug').value = category.slug;
+        // Color change handling
+        if (categoryColor) {
+            categoryColor.addEventListener('change', function() {
+                updateColorPreview(this.value);
+            });
+        }
 
-            // Update icon preview
-            categoryIconPreview.innerHTML = `<i class="fas ${category.icon}"></i>`;
+        // Initialize previews for edit mode
+        function initializeEditModePreviews() {
+            // Set icon preview
+            if (categoryIcon && categoryIconPreview) {
+                categoryIconPreview.className = categoryIcon.value;
+            }
 
-            // Update color
+            // Set color preview
+            if (categoryColor) {
+                updateColorPreview(categoryColor.value);
+            }
+        }
+
+        // Update color preview
+        function updateColorPreview(color) {
+            if (!categoryIconPreview) return;
+
             const colorClasses = {
                 blue: 'bg-blue-100 text-blue-600',
                 green: 'bg-green-100 text-green-600',
@@ -638,26 +675,52 @@
             };
 
             // Remove all color classes
-            Object.keys(colorClasses).forEach(c => {
-                categoryIconPreview.classList.remove(`bg-${c}-100`, `text-${c}-600`);
+            const previewContainer = categoryIconPreview.parentElement;
+            Object.values(colorClasses).forEach(classes => {
+                classes.split(' ').forEach(cls => {
+                    previewContainer.classList.remove(cls);
+                });
             });
 
             // Add selected color classes
-            const classes = colorClasses[category.color].split(' ');
-            classes.forEach(c => categoryIconPreview.classList.add(c));
-
-            // Clear image preview (in a real app, you would load the existing image)
-            categoryImagePreview.innerHTML = '';
-
-            categoryModal.classList.remove('hidden');
+            colorClasses[color]?.split(' ').forEach(cls => {
+                previewContainer.classList.add(cls);
+            });
         }
-    }
 
-    // Sample function to delete a category
-    function deleteCategory(id) {
-        if (confirm('Are you sure you want to delete this category?')) {
-            // In a real application, you would delete the category here
-            alert('Category deleted successfully!');
+        // Reset form previews to defaults
+        function resetFormPreviews() {
+            // Reset icon to default
+            if (categoryIcon && categoryIconPreview) {
+                categoryIcon.value = 'fa fa-tag';
+                categoryIconPreview.className = 'fa fa-tag';
+            }
+
+            // Reset color to default
+            if (categoryColor) {
+                categoryColor.value = 'blue';
+                updateColorPreview('blue');
+            }
+
+            // Clear image preview
+            if (categoryImagePreview) {
+                categoryImagePreview.innerHTML = '';
+            }
+
+            // Clear file input
+            if (categoryImageInput) {
+                categoryImageInput.value = '';
+            }
         }
-    }
+
+        // Initialize for edit mode
+        @if (isUpdate)
+        {
+                <text>
+                // Show modal for edit mode
+                categoryModal.classList.remove('hidden');
+                initializeEditModePreviews();
+                </text>
+        }
+    });
 </script>
