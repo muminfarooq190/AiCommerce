@@ -46,33 +46,38 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
-     <!-- Top Navigation -->
-            <header class="bg-white shadow-sm">
-                <div class="flex items-center justify-between px-6 py-3">
-                    <div class="flex items-center">
-                        <button id="sidebarToggle" class="text-gray-500 mr-4">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        <h2 class="text-xl font-semibold text-gray-800">Product Management</h2>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <button class="text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-bell"></i>
-                                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                            </button>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-8 h-8 rounded-full bg-gray-300 mr-2 overflow-hidden">
-                                <img src="https://via.placeholder.com/32" alt="Admin" class="w-full h-full object-cover">
-                            </div>
-                            <span class="text-sm font-medium">Admin</span>
-                        </div>
-                    </div>
+    <!-- Wizard Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center space-x-4">
+            <a
+                href="/admin/products"
+                class="text-gray-500 hover:text-ai-blue flex items-center space-x-2 text-sm"
+            >
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Products</span>
+            </a>
+            <h1 class="text-xl font-semibold text-ai-dark flex-1">
+                <span id="wizardTitle">Add New Product</span>
+            </h1>
+        </div>
+    </header>
+
+    <!-- Stepper -->
+    <nav
+        class="max-w-7xl mx-auto w-full pt-8 pb-4 px-6 grid grid-cols-3 gap-2 text-xs font-medium"
+    >
+        <template id="step-template">
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="w-8 h-8 rounded-full border-2 border-ai-blue flex items-center justify-center mb-1 text-ai-blue step-indicator"
+                >
+                    1
                 </div>
-            </header>
-            
+                <span class="step-label whitespace-nowrap">Label</span>
+            </div>
+        </template>
+        <div id="stepper" class="contents"></div>
+    </nav>
 
     <!-- Wizard Content -->
     <main class="flex-1">

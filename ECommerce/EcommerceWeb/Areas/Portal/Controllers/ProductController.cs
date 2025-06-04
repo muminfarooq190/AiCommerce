@@ -2,7 +2,6 @@
 using EcommerceWeb.Extentions;
 using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sheared;
 using Sheared.Models.RequestModels;
@@ -12,7 +11,6 @@ using System.Net;
 namespace EcommerceWeb.Areas.Portal.Controllers;
 
 [Area("Portal")]
-[Authorize]
 public class ProductController(IApiClient apiClient, ILogger<ProductController> logger) : Controller
 {
     public async Task<IActionResult> Index()
@@ -102,5 +100,11 @@ public class ProductController(IApiClient apiClient, ILogger<ProductController> 
         productPageViewModel.NewProduct = new();
         ViewBag.SuccessMessage = "Product saved successfully!";
         return View("Index", productPageViewModel);
+    }
+
+    [HttpGet("Portal/Product/Create")]
+    public async Task<IActionResult> Create()
+    {
+        return View();
     }
 }
