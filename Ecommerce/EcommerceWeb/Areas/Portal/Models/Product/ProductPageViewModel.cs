@@ -1,9 +1,13 @@
-﻿namespace EcommerceWeb.Areas.Portal.Models.Product;
+﻿using EcommerceWeb.Areas.Portal.Models.Categories;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace EcommerceWeb.Areas.Portal.Models.Product;
 
 public class ProductPageViewModel
 {
-    public List<ProductViewModel> Products { get; set; } = new();
+    public IEnumerable<ProductViewModel> Products { get; set; } = new List<ProductViewModel>();
     public ProductViewModel NewProduct { get; set; } = new();
+    public IEnumerable<SelectListItem> Categories { get; internal set; } = new List<SelectListItem>();
     public int TotalCount { get; set; }
     public int PageNumber { get; set; }
     public int PageSize { get; set; }

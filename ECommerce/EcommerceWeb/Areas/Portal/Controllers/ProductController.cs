@@ -5,6 +5,7 @@ using EcommerceWeb.Utilities.ApiResult.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sheared;
+using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
 using System.Net;
 
@@ -55,5 +56,51 @@ public class ProductController(IApiClient apiClient, ILogger<ProductController> 
         };
 
         return View(ViewModel);
+    }
+
+    public async Task<IActionResult> SaveProduct(ProductPageViewModel productPageViewModel)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Index", productPageViewModel);
+        }
+        var newProduct = productPageViewModel.NewProduct;
+        var payload = new CreateProductRequest(
+            Name: newProduct.Name,
+            Description: newProduct.Description,
+            Price: newProduct.Price,
+            StockQuantity: newProduct.StockQuantity,
+            CategoryIds: newProduct.CategoryIds,
+            Barcode: newProduct.Barcode,
+            BrandId: newProduct.BrandId,
+            CompareAtPrice: newProduct.CompareAtPrice,
+            CostPerItem: newProduct.CostPerItem,
+            LengthCm: newProduct.LengthCm,
+            WidthCm: newProduct.WidthCm,
+            HeightCm: newProduct.HeightCm,
+            MetaDescription: newProduct.MetaDescription,
+            MetaTitle: newProduct.MetaTitle,
+            QualifiesForFreeShipping: newProduct.QualifiesForFreeShipping,
+            SKU: newProduct.SKU,
+            TrackInventory: newProduct.TrackInventory,
+            WeightKg: newProduct.WeightKg
+            );
+
+        var apiResponce = await apiClient.PostAsync<CreateProductRequest, ProductDto>(Endpoints.Products.Create, payload);
+
+        ModelState.AddApiResult(apiResponce);
+        if (apiResponce.ResultType != ResultType.Success)
+        {
+            if (apiResponce.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Index", "Authentication");
+            }
+            logger.LogError("Product creation failed: {Errors}", apiResponce.Errors.ToString());
+            return View("Index", productPageViewModel);
+        }
+
+        productPageViewModel.NewProduct = new();
+        ViewBag.SuccessMessage = "Product saved successfully!";
+        return View("Index", productPageViewModel);
     }
 }

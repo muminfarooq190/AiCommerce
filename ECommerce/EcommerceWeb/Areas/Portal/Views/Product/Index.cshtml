@@ -274,40 +274,41 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form id="productForm" asp-controller="">
-                        <input type="hidden" id="productId">
+                    <form asp-action="SaveProduct" asp-controller="Product" method="post" enctype="multipart/form-data" id="productForm">
+                        <input asp-for="NewProduct.Id" type="hidden" />
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <!-- Basic Information -->
                                 <div class="mb-6">
                                     <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Basic Information</h4>
+
                                     <div class="mb-4">
-                                        <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Product Name*</label>
-                                        <input type="text" id="productName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                        <label asp-for="NewProduct.Name" class="form-label" />
+                                        <input asp-for="NewProduct.Name" class="form-input" />
+                                        <span asp-validation-for="NewProduct.Name" class="text-red-500" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productSKU" class="block text-sm font-medium text-gray-700 mb-1">SKU*</label>
-                                        <input type="text" id="productSKU" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                        <label asp-for="NewProduct.SKU" class="form-label" />
+                                        <input asp-for="NewProduct.SKU" class="form-input" />
+                                        <span asp-validation-for="NewProduct.SKU" class="text-red-500" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productCategory" class="block text-sm font-medium text-gray-700 mb-1">Category*</label>
-                                        <select id="productCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
-                                            <option value="">Select Category</option>
-                                            <option value="1">AI Tools</option>
-                                            <option value="2">Electronics</option>
-                                            <option value="3">Apparel</option>
-                                            <option value="4">Home Goods</option>
-                                            <option value="5">Automotive</option>
-                                            <option value="6">Health</option>
-                                        </select>
+                                        <label asp-for="NewProduct.CategoryIds" class="form-label">Category</label>
+                                        <select asp-for="NewProduct.CategoryIds" asp-items="Model.Categories" multiple class="form-control"></select>
+                                        <span asp-validation-for="NewProduct.CategoryIds" class="text-red-500" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productBrand" class="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                                        <input type="text" id="productBrand" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <label asp-for="NewProduct.BrandId" class="form-label" />
+                                        <input asp-for="NewProduct.BrandId" class="form-input" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productStatus" class="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                                        <select id="productStatus" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                        <label asp-for="NewProduct.StockStatus" class="form-label" />
+                                        <select asp-for="NewProduct.StockStatus" class="form-input">
                                             <option value="active">Active</option>
                                             <option value="inactive">Inactive</option>
                                             <option value="draft">Draft</option>
@@ -318,94 +319,98 @@
                                 <!-- Pricing -->
                                 <div class="mb-6">
                                     <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Pricing</h4>
+
                                     <div class="mb-4">
-                                        <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-1">Price ($)*</label>
-                                        <input type="number" step="0.01" id="productPrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                        <label asp-for="NewProduct.Price" class="form-label" />
+                                        <input asp-for="NewProduct.Price" class="form-input" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productComparePrice" class="block text-sm font-medium text-gray-700 mb-1">Compare at Price ($)</label>
-                                        <input type="number" step="0.01" id="productComparePrice" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <label asp-for="NewProduct.CompareAtPrice" class="form-label" />
+                                        <input asp-for="NewProduct.CompareAtPrice" class="form-input" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productCost" class="block text-sm font-medium text-gray-700 mb-1">Cost per item ($)</label>
-                                        <input type="number" step="0.01" id="productCost" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <label asp-for="NewProduct.CostPerItem" class="form-label" />
+                                        <input asp-for="NewProduct.CostPerItem" class="form-input" />
                                     </div>
                                 </div>
 
                                 <!-- Inventory -->
-                                <div>
+                                <div class="mb-6">
                                     <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Inventory</h4>
+
                                     <div class="mb-4">
-                                        <label for="productStock" class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity*</label>
-                                        <input type="number" id="productStock" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" required>
+                                        <label asp-for="NewProduct.StockQuantity" class="form-label" />
+                                        <input asp-for="NewProduct.StockQuantity" class="form-input" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productBarcode" class="block text-sm font-medium text-gray-700 mb-1">Barcode (ISBN, UPC, etc.)</label>
-                                        <input type="text" id="productBarcode" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <label asp-for="NewProduct.Barcode" class="form-label" />
+                                        <input asp-for="NewProduct.Barcode" class="form-input" />
                                     </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" id="productTrackInventory" class="rounded text-ai-blue focus:ring-ai-blue">
-                                        <label for="productTrackInventory" class="ml-2 text-sm text-gray-700">Track inventory</label>
+
+                                    <div class="flex items-center mb-4">
+                                        <input asp-for="NewProduct.TrackInventory" type="checkbox" class="form-checkbox" />
+                                        <label asp-for="NewProduct.TrackInventory" class="ml-2 text-sm text-gray-700" />
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <!-- Media -->
+                                <!-- Media Upload -->
                                 <div class="mb-6">
                                     <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Media</h4>
+
                                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                        <div class="flex flex-col items-center justify-center py-8">
-                                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-                                            <p class="text-sm text-gray-500 mb-2">Drag & drop images here or click to browse</p>
-                                            <p class="text-xs text-gray-400">Recommended size: 800x800px</p>
-                                        </div>
-                                        <input type="file" id="productImage" class="hidden" accept="image/*" multiple>
-                                        <button type="button" id="uploadImageBtn" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
+                                        <input type="file" name="Images" multiple accept="image/*" class="hidden" id="productImage" />
+                                        <button type="button" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90 text-sm">
                                             Upload Images
                                         </button>
                                     </div>
                                     <div class="grid grid-cols-3 gap-2 mt-4" id="imagePreviews">
-                                        <!-- Image previews will be added here -->
+                                        <!-- JS-generated previews -->
                                     </div>
                                 </div>
 
                                 <!-- Description -->
                                 <div class="mb-6">
-                                    <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Description</h4>
-                                    <div class="mb-4">
-                                        <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-1">Product Description</label>
-                                        <textarea id="productDescription" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
-                                    </div>
+                                    <label asp-for="NewProduct.Description" class="form-label" />
+                                    <textarea asp-for="NewProduct.Description" rows="4" class="form-input"></textarea>
                                 </div>
 
                                 <!-- Shipping -->
-                                <div>
+                                <div class="mb-6">
                                     <h4 class="text-lg font-medium mb-4 text-ai-dark border-b pb-2">Shipping</h4>
+
                                     <div class="mb-4">
-                                        <label for="productWeight" class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
-                                        <input type="number" step="0.01" id="productWeight" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                        <label asp-for="NewProduct.WeightKg" class="form-label" />
+                                        <input asp-for="NewProduct.WeightKg" class="form-input" />
                                     </div>
+
                                     <div class="mb-4">
-                                        <label for="productDimensions" class="block text-sm font-medium text-gray-700 mb-1">Dimensions (cm)</label>
+                                        <label class="form-label">Dimensions (cm)</label>
                                         <div class="flex space-x-2">
-                                            <input type="number" placeholder="Length" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <input type="number" placeholder="Width" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
-                                            <input type="number" placeholder="Height" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue">
+                                            <input asp-for="NewProduct.LengthCm" placeholder="Length" class="form-input flex-1" />
+                                            <input asp-for="NewProduct.WidthCm" placeholder="Width" class="form-input flex-1" />
+                                            <input asp-for="NewProduct.HeightCm" placeholder="Height" class="form-input flex-1" />
                                         </div>
                                     </div>
+
                                     <div class="flex items-center">
-                                        <input type="checkbox" id="productFreeShipping" class="rounded text-ai-blue focus:ring-ai-blue">
-                                        <label for="productFreeShipping" class="ml-2 text-sm text-gray-700">This product qualifies for free shipping</label>
+                                        <input asp-for="NewProduct.QualifiesForFreeShipping" type="checkbox" class="form-checkbox" />
+                                        <label asp-for="NewProduct.QualifiesForFreeShipping" class="ml-2 text-sm text-gray-700" />
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="flex justify-end space-x-3 mt-6">
                             <button type="button" id="cancelProductBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
                             <button type="submit" class="gradient-bg text-white px-4 py-2 rounded-md hover:opacity-90">Save Product</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
@@ -413,102 +418,7 @@
 </div>
 
 <script>
-    // Sample data for products
-    const products = [
-        {
-            id: 1,
-            name: "Neural AI Processor Chip",
-            sku: "AI-PROC-001",
-            category: "AI Tools",
-            brand: "NeuralTech",
-            status: "active",
-            price: 249.99,
-            comparePrice: 299.99,
-            cost: 150.00,
-            stock: 42,
-            barcode: "123456789012",
-            trackInventory: true,
-            description: "High-performance AI accelerator chip with neural network capabilities for advanced computing tasks.",
-            weight: 0.2,
-            dimensions: { length: 5, width: 5, height: 0.5 },
-            freeShipping: true,
-            images: [
-                "https://via.placeholder.com/300x300?text=AI+Processor",
-                "https://via.placeholder.com/300x300?text=AI+Chip+Back",
-                "https://via.placeholder.com/300x300?text=AI+Chip+Side"
-            ]
-        },
-        {
-            id: 2,
-            name: "AI-Powered Surveillance Drone",
-            sku: "DRONE-004",
-            category: "Electronics",
-            brand: "QuantumAI",
-            status: "active",
-            price: 599.00,
-            comparePrice: 699.00,
-            cost: 350.00,
-            stock: 5,
-            barcode: "987654321098",
-            trackInventory: true,
-            description: "4K camera drone with object tracking and AI-powered surveillance capabilities.",
-            weight: 1.5,
-            dimensions: { length: 30, width: 30, height: 15 },
-            freeShipping: false,
-            images: [
-                "https://via.placeholder.com/300x300?text=Smart+Drone",
-                "https://via.placeholder.com/300x300?text=Drone+Controller"
-            ]
-        },
-        {
-            id: 3,
-            name: "Health Monitoring Smartwatch",
-            sku: "WATCH-007",
-            category: "Health",
-            brand: "SmartEdge",
-            status: "active",
-            price: 179.99,
-            comparePrice: 224.99,
-            cost: 90.00,
-            stock: 128,
-            barcode: "456789123045",
-            trackInventory: true,
-            description: "AI-powered health insights with heart rate monitoring, sleep tracking, and fitness analytics.",
-            weight: 0.1,
-            dimensions: { length: 4, width: 3, height: 1 },
-            freeShipping: true,
-            images: [
-                "https://via.placeholder.com/300x300?text=Smart+Watch",
-                "https://via.placeholder.com/300x300?text=Watch+Box"
-            ]
-        },
-        {
-            id: 4,
-            name: "AI-Enhanced VR Headset",
-            sku: "VR-009",
-            category: "Electronics",
-            brand: "VisionX",
-            status: "inactive",
-            price: 349.99,
-            comparePrice: 399.99,
-            cost: 200.00,
-            stock: 0,
-            barcode: "789123456078",
-            trackInventory: true,
-            description: "Immersive virtual reality experience with AI-enhanced graphics and motion tracking.",
-            weight: 0.8,
-            dimensions: { length: 20, width: 15, height: 10 },
-            freeShipping: false,
-            images: [
-                "https://via.placeholder.com/300x300?text=VR+Headset",
-                "https://via.placeholder.com/300x300?text=VR+Controllers"
-            ]
-        }
-    ];
-
-    // DOM Elements
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.querySelector('.sidebar');
+    
     const addProductBtn = document.getElementById('addProductBtn');
     const productModal = document.getElementById('productModal');
     const closeProductModal = document.getElementById('closeProductModal');
@@ -518,11 +428,7 @@
     const productImage = document.getElementById('productImage');
     const imagePreviews = document.getElementById('imagePreviews');
 
-    // Sidebar toggle for mobile
-    sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('-translate-x-full');
-    });
-
+    dubbger;
     // Open product modal for adding new product
     addProductBtn.addEventListener('click', () => {
         document.getElementById('productModalTitle').textContent = 'Add New Product';

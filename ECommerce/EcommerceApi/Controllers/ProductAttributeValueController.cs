@@ -1,6 +1,5 @@
 ﻿using EcommerceApi.Attributes;
 using EcommerceApi.Entities;
-using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using Sheared;
 using Sheared.Enums;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Security.Claims;
 
 namespace EcommerceApi.Controllers;
 
@@ -49,7 +47,7 @@ public sealed class ProductAttributeValueController(
         if (!foundProduct) return NotFound("Product");
 
         var attr = await _db.ProductAttributes
-                            .FirstOrDefaultAsync(a => a.AttributeId == attributeId , ct);
+                            .FirstOrDefaultAsync(a => a.AttributeId == attributeId, ct);
         if (attr is null) return NotFound("Attribute");
 
         if (attr.DataType != req.DataType)
