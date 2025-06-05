@@ -5,7 +5,7 @@
     ViewData["Title"] = "Category Page";
     var isUpdate = Model.Category != null && Model.Category.categoryId != Guid.Empty;
     var showModal = isUpdate;
-    var status = ViewBag.StatusMessage as string;
+    var status = TempData["StatusMessage"] as string;
     if (status == "error")
     {
         showModal = true;
@@ -258,7 +258,7 @@
                                         <td class="px-4 py-3 flex items-center justify-end">
                                             <a asp-area="Portal"
                                                asp-controller="Category"
-                                               asp-action="Update"
+                                               asp-action="Index"
                                                asp-route-id="@(category?.categoryId ?? Guid.Empty)"
                                                class="text-ai-blue hover:text-ai-dark mr-3">
                                                 <i class="fas fa-edit"></i>
@@ -578,18 +578,18 @@
     </main>
 </div>
 @{
-    var StatusMessage = ViewBag.StatusMessage as string;
+    var StatusMessage = TempData["StatusMessage"] as string;
 
     if (StatusMessage == "success")
     {
         <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Category Created successfully.',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                location.reload();
+               document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Your operation was completed successfully.',
+                    confirmButtonText: 'OK'
+                });
             });
         </script>
     }
