@@ -263,12 +263,12 @@
                                                class="text-ai-blue hover:text-ai-dark mr-3">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form asp-area="Portal"
+                                            <form class="delete-category-form"
+                                                  asp-area="Portal"
                                                   asp-controller="Category"
                                                   asp-action="Delete"
                                                   asp-route-id="@(category?.categoryId ?? Guid.Empty)"
-                                                  method="post"
-                                                  onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                                  method="post">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="text-red-500 hover:text-red-700">
                                                     <i class="fas fa-trash"></i>
@@ -629,7 +629,26 @@
         const categoryIconPreview = document.getElementById('categoryIconPreview')?.querySelector('i');
         const categoryColor = document.getElementById('categoryColor');
         const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
+        // for delete
+         document.querySelectorAll(".delete-category-form").forEach(function (form) {
+            form.addEventListener("submit", function (e) {
+                e.preventDefault(); 
 
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to undo this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit(); 
+                    }
+                });
+            });
+        });
         // Open modal when "Add Category" is clicked
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', () => {
