@@ -57,10 +57,18 @@ public class ApiClient : IApiClient
 
 	public async Task<ApiResult<TResponse>> PutAsync<TRequest, TResponse>(string endpoint, TRequest payload)
 	{
-		var json = JsonConvert.SerializeObject(payload);
-		var content = new StringContent(json, Encoding.UTF8, "application/json");
+		var request = new HttpRequestMessage(HttpMethod.Put, endpoint)
+		{
+			Content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json")
+		};
 
-		var response = await _httpClient.PutAsync(endpoint, content);
+		var response = await _httpClient.SendAsync(request);
+
+		if (response.StatusCode == HttpStatusCode.NoContent)
+		{
+			return ApiResult<TResponse>.Success(default, response.StatusCode);
+		}
+
 		return await HandleResponse<TResponse>(response);
 	}
 

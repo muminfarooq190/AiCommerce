@@ -580,16 +580,37 @@
 @{
     var StatusMessage = TempData["StatusMessage"] as string;
 
-    if (StatusMessage == "success")
+    if (StatusMessage == "created")
     {
         <script>
                document.addEventListener("DOMContentLoaded", function () {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success!',
-                    text: 'Your operation was completed successfully.',
+                    text: 'Category Created successfully.',
                     confirmButtonText: 'OK'
                 });
+            });
+        </script>
+    }
+    if (StatusMessage == "updated")
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const showSwal = !history.state || !history.state.successSwalShown;
+
+                if (showSwal) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: 'Category Updated successfully.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        history.replaceState({ successSwalShown: true }, null, '/portal/Category');
+
+                        location.reload();
+                    });
+                }
             });
         </script>
     }

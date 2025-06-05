@@ -137,7 +137,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		}
 		else
 		{
-			TempData["StatusMessage"] = "success";
+			TempData["StatusMessage"] = "created";
 			return RedirectToAction("Index");
 		}
 			
@@ -204,13 +204,13 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			if (!ModelState.IsValid)
 			{
 				categoryModel = await getCategoriesData(1, 30);
-				ViewBag.Errors = true;
+				TempData["StatusMessage"] = "error";
 				return View( categoryModel);
 			}
 			if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
 			{
 				ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
-				ViewBag.Errors = true;
+				TempData["StatusMessage"] = "error";
 				categoryModel = await getCategoriesData(1, 30);
 				return View(categoryModel);
 			}
@@ -228,7 +228,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				{
 					_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
 					categoryModel = await getCategoriesData(1, 30);
-					ViewBag.Errors = true;
+					TempData["StatusMessage"] = "error";
 					return View(categoryModel);
 				}
 
@@ -259,17 +259,17 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			{
 				_logger.LogError("Category Update failed: {Errors}", response.Errors?.ToString());
 				categoryModel = await getCategoriesData(1, 30);
-				ViewBag.Errors = true;
+				TempData["StatusMessage"] = "error";
 				return View(categoryModel);
 			}
-			ViewBag.Errors = false;
+			TempData["StatusMessage"] = "updated";
 			return RedirectToAction("Index");
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, $"Error updating category ID: {id}");
 			categoryModel = await getCategoriesData(1, 10);
-			ViewBag.Errors = true;
+			TempData["StatusMessage"] = "error";
 			return View( categoryModel);
 		}
 	}
