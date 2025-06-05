@@ -108,25 +108,14 @@
             </div>
         </div>
     </header>
-    <!-- Stepper -->
-    <nav class="max-w-7xl mx-auto w-full pt-8 pb-4 px-6 grid grid-cols-3 gap-2 text-xs font-medium">
-        <template id="step-template">
-            <div class="flex flex-col items-center text-center">
-                <div class="w-8 h-8 rounded-full border-2 border-ai-blue flex items-center justify-center mb-1 text-ai-blue step-indicator">
-                    1
-                </div>
-                <span class="step-label whitespace-nowrap">Label</span>
-            </div>
-        </template>
-        <div id="stepper" class="contents"></div>
-    </nav>
+    
     <!-- Content Area -->
-    <main class="flex-1 overflow-y-auto p-6">
+    <main class="flex-1 p-6">
         <form id="productWizardForm" class="max-w-7xl mx-auto px-6 pb-10 bg-white rounded-lg shadow p-4">
             <!-- STEP 1 – GENERAL INFO -->
             <section class="wizard-step" data-title="General">
                 <h2 class="text-lg font-semibold mb-6">General Information</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[600px] overflow-y-auto ">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1" for="productName">Product Name *</label>
                         <input id="productName"
@@ -168,6 +157,7 @@
                                   rows="5"
                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue"></textarea>
                     </div>
+                    <div class="md:col-span-2 attr-parent"></div>
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium mb-1">Attributes</label>
                         <div class="space-y-2" id="variant-attributes-container">
@@ -189,27 +179,16 @@
                     Add different variants with their pricing, images, and attributes.
                 </p>
 
-                <!-- Variant Tabs -->
-                <div class="mb-4 border-b border-gray-200">
-                    <div class="flex flex-wrap -mb-px" id="variantTabsContainer">
-                        <!-- Tabs will be added here -->
-                    </div>
-                </div>
-
                 <!-- Variant Content -->
-                <div id="variantContentContainer">
-                    <!-- Default message when no variants -->
+                <div id="variantContentContainer" class="max-h-[600px] overflow-y-auto pr-2">
+                    @* <!-- Default message when no variants -->
                     <div id="noVariantsMessage" class="text-center py-8 text-gray-500">
                         <i class="fas fa-box-open text-4xl mb-2"></i>
                         <p>No variants added yet. Click the button below to add your first variant.</p>
-                    </div>
+                    </div> *@
+                   
                 </div>
 
-                <button type="button"
-                        id="addVariantBtn"
-                        class="gradient-bg text-white px-4 py-2 rounded-md text-sm mt-4">
-                    <i class="fas fa-plus mr-2"></i> Add Variant
-                </button>
             </section>
 
             <!-- STEP 3 – REVIEW -->
@@ -272,90 +251,63 @@
         </form>
 
     </main>
-    <!-- Variant Templates -->
-    <template id="variant-tab-template">
-        <button type="button" class="variant-tab" data-variant-id="">
-            <span>Variant </span>
-            <i class="fas fa-times ml-1 text-gray-400 hover:text-red-500"></i>
-        </button>
-    </template>
-
-    <template id="variant-content-template">
-        <div class="variant-content hidden" data-variant-id="">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium mb-1">Variant Name *</label>
-                    <input type="text"
-                           required
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-name" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">SKU *</label>
-                    <input type="text"
-                           required
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-sku" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Price ($) *</label>
-                    <input type="number"
-                           step="0.01"
-                           required
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-price" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Compare-at Price ($)</label>
-                    <input type="number"
-                           step="0.01"
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-compare-price" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Stock Quantity *</label>
-                    <input type="number"
-                           required
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-stock" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Weight (kg)</label>
-                    <input type="number"
-                           step="0.01"
-                           class="w-full border-gray-300 rounded-md px-3 py-2 focus:ring-ai-blue focus:border-ai-blue variant-weight" />
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">Variant Images</label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center text-center">
-                        <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
-                        <p class="text-sm text-gray-500">Upload variant-specific images</p>
-                        <input type="file"
-                               multiple
-                               accept="image/*"
-                               class="hidden variant-images-input" />
-                        <button type="button"
-                                class="mt-2 gradient-bg text-white px-3 py-1 rounded-md text-xs variant-images-btn">
-                            Browse Images
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2 mt-2 variant-images-preview"></div>
-                </div>
-            </div>
-        </div>
-    </template>
+   
+    
 
     <template id="attribute-row-template">
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 mb-4 attribute-row">
             <input type="text"
                    placeholder="Attribute (e.g., Color)"
-                   class="flex-1 border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-ai-blue focus:border-ai-blue attribute-name" />
+                   class="attr-name w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" />
             <input type="text"
                    placeholder="Value (e.g., Red)"
-                   class="flex-1 border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-ai-blue focus:border-ai-blue attribute-value" />
+                   class="attr-value w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-ai-blue" />
             <button type="button"
-                    class="text-red-500 hover:text-red-700">
+                    class="text-red-500 hover:text-red-700 remove-attribute-btn">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
     </template>
+    <template id="variant-content-template">
+        <div class="variant-block border border-gray-200 rounded-lg p-6 mb-6 shadow relative">
 
+            <h3 class="text-md font-semibold mb-4">Variant</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Variant Name *</label>
+                    <input type="text" class="variant-name w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">SKU *</label>
+                    <input type="text" class="variant-sku w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Price *</label>
+                    <input type="number" class="variant-price w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Quantity *</label>
+                    <input type="number" class="variant-qty w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 p-4 bg-white border border-gray-200 rounded-lg shadow-sm mb-4 varient-attributes">
+                
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Variant Images</label>
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center text-center">
+                    <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-500">Upload variant-specific images</p>
+                    <input type="file" multiple accept="image/*" class="hidden variant-images-input" />
+                    <button type="button" class="mt-2 bg-blue-600 text-white px-3 py-1 rounded-md text-xs variant-images-btn">
+                        Browse Images
+                    </button>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mt-2 variant-images-preview"></div>
+            </div>
+        </div>
+    </template>
     <template id="review-variant-template">
         <div class="variant-card">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -392,127 +344,109 @@
 <script>
     
     let currentStep = 0;   
+    let attributes = [];
+    let varients = null;
 
-    // Navigation
+    const wizard_steps= document.querySelectorAll(".wizard-step");
+    const attr_parent = document.querySelector(".attr-parent");
+    const variantContentContainer = document.querySelector("#variantContentContainer");
+    const attribute_row_template = document.getElementById("attribute-row-template").content;
+    const variant_content_template = document.getElementById("variant-content-template").content;
+
     document.getElementById("prevStepBtn").addEventListener("click", () => {
+         wizard_steps.forEach((step)=>{
+            step.classList.add("hidden");
+        });
         if (currentStep > 0) {
             currentStep--;
-           
         }
+        wizard_steps[currentStep].classList.remove("hidden");
     });
-    document.getElementById("nextStepBtn").addEventListener("click", () => {
-        currentStep++;
-    });
+    document.getElementById("nextStepBtn").addEventListener("click", () => {        
+         
+        if(currentStep == 0){
+            attributes = generateAttributes();
+            varients = generateVariants(attributes);
+            populateVariant(varients);
 
+        }else if(currentStep == 1){            
+        
+            wizard_steps[1].append(variant_content_template);
+        }
+
+        wizard_steps.forEach((step)=>{
+            step.classList.add("hidden");
+        });      
+        
+        if (currentStep < 2) {
+            currentStep++
+        }
+        wizard_steps[currentStep].classList.remove("hidden");
+    });
+    document.querySelector(".add-attribute-btn").addEventListener("click", () => {       
+        
+        attr_parent.append(attribute_row_template.cloneNode(true));
+    });
+    attr_parent.addEventListener("click", (e) => {
+      if (e.target.closest(".remove-attribute-btn")) {
+        const row = e.target.closest(".attribute-row");
+        if (row) row.remove();
+      }
+    });
     
+    function generateAttributes(){
+        var attribute_rows = attr_parent.querySelectorAll(".attribute-row");
+        const raw_attributes = [];
+        attribute_rows.forEach((row) => {
+            const nameInput = row.querySelector(".attr-name");
+            const valueInput = row.querySelector(".attr-value");
 
-  
+            const name = nameInput?.value?.trim() || "";
+            const values = valueInput?.value?.split(",").map(v => v.trim()).filter(v => v) || [];
 
-    // ---------- Review Section Update ----------
-    function updateReviewSection() {
-        // Update general info
-        document.getElementById("reviewProductName").textContent =
-            document.getElementById("productName").value || "-";
-        document.getElementById("reviewSKU").textContent =
-            document.getElementById("productSKU").value || "-";
-        document.getElementById("reviewCategory").textContent =
-            document.getElementById("productCategory").value || "-";
-        document.getElementById("reviewStatus").textContent =
-            document.getElementById("productStatus").value || "-";
-        document.getElementById("reviewDescription").textContent =
-            document.getElementById("productDescription").value || "-";
-
-        // Update images
-        const reviewImagesGrid = document.getElementById("reviewImagesGrid");
-        reviewImagesGrid.innerHTML = "";
-        Array.from(previewGrid.children).forEach(imgDiv => {
-            const imgSrc = imgDiv.querySelector("img").src;
-            const clone = imgDiv.cloneNode(true);
-            clone.querySelector("button").remove();
-            reviewImagesGrid.appendChild(clone);
-        });
-
-        // Update variants
-        const reviewVariantsContainer = document.getElementById("reviewVariantsContainer");
-        const reviewVariantTemplate = document.getElementById("review-variant-template").content;
-
-        // Clear existing content except the heading
-        while (reviewVariantsContainer.children.length > 1) {
-            reviewVariantsContainer.removeChild(reviewVariantsContainer.lastChild);
-        }
-
-        if (variantCounter === 0) {
-            reviewVariantsContainer.querySelector("p").textContent = "No variants added";
-        } else {
-            reviewVariantsContainer.querySelector("p").textContent = `${variantCounter} variant(s)`;
-
-            // Add each variant to review
-            Array.from(variantTabsContainer.children).forEach(tab => {
-                const variantId = tab.dataset.variantId;
-                const variantContent = document.querySelector(`.variant-content[data-variant-id="${variantId}"]`);
-
-                const variantNode = reviewVariantTemplate.cloneNode(true);
-                const variantCard = variantNode.querySelector(".variant-card");
-
-                // Fill in variant details
-                variantCard.querySelector(".review-variant-name").textContent =
-                    variantContent.querySelector(".variant-name").value || "-";
-                variantCard.querySelector(".review-variant-sku").textContent =
-                    variantContent.querySelector(".variant-sku").value || "-";
-                variantCard.querySelector(".review-variant-price").textContent =
-                    variantContent.querySelector(".variant-price").value ?
-                    `$${parseFloat(variantContent.querySelector(".variant-price").value).toFixed(2)}` : "-";
-                variantCard.querySelector(".review-variant-stock").textContent =
-                    variantContent.querySelector(".variant-stock").value || "-";
-
-                // Add attributes
-                const attributesContainer = variantCard.querySelector(".review-variant-attributes");
-                const attributeElements = variantContent.querySelectorAll("#variant-attributes-container > div");
-
-                if (attributeElements.length === 0) {
-                    attributesContainer.textContent = "-";
-                } else {
-                    attributesContainer.innerHTML = "";
-                    attributeElements.forEach(attrDiv => {
-                        const name = attrDiv.querySelector(".attribute-name").value;
-                        const value = attrDiv.querySelector(".attribute-value").value;
-                        if (name || value) {
-                            const div = document.createElement("div");
-                            div.className = "text-sm";
-                            div.textContent = `${name}: ${value}`;
-                            attributesContainer.appendChild(div);
-                        }
-                    });
-                }
-
-                // Add images
-                const imagesContainer = variantCard.querySelector(".review-variant-images");
-                const imageElements = variantContent.querySelectorAll(".variant-images-preview > div");
-
-                if (imageElements.length === 0) {
-                    imagesContainer.textContent = "-";
-                } else {
-                    imagesContainer.innerHTML = "";
-                    imageElements.forEach(imgDiv => {
-                        const imgSrc = imgDiv.querySelector("img").src;
-                        const clone = document.createElement("div");
-                        clone.className = "relative";
-                        clone.innerHTML = `<img src="${imgSrc}" class="h-16 w-full object-cover rounded"/>`;
-                        imagesContainer.appendChild(clone);
-                    });
-                }
-
-                reviewVariantsContainer.appendChild(variantCard);
+            raw_attributes.push({
+                name: name,
+                values: values
             });
-        }
+        });
+        return raw_attributes;
     }
 
-    // ---------- Form Submission ----------
-    document
-        .getElementById("productWizardForm")
-        .addEventListener("submit", (e) => {
-            e.preventDefault();
-            // Collect data here and send to your backend
-            alert("Product saved! (implement API call here)");
+    function generateVariants(attributes) {
+        if (attributes.length === 0) return [[]];
+
+        const [first, ...rest] = attributes;
+        const combos = generateVariants(rest);
+
+        return first.values.flatMap(value =>
+            combos.map(combo => [{ name: first.name, value: value }, ...combo])
+        );
+    }
+
+    function populateVariant(variants) {
+        variants.forEach(variant => {
+            // Clone the template properly
+            const variantElement = variant_content_template.cloneNode(true);
+
+            // Find the container for attributes
+            const attrContainer = variantElement.querySelector(".varient-attributes");
+            if (!attrContainer) return;
+
+            // Render each attribute as a tag
+            variant.forEach(attr => {
+                const variantAttribute = `
+                    <span class="inline-flex items-center gap-2 px-4 py-1.5
+                                 bg-blue-50 text-blue-800 text-sm font-medium
+                                 rounded-full shadow-sm border border-blue-200
+                                 hover:shadow-md transition-shadow">
+                        <span class="whitespace-nowrap">${attr.name.toUpperCase()}: ${attr.value.toUpperCase()}</span>
+                    </span>`;
+                attrContainer.insertAdjacentHTML("beforeend", variantAttribute);
+            });
+
+            // Append to main container
+            variantContentContainer.appendChild(variantElement);
         });
+    }
+
 </script>
