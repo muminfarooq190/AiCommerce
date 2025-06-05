@@ -5,7 +5,8 @@
     ViewData["Title"] = "Category Page";
     var isUpdate = Model.Category != null && Model.Category.categoryId != Guid.Empty;
     var showModal = isUpdate;
-    if (ViewBag.Errors == true)    
+    var status = ViewBag.StatusMessage as string;
+    if (status == "error")
     {
         showModal = true;
     }
@@ -407,7 +408,7 @@
         <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 @(showModal ? "" : "hidden")">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between p-4 border-b">
-                    <h3 class="text-lg font-semibold" id="categoryModalTitle">Add New Category</h3>
+                    <h3 class="text-lg font-semibold" id="categoryModalTitle">@(isUpdate ? "Update Category" : "Add New Category")</h3>
                     <button id="closeCategoryModal" class="text-gray-500 hover:text-gray-700">
                         <i class="fas fa-times"></i>
                     </button>
@@ -417,7 +418,7 @@
                           asp-controller="Category"
                           asp-action="Index"
                           asp-route-id="@(isUpdate ? Model.Category?.categoryId : null)"
-                          method="@(isUpdate ? "put" : "post")"
+                          method="post"
                           id="categoryForm"
                           enctype="multipart/form-data">
 
@@ -576,6 +577,23 @@
         </div>
     </main>
 </div>
+@{
+    var StatusMessage = ViewBag.StatusMessage as string;
+
+    if (StatusMessage == "success")
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Category Created successfully.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload();
+            });
+        </script>
+    }
+}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // DOM Elements
@@ -595,7 +613,7 @@
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', () => {
                 categoryModal.classList.remove('hidden');
-                document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+               // document.getElementById('categoryModalTitle').textContent = 'Add New Category';
                 resetFormPreviews();
             });
         }

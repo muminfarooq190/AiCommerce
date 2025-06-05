@@ -63,7 +63,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	}
 
 	[HttpGet]
-	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 10)
+	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 30)
 	{
 		var model = await getCategoriesData(pageNumber, pageSize);
 		return View(model);
@@ -75,7 +75,14 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	{
 		if (!ModelState.IsValid)
 		{
-			ViewBag.Errors = true;
+			ViewBag.StatusMessage = "error";
+			categoryModel = await getCategoriesData(1, 10);
+			return View(categoryModel);
+		}
+		if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
+		{
+			ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
+			ViewBag.StatusMessage = "error"; 
 			categoryModel = await getCategoriesData(1, 10);
 			return View(categoryModel);
 		}
@@ -93,7 +100,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			if (uploadResponse.ResultType != ResultType.Success)
 			{
 				categoryModel = await getCategoriesData(1, 10);
-				ViewBag.Errors = true;
+				ViewBag.StatusMessage = "error";
 				_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
 				return View(categoryModel);
 			}
@@ -121,25 +128,24 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		);
 
 		ModelState.AddApiResult(response);
-
 		if (response.ResultType != ResultType.Success)
 		{
-			categoryModel = await getCategoriesData(1, 10);	
-			ViewBag.Errors = true;
+			ViewBag.StatusMessage = "error";
+			categoryModel = await getCategoriesData(1, 10);
 			_logger.LogError("Category Added failed: {Errors}", response.Errors.ToString());
 			return View(categoryModel);
 		}
 		else
 		{
-			ViewBag.Errors = false;
-			return View(new CategoryViewModel());
+			ViewBag.StatusMessage = "success";
+			return RedirectToAction("Index");
 		}
-
 			
+				
 	}
 	[HttpGet]
-	[Route("Update/{id}")]
-	public async Task<ActionResult> Update(Guid id)
+	[Route("Index/{id}")]
+	public async Task<ActionResult> Index(Guid id)
 	{
 		var endpoint = Endpoints.Categories.GetById.Replace("{id:guid}", id.ToString());
 		var response = await apiClient.GetAsync<CategoryDto>(endpoint);
@@ -185,21 +191,29 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				}).ToList();
 		}
 
-		return View("index",model);
+		return View(model);
 	}
 
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	[Route("Update/{id}")]
-	public async Task<ActionResult> Update(Guid id, CategoryPageViewModel categoryModel)
+	[Route("Index/{id}")]
+	public async Task<ActionResult> Index(Guid id, CategoryPageViewModel categoryModel)
 	{
 		try
 		{
 			if (!ModelState.IsValid)
 			{
-				return View("Index", categoryModel);
+				categoryModel = await getCategoriesData(1, 30);
+				ViewBag.Errors = true;
+				return View( categoryModel);
 			}
-
+			if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
+			{
+				ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
+				ViewBag.Errors = true;
+				categoryModel = await getCategoriesData(1, 30);
+				return View(categoryModel);
+			}
 			Guid? featuredImageId = categoryModel.Category.FeaturedImageId;
 
 			if (categoryModel.Category?.ImageFile != null && categoryModel.Category.ImageFile.Length > 0)
@@ -213,7 +227,9 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				if (uploadResponse.ResultType != ResultType.Success)
 				{
 					_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
-					return View("Index", categoryModel);
+					categoryModel = await getCategoriesData(1, 30);
+					ViewBag.Errors = true;
+					return View(categoryModel);
 				}
 
 				featuredImageId = uploadResponse.Data?.MediaFileId;
@@ -242,15 +258,19 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			if (response.ResultType != ResultType.Success)
 			{
 				_logger.LogError("Category Update failed: {Errors}", response.Errors?.ToString());
-				return View("Index", categoryModel);
+				categoryModel = await getCategoriesData(1, 30);
+				ViewBag.Errors = true;
+				return View(categoryModel);
 			}
-
-			return View("Index", new CategoryViewModel());
+			ViewBag.Errors = false;
+			return RedirectToAction("Index");
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, $"Error updating category ID: {id}");
-			return View("Index", categoryModel);
+			categoryModel = await getCategoriesData(1, 10);
+			ViewBag.Errors = true;
+			return View( categoryModel);
 		}
 	}
 

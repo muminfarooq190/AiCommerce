@@ -33,6 +33,5 @@ public class CategoryViewModel
 	public string MetaTitle { get; set; }
 	[Required]
 	public string MetaDescription { get; set; }
-	[Required]
 	public IFormFile? ImageFile { get; set; }
 }
