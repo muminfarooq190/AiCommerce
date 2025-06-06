@@ -18,7 +18,7 @@ namespace EcommerceWeb.Areas.Portal.Controllers;
 
 public class CategoryController(IApiClient apiClient, ILogger<CategoryController> _logger) : Controller
 {
-	private async Task<CategoryPageViewModel> getCategoriesData(int pageNumber = 1, int pageSize = 10)
+	private async Task<CategoryPageViewModel> getCategoriesData(int pageNumber = 1, int pageSize = 40)
 	{
 		var response = await apiClient.GetAsync<PagedCategoryResponse>(
 			Endpoints.Categories.GetAll + $"?pagenumber={pageNumber}&pagesize={pageSize}");
@@ -46,7 +46,12 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			FeaturedImageUri = a.FeaturedImageUri,
 			IconClass = a.IconClass ?? string.Empty,
 			MetaTitle = a.MetaTitle ?? string.Empty,
-			MetaDescription = a.MetaDescription ?? string.Empty
+			MetaDescription = a.MetaDescription ?? string.Empty,
+			ProductCount = a.ProductCount,
+			CreatedBy = a.CreatedBy,
+			CreatedAtUtc = a.CreatedAtUtc,
+			UpdatedBy = a.UpdatedBy,
+			UpdatedAtUtc = a.UpdatedAtUtc
 		}).ToList();
 
 		return new CategoryPageViewModel
@@ -63,7 +68,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	}
 
 	[HttpGet]
-	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 30)
+	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 40)
 	{
 		var model = await getCategoriesData(pageNumber, pageSize);
 		return View(model);
@@ -286,8 +291,9 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		if (response.ResultType != ResultType.Success)
 		{
 			_logger.LogError("Failed to delete category", response.Errors?.ToString());
-			return RedirectToAction("Index", new CategoryViewModel());
+			return RedirectToAction("Index");
 		}
-		return RedirectToAction("Index",new CategoryViewModel());
+		TempData["StatusMessage"] = "deleted";
+		return RedirectToAction("Index");
 	}
 }

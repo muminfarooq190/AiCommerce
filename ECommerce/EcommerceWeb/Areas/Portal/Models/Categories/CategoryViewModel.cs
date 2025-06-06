@@ -34,4 +34,9 @@ public class CategoryViewModel
 	[Required]
 	public string MetaDescription { get; set; }
 	public IFormFile? ImageFile { get; set; }
+	public int? ProductCount { get; set; }
+	public Guid CreatedBy { get; set; }
+	public DateTime CreatedAtUtc { get; set; }
+	public Guid? UpdatedBy { get; set; }
+	public DateTime? UpdatedAtUtc { get; set; }
 }

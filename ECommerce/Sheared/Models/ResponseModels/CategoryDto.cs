@@ -17,7 +17,12 @@ namespace Sheared.Models.ResponseModels
 		 string IconClass,
          string ColorTheme,
          string MetaTitle,
-	     string MetaDescription
+	     string MetaDescription,
+         int ProductCount,
+         Guid CreatedBy ,
+         DateTime CreatedAtUtc ,
+	     Guid? UpdatedBy,
+	     DateTime? UpdatedAtUtc
 	);
 
 }

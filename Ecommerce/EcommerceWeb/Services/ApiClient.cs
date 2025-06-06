@@ -1,4 +1,5 @@
-﻿using EcommerceWeb.Services.Contarcts;
+﻿using Azure;
+using EcommerceWeb.Services.Contarcts;
 using EcommerceWeb.Utilities.ApiResult;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -52,6 +53,10 @@ public class ApiClient : IApiClient
 	public async Task<ApiResult<T>> DeleteAsync<T>(string endpoint)
 	{
 		var response = await _httpClient.DeleteAsync(endpoint);
+		if (response.StatusCode == HttpStatusCode.NoContent)
+		{
+			return ApiResult<T>.Success(default, response.StatusCode);
+		}
 		return await HandleResponse<T>(response);
 	}
 

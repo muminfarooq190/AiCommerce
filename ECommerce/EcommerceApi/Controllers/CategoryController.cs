@@ -33,7 +33,10 @@ public sealed class CategoryController(
         c.CategoryId, c.ParentId, c.Name, c.Description,
         c.Slug, c.Status, c.IsFeatured, c.DisplayOrder,
         c.TenantId, c.FeaturedImageId,
-        c.FeaturedImage?.Uri,c.IconClass,c.ColorTheme, c.MetaTitle,c.MetaDescription);
+        c.FeaturedImage?.Uri,c.IconClass,c.ColorTheme,
+        c.MetaTitle,c.MetaDescription, c.ProductCategories?.Count ?? 0,
+		c.CreatedBy,c.CreatedAtUtc,c.UpdatedBy,c.UpdatedAtUtc
+		);
 
 
     /* ──────────────── READ ──────────────── */
