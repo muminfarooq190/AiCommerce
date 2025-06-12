@@ -629,7 +629,7 @@
                 if (showSwal) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Updated!',
+                        title: 'Deleted!',
                         text: 'Category Deleted successfully.',
                         confirmButtonText: 'OK'
                     }).then(() => {
@@ -689,8 +689,8 @@
         if (closeCategoryModal) {
             closeCategoryModal.addEventListener('click', () => {
                 categoryModal.classList.add('hidden');
-                
-                
+                history.replaceState('', null, '/portal/Category');
+                location.reload();
             });
         }
 

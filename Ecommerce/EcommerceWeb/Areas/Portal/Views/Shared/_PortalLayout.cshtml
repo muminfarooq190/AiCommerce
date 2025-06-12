@@ -265,16 +265,21 @@
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         }
 
-        function setActiveMenuItem() {
-            const currentPath = window.location.pathname;
+        function setActiveMenuItem() {            
+            const currentPath = window.location.pathname.toLowerCase();
             const links = document.querySelectorAll('.sidebar-link');
 
             links.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
+                const linkPath = new URL(link.href).pathname.toLowerCase();
+               
+                if (linkPath === '/portal') {
+                    link.classList.toggle('active', currentPath === '/portal');
+                }
+                else {
+                    link.classList.toggle('active', currentPath.startsWith(linkPath));
                 }
             });
+
         }
 
         initSidebar();

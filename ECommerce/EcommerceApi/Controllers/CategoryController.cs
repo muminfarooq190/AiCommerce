@@ -64,10 +64,11 @@ public sealed class CategoryController(
 
         var query = _db.Categories
                        .Include(c => c.FeaturedImage)
-                       .Include(c => c.ProductCategories)  
-                       .OrderBy(c => c.DisplayOrder)
+                       .Include(c => c.ProductCategories)
+					   .OrderBy(c => c.CreatedAtUtc)
+					   .ThenBy(c => c.DisplayOrder)
                        .ThenBy(c => c.Name)
-                       .AsNoTracking();
+                       .AsNoTracking();                       ;
 
      
         var totalCategories = await query.CountAsync(ct);
@@ -177,7 +178,7 @@ public sealed class CategoryController(
             MetaDescription = req.MetaDescription,
             FeaturedImageId = req.FeaturedImageId,
             CreatedBy = userProvider.UserId,
-            UpdatedBy = userProvider.UserId
+            UpdatedBy = userProvider.UserId           
         };
 
         _db.Categories.Add(cat);
