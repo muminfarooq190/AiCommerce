@@ -18,10 +18,8 @@ namespace Sheared.Models.ResponseModels
          string ColorTheme,
          string MetaTitle,
 	     string MetaDescription,
-         int ProductCount,
-         Guid CreatedBy ,
-         DateTime CreatedAtUtc ,
-	     Guid? UpdatedBy,
+         int ProductCount,       
+         DateTime CreatedAtUtc,	    
 	     DateTime? UpdatedAtUtc
 	);
 

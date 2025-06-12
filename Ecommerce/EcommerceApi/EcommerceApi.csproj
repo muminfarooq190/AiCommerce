@@ -33,4 +33,8 @@
     <ProjectReference Include="..\Sheared\Sheared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\" />
+  </ItemGroup>
+
 </Project>

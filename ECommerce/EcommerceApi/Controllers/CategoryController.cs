@@ -35,7 +35,7 @@ public sealed class CategoryController(
         c.TenantId, c.FeaturedImageId,
         c.FeaturedImage?.Uri,c.IconClass,c.ColorTheme,
         c.MetaTitle,c.MetaDescription, c.ProductCategories?.Count ?? 0,
-		c.CreatedBy,c.CreatedAtUtc,c.UpdatedBy,c.UpdatedAtUtc
+	    c.CreatedAtUtc,c.UpdatedAtUtc
 		);
 
 

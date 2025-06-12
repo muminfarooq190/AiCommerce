@@ -48,9 +48,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			MetaTitle = a.MetaTitle ?? string.Empty,
 			MetaDescription = a.MetaDescription ?? string.Empty,
 			ProductCount = a.ProductCount,
-			CreatedBy = a.CreatedBy,
 			CreatedAtUtc = a.CreatedAtUtc,
-			UpdatedBy = a.UpdatedBy,
 			UpdatedAtUtc = a.UpdatedAtUtc
 		}).ToList();
 
@@ -80,14 +78,14 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	{
 		if (!ModelState.IsValid)
 		{
-			TempData["StatusMessage"] = "error";
+			TempData["StatusMessage"] = "0";
 			categoryModel = await getCategoriesData(1, 10);
 			return View(categoryModel);
 		}
 		if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
 		{
 			ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
-			TempData["StatusMessage"] = "error"; 
+			TempData["StatusMessage"] = "0"; 
 			categoryModel = await getCategoriesData(1, 10);
 			return View(categoryModel);
 		}
@@ -105,7 +103,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			if (uploadResponse.ResultType != ResultType.Success)
 			{
 				categoryModel = await getCategoriesData(1, 10);
-				TempData["StatusMessage"] = "error";
+				TempData["StatusMessage"] = "0";
 				_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
 				return View(categoryModel);
 			}
@@ -135,7 +133,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		ModelState.AddApiResult(response);
 		if (response.ResultType != ResultType.Success)
 		{
-			TempData["StatusMessage"] = "error";
+			TempData["StatusMessage"] = "0";
 			categoryModel = await getCategoriesData(1, 10);
 			_logger.LogError("Category Added failed: {Errors}", response.Errors.ToString());
 			return View(categoryModel);
@@ -209,13 +207,13 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			if (!ModelState.IsValid)
 			{
 				categoryModel = await getCategoriesData(1, 30);
-				TempData["StatusMessage"] = "error";
+				TempData["StatusMessage"] = "1";
 				return View( categoryModel);
 			}
 			if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
 			{
 				ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
-				TempData["StatusMessage"] = "error";
+				TempData["StatusMessage"] = "1";
 				categoryModel = await getCategoriesData(1, 30);
 				return View(categoryModel);
 			}
@@ -233,7 +231,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				{
 					_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
 					categoryModel = await getCategoriesData(1, 30);
-					TempData["StatusMessage"] = "error";
+					TempData["StatusMessage"] = "1";
 					return View(categoryModel);
 				}
 
@@ -264,7 +262,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			{
 				_logger.LogError("Category Update failed: {Errors}", response.Errors?.ToString());
 				categoryModel = await getCategoriesData(1, 30);
-				TempData["StatusMessage"] = "error";
+				TempData["StatusMessage"] = "1";
 				return View(categoryModel);
 			}
 			TempData["StatusMessage"] = "updated";
