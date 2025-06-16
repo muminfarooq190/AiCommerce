@@ -47,7 +47,10 @@ public sealed class CategoryController(
     public async Task<ActionResult> GetAllCategories(
      int pageNumber = 1,
      int pageSize = 10,
-     CancellationToken ct = default)
+	 string filter = "all",
+	 string search = null,
+	 string sort = "asc",
+	 CancellationToken ct = default)
     {
         if (pageNumber <= 0 || pageSize <= 0)
         {
@@ -70,8 +73,25 @@ public sealed class CategoryController(
                        .ThenBy(c => c.Name)
                        .AsNoTracking();                       ;
 
-     
-        var totalCategories = await query.CountAsync(ct);
+		if (!string.IsNullOrEmpty(search))
+			query = query.Where(c => c.Name.Contains(search));
+		if (sort == "desc")
+			query = query.OrderByDescending(c => c.Name);
+		else
+			query = query.OrderBy(c => c.Name);
+		switch (filter)
+		{
+			case "top":
+				query = query.Where(c => c.ParentId == null);
+				break;
+			case "sub":
+				query = query.Where(c => c.ParentId != null);
+				break;
+			case "featured":
+				query = query.Where(c => c.IsFeatured);
+				break;
+		}
+		var totalCategories = await query.CountAsync(ct);
         var activeCategories = await query.CountAsync(c => c.Status == CategoryStatus.Active, ct);
         var featuredCategories = await query.CountAsync(c => c.IsFeatured, ct);
 

@@ -18,10 +18,15 @@ namespace EcommerceWeb.Areas.Portal.Controllers;
 
 public class CategoryController(IApiClient apiClient, ILogger<CategoryController> _logger) : Controller
 {
-	private async Task<CategoryPageViewModel> getCategoriesData(int pageNumber = 1, int pageSize = 40)
+	private async Task<CategoryPageViewModel> getCategoriesData(int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
-		var response = await apiClient.GetAsync<PagedCategoryResponse>(
-			Endpoints.Categories.GetAll + $"?pagenumber={pageNumber}&pagesize={pageSize}");
+		var url = Endpoints.Categories.GetAll + $"?pagenumber={pageNumber}&pagesize={pageSize}";
+		if (!string.IsNullOrEmpty(filter) && filter != "all")
+			url += $"&filter={filter}";
+		if (!string.IsNullOrEmpty(search))
+			url += $"&search={Uri.EscapeDataString(search)}";
+		url += $"&sort={sort}";
+		var response = await apiClient.GetAsync<PagedCategoryResponse>(url);
 
 		ModelState.AddApiResult(response);
 
@@ -67,15 +72,18 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	}
 
 	[HttpGet]
-	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 40)
+	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 5, string filter = "all",	string search = null, string sort = "asc")
 	{
-		var model = await getCategoriesData(pageNumber, pageSize);
+		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort );
+		model.Filter = filter;
+		model.SearchTerm = search;
+		model.Sort = sort;
 		return View(model);
 	}
-
+	
 	[HttpPost]
 	[ValidateAntiForgeryToken]
-	public async Task<ActionResult> Index(CategoryPageViewModel categoryModel)
+	public async Task<ActionResult> Index(CategoryPageViewModel categoryModel, int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
 		if (!ModelState.IsValid)
 		{
@@ -86,8 +94,8 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
 		{
 			ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
-			TempData["StatusMessage"] = "0"; 
-			categoryModel = await getCategoriesData(1, 10);
+			TempData["StatusMessage"] = "0";
+			categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			return View(categoryModel);
 		}
 		Guid? featuredImageId = null;
@@ -139,21 +147,21 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			ViewData["ServerError"] = $"{response.Details  ?? response.Title ?? "Something went wrong"}";
 
 			TempData["StatusMessage"] = "0";
-			categoryModel = await getCategoriesData(1, 10);
+			categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			_logger.LogError("Category Added failed: {Errors}", response.Errors.ToString());
 			return View(categoryModel);
 		}
 		else
 		{
 			TempData["StatusMessage"] = "created";
-			return RedirectToAction("Index");
+			return RedirectToAction("Index", new { pageNumber, pageSize, filter, search, sort });
 		}
-			
-				
+
+
 	}
 	[HttpGet]
 	[Route("Index/{id}")]
-	public async Task<ActionResult> Index(Guid id)
+	public async Task<ActionResult> Index(Guid id, int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
 		var endpoint = Endpoints.Categories.GetById.Replace("{id:guid}", id.ToString());
 		var response = await apiClient.GetAsync<CategoryDto>(endpoint);
@@ -162,7 +170,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		{
 			ViewData["ServerError"] = $"{response.Title ?? response.Details ?? "Something went wrong"}";
 			_logger.LogError("Failed to load category: {Errors}", response.Errors?.ToString());
-			CategoryPageViewModel categoryModel = await getCategoriesData(1, 10);
+			CategoryPageViewModel categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			return View(categoryModel);
 		}
 
@@ -184,21 +192,24 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				IconClass = response.Data.IconClass,
 				ColorTheme = response.Data.ColorTheme,
 				MetaTitle = response.Data.MetaTitle,
-				MetaDescription = response.Data.MetaDescription
+				MetaDescription = response.Data.MetaDescription,
+				CreatedAtUtc = response.Data.CreatedAtUtc,
+				UpdatedAtUtc = response.Data.UpdatedAtUtc
 			}
 		};
-
 		var categoriesResponse = await apiClient.GetAsync<PagedCategoryResponse>(
-			Endpoints.Categories.GetAll + $"?pagenumber=1 &pagesize=10");
+			Endpoints.Categories.GetAll + $"?pagenumber=1&pagesize=5&filter=all&search=null&sort=asc");		
 
 		if (categoriesResponse.ResultType == ResultType.Success)
 		{
 			model.Categories = categoriesResponse.Data.Categories
-				.Select(c => new CategoryViewModel
-				{
-					categoryId = c.CategoryId,
-					name = c.Name
-				}).ToList();
+			.Select(c => new CategoryViewModel
+			{
+				categoryId = c.CategoryId,
+				parentId = c.ParentId,
+				name = c.Name,
+			
+			}).ToList();
 		}
 
 		return View(model);
@@ -207,13 +218,13 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[Route("Index/{id}")]
-	public async Task<ActionResult> Index(Guid id, CategoryPageViewModel categoryModel)
+	public async Task<ActionResult> Index(Guid id, CategoryPageViewModel categoryModel, int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
 		try
 		{
 			if (!ModelState.IsValid)
 			{
-				categoryModel = await getCategoriesData(1, 30);
+				categoryModel = await getCategoriesData(1, 5);
 				TempData["StatusMessage"] = "1";
 				return View( categoryModel);
 			}
@@ -221,7 +232,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			{
 				ModelState.AddModelError("Category.ImageFile", "Featured image is required.");
 				TempData["StatusMessage"] = "1";
-				categoryModel = await getCategoriesData(1, 30);
+				categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 				return View(categoryModel);
 			}
 			Guid? featuredImageId = categoryModel.Category.FeaturedImageId;
@@ -238,7 +249,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				{
 					ViewData["ServerError"] = $"{uploadResponse.Details ?? uploadResponse.Title ??  "Something went wrong"}";
 					_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
-					categoryModel = await getCategoriesData(1, 30);
+					categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 					TempData["StatusMessage"] = "1";
 					return View(categoryModel);
 				}
@@ -271,17 +282,17 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			{
 				ViewData["ServerError"] = $"{response.Details ?? response.Title ?? "Something went wrong"}";
 				_logger.LogError("Category Update failed: {Errors}", response.Errors?.ToString());
-				categoryModel = await getCategoriesData(1, 30);
+				categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 				TempData["StatusMessage"] = "1";
 				return View(categoryModel);
 			}
 			TempData["StatusMessage"] = "updated";
-			return RedirectToAction("Index");
+			return RedirectToAction("Index", new { pageNumber, pageSize, filter, search, sort });
 		}
 		catch (Exception ex)
 		{
 			_logger.LogError(ex, $"Error updating category ID: {id}");
-			categoryModel = await getCategoriesData(1, 10);
+			categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			TempData["StatusMessage"] = "error";
 			return View( categoryModel);
 		}
@@ -290,19 +301,38 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	[Route("Delete/{id}")]
-	public async Task<ActionResult> Delete(Guid id)
+	public async Task<ActionResult> Delete(Guid id, int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
 		var endpoint = Endpoints.Categories.Update.Replace("{id:guid}", id.ToString());
 		var response = await apiClient.DeleteAsync<object>(endpoint);
 		ModelState.AddApiResult(response);		
 		if (response.ResultType != ResultType.Success)
 		{
-			CategoryPageViewModel categoryModel = await getCategoriesData(1, 10);
+			CategoryPageViewModel categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			ViewData["ServerError"] = $"{response.Title ?? response.Details ?? "Something went wrong"}"; 
 			_logger.LogError("Failed to delete category", response.Errors?.ToString());
 			return View("Index",categoryModel);
 		}
 		TempData["StatusMessage"] = "deleted";
-		return RedirectToAction("Index");
+		return RedirectToAction("Index", new { pageNumber, pageSize, filter, search, sort });
+	}
+	[HttpGet("Search")]
+	public async Task<IActionResult> Search(int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
+	{
+		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
+		return Json(new
+		{
+			categories = model.Categories.Select(c => new {
+				c.categoryId,
+				c.name,
+				c.parentId,
+				c.ProductCount,
+				c.status,
+				c.isFeatured,
+				c.CreatedAtUtc,
+				c.UpdatedAtUtc
+			}),
+			totalCount = model.TotalCount
+		});
 	}
 }

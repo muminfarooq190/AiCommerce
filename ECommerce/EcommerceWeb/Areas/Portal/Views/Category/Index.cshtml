@@ -109,10 +109,10 @@
                     <p class="text-gray-600">Organize your products with categories and subcategories</p>
                 </div>
                 <div class="flex space-x-3">
-                    <button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
+                    <!--<button class="bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 flex items-center">
                         <i class="fas fa-filter mr-2 text-gray-600"></i>
                         Filters
-                    </button>
+                    </button> -->
                     <button id="addCategoryBtn" class="gradient-bg text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center">
                         <i class="fas fa-plus mr-2"></i>
                         Add Category
@@ -169,27 +169,28 @@
             </div>
 
             <!-- Category View Options -->
-            <div class="bg-white rounded-lg shadow p-4">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div class="flex items-center space-x-2">
-                        <button class="px-3 py-1 bg-ai-blue text-white rounded-lg">All</button>
-                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Top Level</button>
-                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Subcategories</button>
-                        <button class="px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Featured</button>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="relative w-full md:w-64">
-                            <input type="text" placeholder="Search categories..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
-                            <div class="absolute left-3 top-2.5 text-gray-400">
-                                <i class="fas fa-search"></i>
-                            </div>
-                        </div>
-                        <button class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                            <i class="fas fa-sort-alpha-down"></i>
-                        </button>
-                    </div>
+            <form method="get" asp-area="Portal" asp-controller="Category" asp-action="Index" class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center space-x-2">
+                    <button type="submit" name="filter" value="all" class="px-3 py-1 rounded-lg @(Model.Filter == "all" ? "bg-ai-blue text-white" : "bg-white border border-gray-300 hover:bg-gray-50")">All</button>
+                    <button type="submit" name="filter" value="top" class="px-3 py-1 rounded-lg @(Model.Filter == "top" ? "bg-ai-blue text-white" : "bg-white border border-gray-300 hover:bg-gray-50")">Top Level</button>
+                    <button type="submit" name="filter" value="sub" class="px-3 py-1 rounded-lg @(Model.Filter == "sub" ? "bg-ai-blue text-white" : "bg-white border border-gray-300 hover:bg-gray-50")">Subcategories</button>
+                    <button type="submit" name="filter" value="featured" class="px-3 py-1 rounded-lg @(Model.Filter == "featured" ? "bg-ai-blue text-white" : "bg-white border border-gray-300 hover:bg-gray-50")">Featured</button>
                 </div>
-            </div>
+                <input type="hidden" name="pageNumber" value="1" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <input type="hidden" name="sort" value="@Model.Sort" />
+                <div class="flex items-center space-x-3">
+                    <div class="relative w-full md:w-64">
+                        <input type="text" id="categorySearchInput" name="search" value="@Model.SearchTerm" placeholder="Search categories..." class="w-full border border-gray-300 rounded-lg py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-ai-blue focus:border-transparent">
+                        <div class="absolute left-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <button type="button" id="sortBtn" class="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <i id="sortIcon" class="fas @(Model.Sort == "asc" ? "fa-sort-alpha-down" : "fa-sort-alpha-up")"></i>
+                    </button>
+                </div>
+        </form>
 
             <!-- Category List View -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -397,17 +398,39 @@
             <!-- Pagination -->
             <div class="mt-8 flex justify-center">
                 <nav class="inline-flex rounded-md shadow-sm">
-                    <a href="#" class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                    @{
+                        var prevDisabled = Model.PageNumber <= 1 ? "pointer-events-none opacity-50" : "";
+                        var nextDisabled = Model.PageNumber >= Model.TotalPages ? "pointer-events-none opacity-50" : "";
+                    }
+                    <a asp-area="Portal" asp-controller="Category" asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-filter="@Model.Filter"
+                       asp-route-search="@Model.SearchTerm"
+                       asp-route-sort="@Model.Sort"
+                       class="px-3 py-1 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 @prevDisabled">
                         <i class="fas fa-chevron-left"></i>
                     </a>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-ai-blue font-medium">1</a>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">4</a>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">5</a>
-                    <span class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500">...</span>
-                    <a href="#" class="px-4 py-1 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">12</a>
-                    <a href="#" class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        var active = i == Model.PageNumber
+                        ? "bg-ai-blue text-white font-medium"
+                        : "bg-white text-gray-500 hover:bg-gray-50";
+                        <a asp-area="Portal" asp-controller="Category" asp-action="Index"
+                           asp-route-pageNumber="@i"
+                           asp-route-pageSize="@Model.PageSize"
+                           asp-route-filter="@Model.Filter"
+                           asp-route-search="@Model.SearchTerm"
+                           asp-route-sort="@Model.Sort"
+                           class="px-4 py-1 border-t border-b border-gray-300 @active">@i</a>
+                    }
+                    <a asp-area="Portal" asp-controller="Category" asp-action="Index"
+                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       asp-route-filter="@Model.Filter"
+                       asp-route-search="@Model.SearchTerm"
+                       asp-route-sort="@Model.Sort"
+                       class="px-3 py-1 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 @nextDisabled">
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </nav>
@@ -580,6 +603,11 @@
                         </div>
                         <div class="flex justify-end space-x-3 mt-6">
                             <a asp-area="Portal" asp-controller="Category" asp-action="Index"
+                               asp-route-pageNumber="@Model.PageNumber"
+                               asp-route-pageSize="@Model.PageSize"
+                               asp-route-filter="@Model.Filter"
+                               asp-route-search="@Model.SearchTerm"
+                               asp-route-sort="@Model.Sort"
                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                 Cancel
                             </a>
@@ -683,26 +711,122 @@
         const categoryIconPreview = document.getElementById('categoryIconPreview')?.querySelector('i');
         const categoryColor = document.getElementById('categoryColor');
         const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
-        // for delete
-         document.querySelectorAll(".delete-category-form").forEach(function (form) {
-            form.addEventListener("submit", function (e) {
-                e.preventDefault(); 
+        //for search and sort
+            const searchInput = document.getElementById('categorySearchInput');
+            const sortBtn = document.getElementById('sortBtn');
+            const sortIcon = document.getElementById('sortIcon');
+            const tableBody = document.querySelector('tbody');
+            let currentSort = '@(Model.Sort ?? "asc")';
+            let currentFilter = '@(Model.Filter ?? "all")';
+            let searchTimeout;
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to undo this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit(); 
-                    }
+            // Render table rows
+            function renderTable(categories) {
+                tableBody.innerHTML = '';
+                if (!categories.length) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">No categories found.</td></tr>`;
+                    return;
+                }
+                categories.forEach(category => {
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">${category.name ?? "No Name"}</div>
+                                        <div class="text-sm text-gray-500">
+                                            ${(category.parentId == null || category.parentId === "00000000-0000-0000-0000-000000000000") ? "Main Category" : "Subcategory"}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${category.ProductCount ?? 0}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}">
+                                    ${category.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.isFeatured ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800"}">
+                                    ${category.isFeatured ? "Yes" : "No"}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${category.CreatedAtUtc ? new Date(category.CreatedAtUtc).toLocaleString() : ""}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${category.UpdatedAtUtc ? new Date(category.UpdatedAtUtc).toLocaleDateString() : "N/A"}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="/portal/Category/Index/${category.categoryId}" class="text-ai-blue hover:text-ai-dark mr-3">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form class="delete-category-form" action="/portal/Category/Delete/${category.categoryId}" method="post" style="display:inline;">
+                                    <input name="__RequestVerificationToken" type="hidden" value="${document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''}" />
+                                    <button type="submit" class="text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    `;
                 });
+                attachDeleteConfirmation();
+            }
+
+            // Fetch categories with current search/sort/filter
+            function fetchCategories() {
+                const search = searchInput.value;
+                fetch(`/portal/Category/Search?search=${encodeURIComponent(search)}&filter=${encodeURIComponent(currentFilter)}&sort=${encodeURIComponent(currentSort)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        renderTable(data.categories);
+                    });
+            }
+
+            // Live search
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(fetchCategories, 300);
             });
-        });
+
+            // Sort toggle
+            sortBtn.addEventListener('click', function () {
+                currentSort = currentSort === 'asc' ? 'desc' : 'asc';
+                // Change icon
+                sortIcon.classList.toggle('fa-sort-alpha-down', currentSort === 'asc');
+                sortIcon.classList.toggle('fa-sort-alpha-up', currentSort === 'desc');
+                fetchCategories();
+            });
+
+            // Initial load
+            fetchCategories();
+        // for delete
+             function attachDeleteConfirmation() {
+                document.querySelectorAll(".delete-category-form").forEach(function (form) {
+                    form.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to undo this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                });
+            }
         // Open modal when "Add Category" is clicked
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', () => {
@@ -716,8 +840,8 @@
         if (closeCategoryModal) {
             closeCategoryModal.addEventListener('click', () => {
                 categoryModal.classList.add('hidden');
-                history.replaceState('', null, '/portal/Category');
-                location.reload();
+                const params = new URLSearchParams(window.location.search);
+                window.location.href = `/portal/Category?${params.toString()}`;
             });
         }
 
