@@ -9,11 +9,13 @@
     if (status == "0")
     {
         showModal = true;
+        isUpdate = false;
 
     }
     else if (status == "1")
     {
         showModal = false;
+        isUpdate = true;
     }
 
     if (Model.Category == null)
@@ -593,6 +595,7 @@
 </div>
 @{
     var StatusMessage = TempData["StatusMessage"] as string;
+    var ServerError = ViewData["ServerError"] as string;
 
     if (StatusMessage == "created")
     {
@@ -648,6 +651,20 @@
                         location.reload();
                     });
                 }
+            });
+        </script>
+    }
+    if (ServerError != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: '@ServerError',
+                    confirmButtonText: 'OK'
+                });
+                history.replaceState("", null, '/portal/Category');
             });
         </script>
     }
