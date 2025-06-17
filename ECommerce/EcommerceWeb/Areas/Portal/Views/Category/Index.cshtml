@@ -224,78 +224,7 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-
-                            @if (Model.Categories != null && Model.Categories.Any())
-                            {
-                                foreach (var category in Model.Categories)
-                                {                                    
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                                    <i class="fas fa-tag"></i>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">@(category?.name ?? "No Name")</div>
-                                                    <div class="text-sm text-gray-500">
-                                                        @(category?.parentId == null || category.parentId == Guid.Empty ? "Main Category" : "Subcategory")
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">@(category?.ProductCount ?? 0) </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category?.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
-                                                @(category?.status.ToString() ?? "N/A")
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category?.isFeatured == true ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800")">
-                                                @(category?.isFeatured == true ? "Yes" : "No")
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            @category?.CreatedAtUtc.ToString("g")
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            @(category?.UpdatedAtUtc?.ToString("dd/MM/yyyy") ?? "N/A")
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <!-- ... other columns ... -->
-                                        <td class="px-4 py-3 flex items-center justify-end">
-                                            <a asp-area="Portal"
-                                               asp-controller="Category"
-                                               asp-action="Index"
-                                               asp-route-id="@(category?.categoryId ?? Guid.Empty)"
-                                               class="text-ai-blue hover:text-ai-dark mr-3">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <form class="delete-category-form"
-                                                  asp-area="Portal"
-                                                  asp-controller="Category"
-                                                  asp-action="Delete"
-                                                  asp-route-id="@(category?.categoryId ?? Guid.Empty)"
-                                                  method="post">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="text-red-500 hover:text-red-700">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>                                            
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="6" class="text-center py-4 text-gray-500">No categories found.</td>
-                                </tr>
-                            }
-
-                        </tbody>
+                        @await Html.PartialAsync("_CategoryTable", Model)
                     </table>
                 </div>
             </div>
@@ -711,122 +640,90 @@
         const categoryIconPreview = document.getElementById('categoryIconPreview')?.querySelector('i');
         const categoryColor = document.getElementById('categoryColor');
         const cancelCategoryBtn = document.getElementById('cancelCategoryBtn');
-        //for search and sort
-            const searchInput = document.getElementById('categorySearchInput');
-            const sortBtn = document.getElementById('sortBtn');
-            const sortIcon = document.getElementById('sortIcon');
-            const tableBody = document.querySelector('tbody');
-            let currentSort = '@(Model.Sort ?? "asc")';
-            let currentFilter = '@(Model.Filter ?? "all")';
-            let searchTimeout;
+        //search and sort
+        const searchInput = document.getElementById('categorySearchInput');
+        const sortBtn = document.getElementById('sortBtn');
+        const sortIcon = document.getElementById('sortIcon');
+        const tableBody = document.getElementById('categoryTableBody');
+        let typingTimer;
+        let currentSort = '@Model.Sort' || 'asc';
+        let currentPage = @Model.PageNumber;
+        let currentFilter = '@Model.Filter' || 'all';
+        let pageSize = @Model.PageSize;
 
-            // Render table rows
-            function renderTable(categories) {
-                tableBody.innerHTML = '';
-                if (!categories.length) {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">No categories found.</td></tr>`;
-                    return;
-                }
-                categories.forEach(category => {
-                    tableBody.innerHTML += `
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                        <i class="fas fa-tag"></i>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">${category.name ?? "No Name"}</div>
-                                        <div class="text-sm text-gray-500">
-                                            ${(category.parentId == null || category.parentId === "00000000-0000-0000-0000-000000000000") ? "Main Category" : "Subcategory"}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">${category.ProductCount ?? 0}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}">
-                                    ${category.status}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.isFeatured ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800"}">
-                                    ${category.isFeatured ? "Yes" : "No"}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${category.CreatedAtUtc ? new Date(category.CreatedAtUtc).toLocaleString() : ""}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ${category.UpdatedAtUtc ? new Date(category.UpdatedAtUtc).toLocaleDateString() : "N/A"}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="/portal/Category/Index/${category.categoryId}" class="text-ai-blue hover:text-ai-dark mr-3">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form class="delete-category-form" action="/portal/Category/Delete/${category.categoryId}" method="post" style="display:inline;">
-                                    <input name="__RequestVerificationToken" type="hidden" value="${document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''}" />
-                                    <button type="submit" class="text-red-500 hover:text-red-700">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    `;
-                });
-                attachDeleteConfirmation();
-            }
-
-            // Fetch categories with current search/sort/filter
-            function fetchCategories() {
-                const search = searchInput.value;
-                fetch(`/portal/Category/Search?search=${encodeURIComponent(search)}&filter=${encodeURIComponent(currentFilter)}&sort=${encodeURIComponent(currentSort)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        renderTable(data.categories);
-                    });
-            }
-
-            // Live search
-            searchInput.addEventListener('input', function () {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(fetchCategories, 300);
-            });
-
-            // Sort toggle
-            sortBtn.addEventListener('click', function () {
-                currentSort = currentSort === 'asc' ? 'desc' : 'asc';
-                // Change icon
-                sortIcon.classList.toggle('fa-sort-alpha-down', currentSort === 'asc');
-                sortIcon.classList.toggle('fa-sort-alpha-up', currentSort === 'desc');
-                fetchCategories();
-            });
-
-            // Initial load
-            fetchCategories();
-        // for delete
-             function attachDeleteConfirmation() {
-                document.querySelectorAll(".delete-category-form").forEach(function (form) {
-                    form.addEventListener("submit", function (e) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: "You won't be able to undo this!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Yes, delete it!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                form.submit();
-                            }
+        function loadTable({ search = '', sort = 'asc', pageNumber = 1, filter = 'all', pageSize = 5 } = {}) {
+            fetch(`/portal/Category/TablePartial?pageNumber=${pageNumber}&pageSize=${pageSize}&filter=${filter}&search=${encodeURIComponent(search)}&sort=${sort}`)
+                .then(res => res.text())
+                .then(html => {
+                    tableBody.innerHTML = html;
+                    // Re-attach delete confirmation if needed
+                    document.querySelectorAll(".delete-category-form").forEach(function (form) {
+                        form.addEventListener("submit", function (e) {
+                            e.preventDefault();
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "You won't be able to undo this!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#d33',
+                                cancelButtonColor: '#3085d6',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
                         });
                     });
                 });
-            }
+        }
+
+        // Live search on input
+        searchInput.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function () {
+                loadTable({
+                    search: searchInput.value,
+                    sort: currentSort,
+                    pageNumber: 1,
+                    filter: currentFilter,
+                    pageSize: pageSize
+                });
+            }, 300); // 300ms debounce
+        });
+
+        // Sort toggle
+        sortBtn.addEventListener('click', function () {
+            currentSort = currentSort === 'asc' ? 'desc' : 'asc';
+            sortIcon.className = 'fas ' + (currentSort === 'asc' ? 'fa-sort-alpha-down' : 'fa-sort-alpha-up');
+            loadTable({
+                search: searchInput.value,
+                sort: currentSort,
+                pageNumber: 1,
+                filter: currentFilter,
+                pageSize: pageSize
+            });
+        });
+
+        // for delete
+            document.querySelectorAll(".delete-category-form").forEach(function (form) {
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to undo this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         // Open modal when "Add Category" is clicked
         if (addCategoryBtn) {
             addCategoryBtn.addEventListener('click', () => {

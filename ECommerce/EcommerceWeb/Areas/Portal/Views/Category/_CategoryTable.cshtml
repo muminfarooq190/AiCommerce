@@ -1,0 +1,71 @@
+﻿@using EcommerceWeb.Areas.Portal.Models.Categories
+@model CategoryPageViewModel
+
+<tbody id="categoryTableBody">
+    @if (Model != null && Model.Categories.Any())
+    {
+        foreach (var category in Model.Categories)
+        {
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">@category.name</div>
+                            <div class="text-sm text-gray-500">
+                                @(category.parentId == null || category.parentId == Guid.Empty ? "Main Category" : "Subcategory")
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">@category.ProductCount</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.status == 0 ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800")">
+                        @category.status
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full @(category.isFeatured ? "bg-purple-100 text-purple-800" : "bg-gray-100 text-gray-800")">
+                        @(category.isFeatured ? "Yes" : "No")
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    @category.CreatedAtUtc.ToString("g")
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    @(category.UpdatedAtUtc?.ToString("dd/MM/yyyy") ?? "N/A")
+                </td>
+                <td class="px-6 py-4 flex items-center justify-end">
+                    <a asp-area="Portal"
+                       asp-controller="Category"
+                       asp-action="Index"
+                       asp-route-id="@category.categoryId"
+                       class="text-ai-blue hover:text-ai-dark mr-3">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form class="delete-category-form"
+                          asp-area="Portal"
+                          asp-controller="Category"
+                          asp-action="Delete"
+                          asp-route-id="@category.categoryId"
+                          method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="7" class="text-center py-4 text-gray-500">No categories found.</td>
+        </tr>
+    }
+</tbody>

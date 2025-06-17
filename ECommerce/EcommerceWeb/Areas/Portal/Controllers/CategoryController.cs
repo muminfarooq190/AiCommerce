@@ -197,8 +197,13 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				UpdatedAtUtc = response.Data.UpdatedAtUtc
 			}
 		};
-		var categoriesResponse = await apiClient.GetAsync<PagedCategoryResponse>(
-			Endpoints.Categories.GetAll + $"?pagenumber=1&pagesize=5&filter=all&search=null&sort=asc");		
+		var url = Endpoints.Categories.GetAll + $"?pagenumber={pageNumber}&pagesize={pageSize}";
+		if (!string.IsNullOrEmpty(filter) && filter != "all")
+			url += $"&filter={filter}";
+		if (!string.IsNullOrEmpty(search))
+			url += $"&search={Uri.EscapeDataString(search)}";
+		url += $"&sort={sort}";
+		var categoriesResponse = await apiClient.GetAsync<PagedCategoryResponse>(url);
 
 		if (categoriesResponse.ResultType == ResultType.Success)
 		{
@@ -334,5 +339,12 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			}),
 			totalCount = model.TotalCount
 		});
+	}
+
+	[HttpGet("TablePartial")]
+	public async Task<IActionResult> TablePartial(int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
+	{
+		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
+		return PartialView("_CategoryTable", model);
 	}
 }
