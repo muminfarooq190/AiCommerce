@@ -2,6 +2,7 @@
 using EcommerceApi.Middlewares;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using EcommerceApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddDependencies(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.Configure<PublicUrlOptions>(builder.Configuration);
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -63,6 +65,6 @@ app.UseAuthorization();
 
 app.UseHttpsRedirection();
 app.UseMiddleware<GlobalExceptionMiddleware>();
-
+app.UseStaticFiles();
 app.MapControllers();
 app.Run();

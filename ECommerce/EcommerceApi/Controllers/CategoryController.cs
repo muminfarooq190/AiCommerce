@@ -6,6 +6,7 @@ using EcommerceApi.Models;
 using EcommerceApi.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Ocsp;
 using Sheared;
 using Sheared.Models.RequestModels;
@@ -18,30 +19,61 @@ namespace EcommerceApi.Controllers;
 public sealed class CategoryController(
         AppDbContext db,
         IUserProvider userProvider,
-        IWebHostEnvironment env) : ControllerBase
+        IWebHostEnvironment env,
+		IOptions<PublicUrlOptions> publicUrlOptions) : ControllerBase
 {
     private readonly AppDbContext _db = db;
     private readonly IWebHostEnvironment _env = env;
+	private readonly string _publicBaseUrl = publicUrlOptions.Value.PublicBaseUrl;
 
-    private const string UploadDir = "uploads";
+
+	private const string UploadDir = "uploads";
 
     private static string Slugify(string name) =>
         Regex.Replace(name.Trim().ToLowerInvariant(), @"[^a-z0-9]+", "-").Trim('-');
 
 
-    private static CategoryDto ToDto(Category c) => new(
-        c.CategoryId, c.ParentId, c.Name, c.Description,
-        c.Slug, c.Status, c.IsFeatured, c.DisplayOrder,
-        c.TenantId, c.FeaturedImageId,
-        c.FeaturedImage?.Uri,c.IconClass,c.ColorTheme,
-        c.MetaTitle,c.MetaDescription, c.ProductCategories?.Count ?? 0,
-	    c.CreatedAtUtc,c.UpdatedAtUtc
+	//  private static CategoryDto ToDto(Category c) => new(
+	//      c.CategoryId, c.ParentId, c.Name, c.Description,
+	//      c.Slug, c.Status, c.IsFeatured, c.DisplayOrder,
+	//      c.TenantId, c.FeaturedImageId,
+	//      c.FeaturedImage?.Uri,c.IconClass,c.ColorTheme,
+	//      c.MetaTitle,c.MetaDescription, c.ProductCategories?.Count ?? 0,
+	//   c.CreatedAtUtc,c.UpdatedAtUtc
+	//);
+	private static CategoryDto ToDto(Category c, string? baseUrl = null)
+	{
+		string featuredImageUri = null;
+		if (c.FeaturedImage != null)
+		{
+			if (!string.IsNullOrEmpty(c.FeaturedImage.Uri) && c.FeaturedImage.Uri.StartsWith("http"))
+			{
+				featuredImageUri = c.FeaturedImage.Uri;
+			}
+			else if (!string.IsNullOrEmpty(baseUrl))
+			{
+				featuredImageUri = $"{baseUrl}{c.FeaturedImage.Uri}";
+			}
+			else
+			{
+				featuredImageUri = c.FeaturedImage.Uri;
+			}
+		}
+
+		return new CategoryDto(
+			c.CategoryId, c.ParentId, c.Name, c.Description,
+			c.Slug, c.Status, c.IsFeatured, c.DisplayOrder,
+			c.TenantId, c.FeaturedImageId,
+			featuredImageUri,
+			c.IconClass, c.ColorTheme,
+			c.MetaTitle, c.MetaDescription, c.ProductCategories?.Count ?? 0,
+			c.CreatedAtUtc, c.UpdatedAtUtc
 		);
+	}
 
+	/* ──────────────── READ ──────────────── */
 
-    /* ──────────────── READ ──────────────── */
-
-    [AppAuthorize(FeatureFactory.Category.CanGetCategory)]
+	[AppAuthorize(FeatureFactory.Category.CanGetCategory)]
     [HttpGet]
     [Route(Endpoints.Categories.GetAll)]
     public async Task<ActionResult> GetAllCategories(
@@ -99,9 +131,9 @@ public sealed class CategoryController(
                                             .Select(pc => pc.ProductId)
                                             .Distinct()
                                             .CountAsync(ct);
+		
 
-   
-        var pagedList = await query
+		var pagedList = await query
                              .Skip((pageNumber - 1) * pageSize)
                              .Take(pageSize)
                              .ToListAsync(ct);
@@ -109,7 +141,7 @@ public sealed class CategoryController(
     
         return Ok(new PagedCategoryResponse
         {
-            Categories = pagedList.Select(ToDto),
+            Categories = pagedList.Select(c => ToDto(c, _publicBaseUrl)),
             TotalCount = totalCategories,
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -130,8 +162,8 @@ public sealed class CategoryController(
                            .Include(c => c.FeaturedImage)
                            .AsNoTracking()
                            .FirstOrDefaultAsync(c => c.CategoryId == id, ct);
-      
-        if (cat is null)
+
+		if (cat is null)
         {
             ModelState.AddModelError(nameof(id), "category id not found");
             return this.ApplicationProblem(
@@ -143,7 +175,9 @@ public sealed class CategoryController(
                 instance: HttpContext.Request.Path
             );
         }
-        return Ok(ToDto(cat));
+		//var request = HttpContext.Request;
+		//var baseUrl = $"{request.Scheme}://{request.Host}";
+		return Ok(ToDto(cat, _publicBaseUrl));
     }
 
 

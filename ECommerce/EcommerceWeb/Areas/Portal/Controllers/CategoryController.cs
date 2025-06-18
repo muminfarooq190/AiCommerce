@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Sheared;
 using Sheared.Models.RequestModels;
 using Sheared.Models.ResponseModels;
-using System.Net.Http.Headers;
-using static Sheared.Endpoints;
 
 namespace EcommerceWeb.Areas.Portal.Controllers;
 
@@ -32,7 +30,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 
 		if (response.ResultType != ResultType.Success || response.Data == null)
 		{
-			ViewData["ServerError"] = $"{response.Details ?? response.Title ?? "Something went wrong"}"; 
+			ViewData["ServerError"] = $"{response.Details ?? response.Title ?? "Something went wrong"}";
 			return new CategoryPageViewModel();
 		}
 
@@ -72,15 +70,15 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	}
 
 	[HttpGet]
-	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 5, string filter = "all",	string search = null, string sort = "asc")
+	public async Task<ActionResult> Index(int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
 	{
-		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort );
+		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 		model.Filter = filter;
 		model.SearchTerm = search;
 		model.Sort = sort;
 		return View(model);
 	}
-	
+
 	[HttpPost]
 	[ValidateAntiForgeryToken]
 	public async Task<ActionResult> Index(CategoryPageViewModel categoryModel, int pageNumber = 1, int pageSize = 5, string filter = "all", string search = null, string sort = "asc")
@@ -99,7 +97,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			return View(categoryModel);
 		}
 		Guid? featuredImageId = null;
-		
+
 		string featuredImageUri = string.Empty;
 		if (categoryModel.Category?.ImageFile != null && categoryModel.Category.ImageFile.Length > 0)
 		{
@@ -108,10 +106,10 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				categoryModel.Category.ImageFile
 			);
 			ModelState.AddApiResult(uploadResponse);
-			
+
 			if (uploadResponse.ResultType != ResultType.Success)
 			{
-				ViewData["ServerError"] = $"{ uploadResponse.Details ?? uploadResponse.Title ??"Something went wrong"}"; 
+				ViewData["ServerError"] = $"{uploadResponse.Details ?? uploadResponse.Title ?? "Something went wrong"}";
 				categoryModel = await getCategoriesData(1, 10);
 				TempData["StatusMessage"] = "0";
 				_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
@@ -141,10 +139,10 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		);
 
 		ModelState.AddApiResult(response);
-		
+
 		if (response.ResultType != ResultType.Success)
 		{
-			ViewData["ServerError"] = $"{response.Details  ?? response.Title ?? "Something went wrong"}";
+			ViewData["ServerError"] = $"{response.Details ?? response.Title ?? "Something went wrong"}";
 
 			TempData["StatusMessage"] = "0";
 			categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
@@ -213,7 +211,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 				categoryId = c.CategoryId,
 				parentId = c.ParentId,
 				name = c.Name,
-			
+
 			}).ToList();
 		}
 
@@ -231,7 +229,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			{
 				categoryModel = await getCategoriesData(1, 5);
 				TempData["StatusMessage"] = "1";
-				return View( categoryModel);
+				return View(categoryModel);
 			}
 			if (categoryModel.Category.FeaturedImageId == null && (categoryModel.Category.ImageFile == null || categoryModel.Category.ImageFile.Length == 0))
 			{
@@ -249,10 +247,10 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 					categoryModel.Category.ImageFile
 				);
 				ModelState.AddApiResult(uploadResponse);
-				
+
 				if (uploadResponse.ResultType != ResultType.Success)
 				{
-					ViewData["ServerError"] = $"{uploadResponse.Details ?? uploadResponse.Title ??  "Something went wrong"}";
+					ViewData["ServerError"] = $"{uploadResponse.Details ?? uploadResponse.Title ?? "Something went wrong"}";
 					_logger.LogError("Image upload failed: {Errors}", uploadResponse.Errors?.ToString());
 					categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 					TempData["StatusMessage"] = "1";
@@ -264,9 +262,9 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 
 			UpdateCategoryRequest updateRequest = new UpdateCategoryRequest(
 					categoryModel.Category.tenantId,
-					categoryModel.Category.name,     
-					categoryModel.Category.slug,   
-					categoryModel.Category.parentId == Guid.Empty ? null : categoryModel.Category.parentId, 
+					categoryModel.Category.name,
+					categoryModel.Category.slug,
+					categoryModel.Category.parentId == Guid.Empty ? null : categoryModel.Category.parentId,
 					categoryModel.Category.description,
 					categoryModel.Category.IconClass,
 					categoryModel.Category.ColorTheme,
@@ -282,7 +280,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 
 			var response = await apiClient.PutAsync<UpdateCategoryRequest, CategoryDto>(endpoint, updateRequest);
 			ModelState.AddApiResult(response);
-			
+
 			if (response.ResultType != ResultType.Success)
 			{
 				ViewData["ServerError"] = $"{response.Details ?? response.Title ?? "Something went wrong"}";
@@ -299,7 +297,7 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 			_logger.LogError(ex, $"Error updating category ID: {id}");
 			categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 			TempData["StatusMessage"] = "error";
-			return View( categoryModel);
+			return View(categoryModel);
 		}
 	}
 
@@ -310,13 +308,13 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 	{
 		var endpoint = Endpoints.Categories.Update.Replace("{id:guid}", id.ToString());
 		var response = await apiClient.DeleteAsync<object>(endpoint);
-		ModelState.AddApiResult(response);		
+		ModelState.AddApiResult(response);
 		if (response.ResultType != ResultType.Success)
 		{
 			CategoryPageViewModel categoryModel = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
-			ViewData["ServerError"] = $"{response.Title ?? response.Details ?? "Something went wrong"}"; 
+			ViewData["ServerError"] = $"{response.Title ?? response.Details ?? "Something went wrong"}";
 			_logger.LogError("Failed to delete category", response.Errors?.ToString());
-			return View("Index",categoryModel);
+			return View("Index", categoryModel);
 		}
 		TempData["StatusMessage"] = "deleted";
 		return RedirectToAction("Index", new { pageNumber, pageSize, filter, search, sort });
@@ -327,7 +325,8 @@ public class CategoryController(IApiClient apiClient, ILogger<CategoryController
 		var model = await getCategoriesData(pageNumber, pageSize, filter, search, sort);
 		return Json(new
 		{
-			categories = model.Categories.Select(c => new {
+			categories = model.Categories.Select(c => new
+			{
 				c.categoryId,
 				c.name,
 				c.parentId,
